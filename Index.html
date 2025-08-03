@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gospel Music Radio</title>
+    <title>Rádio Gospel</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -122,14 +122,14 @@
 <body>
     <div class="loading-animation" id="loading">
         <div class="spinner"></div>
-        <div>Tuning into Gospel Frequency...</div>
+        <div>Sintonizando a Rádio Gospel...</div>
     </div>
 
     <div class="radio-container">
         <div class="radio-effect"></div>
-        <div class="station-name">GOSPEL MUSIC RADIO</div>
+        <div class="station-name">RÁDIO GOSPEL</div>
         <div class="radio-display">
-            <div id="now-playing">Searching for station...</div>
+            <div id="now-playing">Procurando músicas gospel...</div>
         </div>
         <div class="frequency-display">FM 107.7</div>
     </div>
@@ -137,7 +137,7 @@
     <div id="player"></div>
 
     <script>
-        // YouTube API setup
+        // Configuração da API do YouTube
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -145,20 +145,26 @@
 
         let player;
         let currentVideoIndex = 0;
-        let gospelPlaylist = []; // Will be populated with gospel music videos
+        let gospelPlaylist = [];
+        let playedVideos = [];
         
-        // Gospel music search terms
+        // Palavras-chave para músicas gospel
         const gospelKeywords = [
-            "gospel music",
-            "worship music",
-            "christian music",
-            "black gospel",
-            "hillsong worship",
-            "tasha cobbs",
-            "travis greene",
-            "marvin sapp",
-            "kirk franklin",
-            "cece winans"
+            "música gospel",
+            "louvor e adoração",
+            "música cristã",
+            "gospel brasileiro",
+            "hinos evangélicos",
+            "adoração",
+            "fernandinho",
+            "aline barros",
+            "anderson freire",
+            "davi sapper",
+            "ludmila ferber",
+            "diante do trono",
+            "israel e rodolffo",
+            "casa worship",
+            "gabriela rocha"
         ];
 
         function onYouTubeIframeAPIReady() {
@@ -181,86 +187,114 @@
         }
 
         function onPlayerReady(event) {
-            // Search for gospel music when player is ready
-            searchGospelMusic();
+            // Carrega músicas gospel quando o player estiver pronto
+            carregarMusicasGospel();
             
-            // Setup service worker for notifications
-            setupServiceWorker();
+            // Configura o service worker para notificações
+            configurarServiceWorker();
         }
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.ENDED) {
-                playNextVideo();
+                tocarProximaMusica();
             }
             
-            // Update notification when song changes
+            // Atualiza notificação quando a música muda
             if (event.data === YT.PlayerState.PLAYING) {
-                updateMediaSession();
+                atualizarMediaSession();
             }
         }
 
-        function searchGospelMusic() {
-            const randomKeyword = gospelKeywords[Math.floor(Math.random() * gospelKeywords.length)];
-            const request = gapi.client.youtube.search.list({
+        function carregarMusicasGospel() {
+            const keywordAleatoria = gospelKeywords[Math.floor(Math.random() * gospelKeywords.length)];
+            
+            // Limita a 50 resultados e ordena por visualizações
+            gapi.client.youtube.search.list({
                 part: 'snippet',
-                q: randomKeyword,
+                q: keywordAleatoria,
                 type: 'video',
-                videoCategoryId: '10', // Music category
+                videoCategoryId: '10', // Categoria de música
                 maxResults: 50,
                 order: 'viewCount'
-            });
-            
-            request.execute(function(response) {
-                const videos = response.items;
-                gospelPlaylist = videos.map(video => video.id.videoId);
+            }).then(function(response) {
+                const videos = response.result.items;
                 
-                if (gospelPlaylist.length > 0) {
-                    playNextVideo();
+                // Filtra apenas vídeos que ainda não foram tocados
+                const novosVideos = videos.filter(video => !playedVideos.includes(video.id.videoId));
+                
+                if (novosVideos.length > 0) {
+                    gospelPlaylist = novosVideos.map(video => video.id.videoId);
                     
-                    // Hide loading animation after 2 seconds
+                    // Embaralha a playlist para ser aleatória
+                    gospelPlaylist = embaralharArray(gospelPlaylist);
+                    
+                    // Toca a primeira música
+                    tocarProximaMusica();
+                    
+                    // Esconde a animação de carregamento
                     setTimeout(() => {
                         document.getElementById('loading').style.display = 'none';
                     }, 2000);
+                } else {
+                    // Se todas as músicas já foram tocadas, reseta a lista
+                    playedVideos = [];
+                    carregarMusicasGospel();
                 }
+            }).catch(function(error) {
+                console.error("Erro ao carregar músicas:", error);
+                document.getElementById('now-playing').textContent = "Erro ao carregar músicas. Tentando novamente...";
+                setTimeout(carregarMusicasGospel, 5000);
             });
         }
 
-        function playNextVideo() {
-            if (gospelPlaylist.length === 0) return;
+        function embaralharArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function tocarProximaMusica() {
+            if (gospelPlaylist.length === 0) {
+                carregarMusicasGospel();
+                return;
+            }
             
             currentVideoIndex = (currentVideoIndex + 1) % gospelPlaylist.length;
             const videoId = gospelPlaylist[currentVideoIndex];
             player.loadVideoById(videoId);
+            playedVideos.push(videoId);
             
-            // Get video details for display
-            getVideoDetails(videoId);
+            // Busca detalhes do vídeo para exibir
+            buscarDetalhesVideo(videoId);
         }
 
-        function getVideoDetails(videoId) {
-            const request = gapi.client.youtube.videos.list({
+        function buscarDetalhesVideo(videoId) {
+            gapi.client.youtube.videos.list({
                 part: 'snippet',
                 id: videoId
-            });
-            
-            request.execute(function(response) {
-                const video = response.items[0];
+            }).then(function(response) {
+                const video = response.result.items[0];
                 if (video) {
-                    const title = video.snippet.title;
-                    const channel = video.snippet.channelTitle;
+                    const titulo = video.snippet.title;
+                    const canal = video.snippet.channelTitle;
                     
                     document.getElementById('now-playing').innerHTML = `
-                        NOW PLAYING:<br>
-                        <span class="song-title">${title}</span><br>
-                        <span class="artist">${channel}</span>
+                        TOCANDO AGORA:<br>
+                        <span class="song-title">${titulo}</span><br>
+                        <span class="artist">${canal}</span>
                     `;
                     
-                    // Add radio static effect briefly
-                    addStaticEffect();
+                    // Efeito de estática de rádio
+                    efeitoEstatica();
                 }
+            }).catch(function(error) {
+                console.error("Erro ao buscar detalhes:", error);
             });
         }
 
-        function addStaticEffect() {
+        function efeitoEstatica() {
             const display = document.querySelector('.radio-display');
             display.style.color = 'transparent';
             display.style.textShadow = '0 0 8px white';
@@ -271,16 +305,19 @@
             }, 300);
         }
 
-        function setupServiceWorker() {
+        function configurarServiceWorker() {
             if ('serviceWorker' in navigator && 'Notification' in window) {
                 navigator.serviceWorker.register('sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful');
+                    console.log('ServiceWorker registrado com sucesso');
+                    
+                    // Solicita permissão para notificações
+                    Notification.requestPermission();
                 }).catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
+                    console.log('Falha no registro do ServiceWorker: ', err);
                 });
             }
             
-            // Setup Media Session API for lock screen controls
+            // Configura Media Session API para controles na tela de bloqueio
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', function() {
                     player.playVideo();
@@ -292,13 +329,14 @@
             }
         }
 
-        function updateMediaSession() {
+        function atualizarMediaSession() {
             if ('mediaSession' in navigator) {
-                const nowPlaying = document.getElementById('now-playing').textContent;
+                const tituloMusica = document.querySelector('.song-title')?.textContent || 'Música Gospel';
+                const artista = document.querySelector('.artist')?.textContent || 'Rádio Gospel';
                 
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: document.querySelector('.song-title')?.textContent || 'Gospel Music',
-                    artist: document.querySelector('.artist')?.textContent || 'Gospel Radio',
+                    title: tituloMusica,
+                    artist: artista,
                     artwork: [
                         { src: 'https://i.imgur.com/JNZF5Bw.jpg', sizes: '512x512', type: 'image/jpg' }
                     ]
@@ -306,8 +344,8 @@
             }
         }
 
-        // Load Google API client
-        function loadGoogleAPI() {
+        // Carrega a API do Google Client
+        function carregarGoogleAPI() {
             const script = document.createElement('script');
             script.src = 'https://apis.google.com/js/client.js';
             script.onload = function() {
@@ -315,14 +353,19 @@
                     gapi.client.init({
                         'apiKey': 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw',
                         'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest']
+                    }).then(function() {
+                        console.log("API do YouTube carregada com sucesso");
+                    }).catch(function(error) {
+                        console.error("Erro ao carregar API:", error);
+                        document.getElementById('now-playing').textContent = "Erro ao conectar com o YouTube. Recarregue a página.";
                     });
                 });
             };
             document.body.appendChild(script);
         }
         
-        // Start loading everything when page loads
-        window.onload = loadGoogleAPI;
+        // Inicia tudo quando a página carregar
+        window.onload = carregarGoogleAPI;
     </script>
 </body>
 </html>

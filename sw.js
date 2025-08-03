@@ -1,7 +1,7 @@
-// Service Worker for notifications and offline support
+// Service Worker para notificações e suporte offline
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open('gospel-radio-v1').then(cache => {
+        caches.open('radio-gospel-v1').then(cache => {
             return cache.addAll([
                 '/',
                 '/index.html',
@@ -22,12 +22,13 @@ self.addEventListener('fetch', event => {
 self.addEventListener('push', event => {
     const data = event.data.json();
     const options = {
-        body: data.body,
+        body: data.body || 'Nova música tocando na Rádio Gospel',
         icon: 'https://i.imgur.com/JNZF5Bw.jpg',
-        badge: 'https://i.imgur.com/JNZF5Bw.jpg'
+        badge: 'https://i.imgur.com/JNZF5Bw.jpg',
+        vibrate: [200, 100, 200]
     };
     
     event.waitUntil(
-        self.registration.showNotification(data.title, options)
+        self.registration.showNotification(data.title || 'Rádio Gospel', options)
     );
 });

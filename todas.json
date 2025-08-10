@@ -1,0 +1,21 @@
+[
+    {
+        "nome": "Bolo de Chocolate",
+        "categoria": "Sobremesas",
+        "tempo": "60 minutos",
+        "dificuldade": "Fácil",
+        "foto": "https://drive.google.com/uc?export=view&id=SEU_ID_DO_DRIVE",
+        "ingredientes": [
+            "2 xícaras de farinha de trigo",
+            "1 xícara de açúcar",
+            "3 ovos",
+            "1 xícara de leite"
+        ],
+        "modo_preparo": [
+            "Pré-aqueça o forno a 180°C",
+            "Misture os ingredientes secos em uma tigela",
+            "Adicione os ovos e o leite, misturando bem",
+            "Asse por 40 minutos ou até dourar"
+        ]
+    }
+]

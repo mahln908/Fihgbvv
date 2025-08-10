@@ -345,38 +345,20 @@
     </footer>
     
     <script>
-        // Configuração das categorias e arquivos JSON
-        const categoriesConfig = {
-            "Todas": "todas.json",
-            "Sobremesas": "sobremesas.json",
-            "Massas": "massas.json",
-            "Carnes": "carnes.json",
-            "Aves": "aves.json",
-            "Peixes": "peixes.json",
-            "Saladas": "saladas.json",
-            "Sopas": "sopas.json",
-            "Vegetariano": "vegetariano.json",
-            "Vegano": "vegano.json",
-            "Low Carb": "lowcarb.json",
-            "Sem Glúten": "semgluten.json",
-            "Sem Lactose": "semlactose.json",
-            "Rápidas": "rapidas.json",
-            "Fitness": "fitness.json",
-            "Bebidas": "bebidas.json",
-            "Bolos": "bolos.json",
-            "Pães": "paes.json",
-            "Petiscos": "petiscos.json",
-            "Internacional": "internacional.json"
-        };
+        // Configuração para Netlify
+        const categories = [
+            "Todas", "Sobremesas", "Massas", "Carnes", "Aves", 
+            "Peixes", "Saladas", "Sopas", "Vegetariano", "Vegano"
+        ];
 
         // Elementos do DOM
         const categoriesScroll = document.getElementById('categoriesScroll');
         const recipesContainer = document.getElementById('recipes-container');
 
-        // Carrega as categorias na barra de navegação
+        // Carrega categorias
         function loadCategories() {
             categoriesScroll.innerHTML = '';
-            Object.keys(categoriesConfig).forEach(category => {
+            categories.forEach(category => {
                 const categoryElement = document.createElement('div');
                 categoryElement.className = 'category';
                 if (category === 'Todas') categoryElement.classList.add('active');
@@ -388,42 +370,49 @@
 
         // Filtra receitas por categoria
         function filterRecipes(category) {
-            // Atualiza a categoria ativa
             document.querySelectorAll('.category').forEach(cat => {
                 cat.classList.remove('active');
                 if (cat.textContent === category) cat.classList.add('active');
             });
             
-            // Carrega as receitas da categoria selecionada
-            loadRecipes(categoriesConfig[category]);
+            const file = category === 'Todas' ? 'todas' : category.toLowerCase();
+            loadRecipes(file);
         }
 
-        // Carrega receitas do arquivo JSON
-        async function loadRecipes(jsonFile = 'todas.json') {
+        // Carrega receitas do JSON
+        async function loadRecipes(category = 'todas') {
             recipesContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Carregando receitas...</p>';
             
             try {
-                const response = await fetch(`receitas/${jsonFile}`);
-                if (!response.ok) throw new Error('Arquivo não encontrado');
+                // Caminho absoluto para Netlify
+                const response = await fetch(`/receitas/${category}.json`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro: ${response.status}`);
+                }
                 
                 const recipes = await response.json();
+                
+                if (!recipes || recipes.length === 0) {
+                    recipesContainer.innerHTML = `
+                        <p style="grid-column:1/-1;text-align:center;">
+                            Nenhuma receita encontrada nesta categoria.
+                        </p>`;
+                    return;
+                }
+                
                 displayRecipes(recipes);
             } catch (error) {
                 console.error('Erro ao carregar receitas:', error);
                 recipesContainer.innerHTML = `
                     <p style="grid-column:1/-1;text-align:center;color:red;">
-                        Erro ao carregar receitas. Tente novamente mais tarde.
+                        Erro ao carregar receitas. Verifique o console (F12) para detalhes.
                     </p>`;
             }
         }
 
-        // Exibe as receitas no container
+        // Exibe as receitas
         function displayRecipes(recipes) {
-            if (!recipes || recipes.length === 0) {
-                recipesContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Nenhuma receita encontrada nesta categoria.</p>';
-                return;
-            }
-            
             recipesContainer.innerHTML = recipes.map(recipe => `
                 <div class="recipe-card">
                     <img src="${recipe.foto}" alt="${recipe.nome}" class="recipe-image">

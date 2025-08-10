@@ -1,1 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabor de Casa - Receitas Deliciosas</title>
+    <style>
+        /* Reset e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        
+        /* Cabeçalho com Animação */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+        
+        .pot-icon {
+            font-size: 2.5rem;
+            position: relative;
+            animation: steam 2s infinite;
+        }
+        
+        @keyframes steam {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(2deg); }
+            50% { transform: translateY(-10px) rotate(-2deg); }
+            75% { transform: translateY(-5px) rotate(2deg); }
+        }
+        
+        .steam {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+        
+        .steam1 {
+            width: 10px;
+            height: 20px;
+            top: -25px;
+            left: 5px;
+            animation: steamMove 3s infinite ease-out;
+        }
+        
+        .steam2 {
+            width: 8px;
+            height: 15px;
+            top: -30px;
+            left: 20px;
+            animation: steamMove 3.5s infinite ease-out;
+        }
+        
+        .steam3 {
+            width: 12px;
+            height: 25px;
+            top: -35px;
+            left: 35px;
+            animation: steamMove 4s infinite ease-out;
+        }
+        
+        @keyframes steamMove {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-30px) scale(0.5); opacity: 0; }
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+        
+        /* Barra de Categorias */
+        .categories {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .categories-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 5px;
+            scrollbar-width: thin;
+        }
+        
+        .categories-scroll::-webkit-scrollbar {
+            height: 5px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+        
+        .category {
+            background-color: #f1f1f1;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .category:hover, .category.active {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        /* Conteúdo Principal */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .recipes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .recipe-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .recipe-info {
+            padding: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .recipe-description {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .view-recipe {
+            display: inline-block;
+            background-color: #ff6b6b;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .view-recipe:hover {
+            background-color: #ff5252;
+        }
+        
+        /* Anúncios */
+        .ad-space {
+            background-color: #f1f1f1;
+            border: 1px dashed #ccc;
+            padding: 1rem;
+            text-align: center;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+        
+        .ad-label {
+            color: #999;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Rodapé */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo .pot-icon {
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .copyright {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .pot-icon {
+                font-size: 2rem;
+            }
+            
+            .recipes-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <h1 class="logo">Sabor de Casa</h1>
+            <div class="pot-icon">
+                🍲
+                <div class="steam steam1"></div>
+                <div class="steam steam2"></div>
+                <div class="steam steam3"></div>
+            </div>
+        </div>
+        <p class="tagline">Receitas caseiras com amor e tradição</p>
+    </header>
+    
+    <nav class="categories">
+        <div class="categories-scroll" id="categoriesScroll">
+            <!-- Categorias serão preenchidas via JavaScript -->
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="ad-space">
+            <span class="ad-label">Anúncio</span>
+            <!-- Espaço para anúncio Terra -->
+            <div id="ad-terra-top"></div>
+        </div>
+        
+        <div id="recipes-container" class="recipes-container">
+            <!-- Receitas serão carregadas dinamicamente -->
+        </div>
+        
+        <div class="ad-space">
+            <span class="ad-label">Anúncio</span>
+            <!-- Espaço para anúncio Terra -->
+            <div id="ad-terra-bottom"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-logo">
+            <div class="pot-icon">🍲</div>
+            <h2>Sabor de Casa</h2>
+        </div>
+        
+        <div class="footer-links">
+            <a href="#">Sobre Nós</a>
+            <a href="#">Contato</a>
+            <a href="#">Política de Privacidade</a>
+            <a href="#">Termos de Uso</a>
+        </div>
+        
+        <p class="copyright">© 2023 Sabor de Casa. Todos os direitos reservados.</p>
+    </footer>
+    
+    <script>
+        // Configuração das categorias e arquivos JSON
+        const categoriesConfig = {
+            "Todas": "todas.json",
+            "Sobremesas": "sobremesas.json",
+            "Massas": "massas.json",
+            "Carnes": "carnes.json",
+            "Aves": "aves.json",
+            "Peixes": "peixes.json",
+            "Saladas": "saladas.json",
+            "Sopas": "sopas.json",
+            "Vegetariano": "vegetariano.json",
+            "Vegano": "vegano.json",
+            "Low Carb": "lowcarb.json",
+            "Sem Glúten": "semgluten.json",
+            "Sem Lactose": "semlactose.json",
+            "Rápidas": "rapidas.json",
+            "Fitness": "fitness.json",
+            "Bebidas": "bebidas.json",
+            "Bolos": "bolos.json",
+            "Pães": "paes.json",
+            "Petiscos": "petiscos.json",
+            "Internacional": "internacional.json"
+        };
 
+        // Elementos do DOM
+        const categoriesScroll = document.getElementById('categoriesScroll');
+        const recipesContainer = document.getElementById('recipes-container');
+
+        // Carrega as categorias na barra de navegação
+        function loadCategories() {
+            categoriesScroll.innerHTML = '';
+            Object.keys(categoriesConfig).forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category';
+                if (category === 'Todas') categoryElement.classList.add('active');
+                categoryElement.textContent = category;
+                categoryElement.addEventListener('click', () => filterRecipes(category));
+                categoriesScroll.appendChild(categoryElement);
+            });
+        }
+
+        // Filtra receitas por categoria
+        function filterRecipes(category) {
+            // Atualiza a categoria ativa
+            document.querySelectorAll('.category').forEach(cat => {
+                cat.classList.remove('active');
+                if (cat.textContent === category) cat.classList.add('active');
+            });
+            
+            // Carrega as receitas da categoria selecionada
+            loadRecipes(categoriesConfig[category]);
+        }
+
+        // Carrega receitas do arquivo JSON
+        async function loadRecipes(jsonFile = 'todas.json') {
+            recipesContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Carregando receitas...</p>';
+            
+            try {
+                const response = await fetch(`receitas/${jsonFile}`);
+                if (!response.ok) throw new Error('Arquivo não encontrado');
+                
+                const recipes = await response.json();
+                displayRecipes(recipes);
+            } catch (error) {
+                console.error('Erro ao carregar receitas:', error);
+                recipesContainer.innerHTML = `
+                    <p style="grid-column:1/-1;text-align:center;color:red;">
+                        Erro ao carregar receitas. Tente novamente mais tarde.
+                    </p>`;
+            }
+        }
+
+        // Exibe as receitas no container
+        function displayRecipes(recipes) {
+            if (!recipes || recipes.length === 0) {
+                recipesContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Nenhuma receita encontrada nesta categoria.</p>';
+                return;
+            }
+            
+            recipesContainer.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card">
+                    <img src="${recipe.foto}" alt="${recipe.nome}" class="recipe-image">
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">${recipe.nome}</h3>
+                        <div class="recipe-meta">
+                            <span>${recipe.tempo}</span>
+                            <span>${recipe.dificuldade}</span>
+                        </div>
+                        <div class="recipe-description">
+                            <h4>Ingredientes:</h4>
+                            <ul>${recipe.ingredientes.map(i => `<li>${i}</li>`).join('')}</ul>
+                            <h4>Modo de Preparo:</h4>
+                            <ol>${recipe.modo_preparo.map(p => `<li>${p}</li>`).join('')}</ol>
+                        </div>
+                        <a href="#" class="view-recipe">Ver Receita Completa</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Inicializa o site
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadRecipes();
+        });
+    </script>
+</body>
+</html>

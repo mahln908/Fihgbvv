@@ -1,0 +1,19 @@
+[
+  {
+    "nome": "Bolo de Chocolate Teste",
+    "categoria": "Sobremesas",
+    "tempo": "60 minutos",
+    "dificuldade": "Fácil",
+    "foto": "https://img.freepik.com/fotos-gratis/delicioso-bolo-de-chocolate-com-cobertura_23-2150926204.jpg",
+    "ingredientes": [
+      "2 xícaras de farinha",
+      "1 xícara de açúcar",
+      "3 ovos"
+    ],
+    "modo_preparo": [
+      "Pré-aqueça o forno a 180°C",
+      "Misture todos os ingredientes",
+      "Asse por 40 minutos"
+    ]
+  }
+]

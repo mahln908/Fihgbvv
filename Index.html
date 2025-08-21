@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabor de Casa - Receitas Deliciosas</title>
     <style>
-        /* Reset e Estilos Globais */
         * {
             margin: 0;
             padding: 0;
@@ -16,9 +15,9 @@
         body {
             background-color: #f9f9f9;
             color: #333;
+            line-height: 1.6;
         }
         
-        /* Cabeçalho com Animação */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -101,7 +100,6 @@
             opacity: 0.9;
         }
         
-        /* Barra de Categorias */
         .categories {
             background-color: white;
             padding: 1rem;
@@ -143,7 +141,6 @@
             color: white;
         }
         
-        /* Conteúdo Principal */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -214,7 +211,6 @@
             background-color: #ff5252;
         }
         
-        /* Anúncios */
         .ad-space {
             background-color: #f1f1f1;
             border: 1px dashed #ccc;
@@ -231,7 +227,6 @@
             display: block;
         }
         
-        /* Rodapé */
         footer {
             background-color: #333;
             color: white;
@@ -274,7 +269,20 @@
             font-size: 0.9rem;
         }
         
-        /* Responsividade */
+        .loading {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .error-message {
+            grid-column: 1/-1;
+            text-align: center;
+            color: red;
+            padding: 2rem;
+        }
+        
         @media (max-width: 768px) {
             .logo {
                 font-size: 2rem;
@@ -286,6 +294,11 @@
             
             .recipes-container {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
             }
         }
     </style>
@@ -313,17 +326,15 @@
     <div class="container">
         <div class="ad-space">
             <span class="ad-label">Anúncio</span>
-            <!-- Espaço para anúncio Terra -->
             <div id="ad-terra-top"></div>
         </div>
         
         <div id="recipes-container" class="recipes-container">
-            <!-- Receitas serão carregadas dinamicamente -->
+            <div class="loading">Carregando receitas...</div>
         </div>
         
         <div class="ad-space">
             <span class="ad-label">Anúncio</span>
-            <!-- Espaço para anúncio Terra -->
             <div id="ad-terra-bottom"></div>
         </div>
     </div>
@@ -345,100 +356,123 @@
     </footer>
     
     <script>
-        // Configuração para Netlify
-        const categories = [
-            "Todas", "Sobremesas", "Massas", "Carnes", "Aves", 
-            "Peixes", "Saladas", "Sopas", "Vegetariano", "Vegano"
-        ];
-
+        // CONFIGURAÇÃO DA PLANILHA GOOGLE
+        const SHEET_ID = '1O3gMGMx6qWXq-XfvEDq3O3ACcTAADcssppnluO3JbRc'; // ID da sua planilha
+        const SHEET_NAME = 'receitas'; // Nome da aba
+        const API_KEY = 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw'; // SUA CHAVE API
+        
+        // Categorias disponíveis
+        const categories = ["Todas", "Sobremesas", "Massas", "Carnes", "Aves", "Peixes", "Saladas", "Sopas"];
+        
         // Elementos do DOM
         const categoriesScroll = document.getElementById('categoriesScroll');
         const recipesContainer = document.getElementById('recipes-container');
-
-        // Carrega categorias
+        
+        // Inicializa o site
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadRecipes();
+        });
+        
+        // Carrega categorias na barra de navegação
         function loadCategories() {
-            categoriesScroll.innerHTML = '';
-            categories.forEach(category => {
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'category';
-                if (category === 'Todas') categoryElement.classList.add('active');
-                categoryElement.textContent = category;
-                categoryElement.addEventListener('click', () => filterRecipes(category));
-                categoriesScroll.appendChild(categoryElement);
+            categoriesScroll.innerHTML = categories.map(category => `
+                <div class="category ${category === 'Todas' ? 'active' : ''}">${category}</div>
+            `).join('');
+            
+            // Adiciona eventos de clique
+            document.querySelectorAll('.category').forEach(category => {
+                category.addEventListener('click', () => filterRecipes(category.textContent));
             });
         }
-
+        
         // Filtra receitas por categoria
         function filterRecipes(category) {
+            // Atualiza categoria ativa
             document.querySelectorAll('.category').forEach(cat => {
                 cat.classList.remove('active');
                 if (cat.textContent === category) cat.classList.add('active');
             });
             
-            const file = category === 'Todas' ? 'todas' : category.toLowerCase();
-            loadRecipes(file);
+            // Carrega as receitas
+            loadRecipes(category);
         }
-
-        // Carrega receitas do JSON
-        async function loadRecipes(category = 'todas') {
-            recipesContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Carregando receitas...</p>';
+        
+        // Carrega receitas da planilha Google
+        async function loadRecipes(category = 'Todas') {
+            recipesContainer.innerHTML = '<div class="loading">Carregando receitas...</div>';
             
             try {
-                // Caminho absoluto para Netlify
-                const response = await fetch(`/receitas/${category}.json`);
+                // URL da API do Google Sheets
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+                
+                const response = await fetch(url);
                 
                 if (!response.ok) {
-                    throw new Error(`Erro: ${response.status}`);
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
                 }
                 
-                const recipes = await response.json();
+                const data = await response.json();
                 
-                if (!recipes || recipes.length === 0) {
-                    recipesContainer.innerHTML = `
-                        <p style="grid-column:1/-1;text-align:center;">
-                            Nenhuma receita encontrada nesta categoria.
-                        </p>`;
-                    return;
-                }
+                // Converte os dados da planilha
+                const [headers, ...rows] = data.values;
+                const recipes = rows.map(row => {
+                    const recipe = {};
+                    headers.forEach((header, index) => {
+                        recipe[header.toLowerCase()] = row[index] || '';
+                    });
+                    return recipe;
+                });
                 
-                displayRecipes(recipes);
+                // Filtra por categoria se necessário
+                const filteredRecipes = category === 'Todas' 
+                    ? recipes 
+                    : recipes.filter(recipe => recipe.categoria && recipe.categoria.toLowerCase() === category.toLowerCase());
+                
+                displayRecipes(filteredRecipes);
+                
             } catch (error) {
                 console.error('Erro ao carregar receitas:', error);
                 recipesContainer.innerHTML = `
-                    <p style="grid-column:1/-1;text-align:center;color:red;">
-                        Erro ao carregar receitas. Verifique o console (F12) para detalhes.
-                    </p>`;
+                    <div class="error-message">
+                        <p>Erro ao carregar receitas: ${error.message}</p>
+                        <p>Verifique se a planilha está compartilhada publicamente.</p>
+                    </div>`;
             }
         }
-
-        // Exibe as receitas
+        
+        // Exibe as receitas no container
         function displayRecipes(recipes) {
+            if (!recipes || recipes.length === 0) {
+                recipesContainer.innerHTML = `
+                    <div class="loading">
+                        Nenhuma receita encontrada nesta categoria.
+                    </div>`;
+                return;
+            }
+            
             recipesContainer.innerHTML = recipes.map(recipe => `
                 <div class="recipe-card">
-                    <img src="${recipe.foto}" alt="${recipe.nome}" class="recipe-image">
+                    <img src="${recipe.foto || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" 
+                         alt="${recipe.nome}" class="recipe-image" 
+                         onerror="this.src='https://via.placeholder.com/300x200?text=Imagem+Não+Carregada'">
                     <div class="recipe-info">
-                        <h3 class="recipe-title">${recipe.nome}</h3>
+                        <h3 class="recipe-title">${recipe.nome || 'Receita sem nome'}</h3>
                         <div class="recipe-meta">
-                            <span>${recipe.tempo}</span>
-                            <span>${recipe.dificuldade}</span>
+                            <span>${recipe.tempo || 'Tempo não informado'}</span>
+                            <span>${recipe.dificuldade || 'Dificuldade não informada'}</span>
                         </div>
                         <div class="recipe-description">
                             <h4>Ingredientes:</h4>
-                            <ul>${recipe.ingredientes.map(i => `<li>${i}</li>`).join('')}</ul>
+                            <ul>${(recipe.ingredientes ? recipe.ingredientes.split(',') : ['Ingredientes não informados']).map(i => `<li>${i.trim()}</li>`).join('')}</ul>
                             <h4>Modo de Preparo:</h4>
-                            <ol>${recipe.modo_preparo.map(p => `<li>${p}</li>`).join('')}</ol>
+                            <ol>${(recipe.modo_preparo ? recipe.modo_preparo.split('\n') : ['Modo de preparo não informado']).map(p => `<li>${p.trim()}</li>`).join('')}</ol>
                         </div>
                         <a href="#" class="view-recipe">Ver Receita Completa</a>
                     </div>
                 </div>
             `).join('');
         }
-
-        // Inicializa o site
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCategories();
-            loadRecipes();
-        });
     </script>
 </body>
 </html>

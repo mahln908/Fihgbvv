@@ -357,9 +357,9 @@
     
     <script>
         // CONFIGURAÇÃO DA PLANILHA GOOGLE
-        const SHEET_ID = '1O3gMGMx6qWXq-XfvEDq3O3ACcTAADcssppnluO3JbRc'; // ID da sua planilha
-        const SHEET_NAME = 'receitas'; // Nome da aba
-        const API_KEY = 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw'; // SUA CHAVE API
+        const SHEET_ID = '1O3gMGMx6qWXq-XfvEDq3O3ACcTAADcssppnluO3JbRc';
+        const SHEET_NAME = 'Receitas';
+        const API_KEY = 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw';
         
         // Categorias disponíveis
         const categories = ["Todas", "Sobremesas", "Massas", "Carnes", "Aves", "Peixes", "Saladas", "Sopas"];
@@ -414,20 +414,25 @@
                 
                 const data = await response.json();
                 
-                // Converte os dados da planilha
-                const [headers, ...rows] = data.values;
+                // Processa os dados da planilha
+                const valores = data.values || [];
+                const [headers, ...rows] = valores;
+                
                 const recipes = rows.map(row => {
                     const recipe = {};
                     headers.forEach((header, index) => {
-                        recipe[header.toLowerCase()] = row[index] || '';
+                        // Mantém o nome original da coluna (primeira letra maiúscula)
+                        recipe[header] = row[index] || '';
                     });
                     return recipe;
                 });
                 
+                console.log('Receitas carregadas:', recipes); // Para debug
+                
                 // Filtra por categoria se necessário
                 const filteredRecipes = category === 'Todas' 
                     ? recipes 
-                    : recipes.filter(recipe => recipe.categoria && recipe.categoria.toLowerCase() === category.toLowerCase());
+                    : recipes.filter(recipe => recipe.Categoria && recipe.Categoria.toLowerCase() === category.toLowerCase());
                 
                 displayRecipes(filteredRecipes);
                 
@@ -453,20 +458,20 @@
             
             recipesContainer.innerHTML = recipes.map(recipe => `
                 <div class="recipe-card">
-                    <img src="${recipe.foto || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" 
-                         alt="${recipe.nome}" class="recipe-image" 
+                    <img src="${recipe.Foto || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" 
+                         alt="${recipe.Nome}" class="recipe-image" 
                          onerror="this.src='https://via.placeholder.com/300x200?text=Imagem+Não+Carregada'">
                     <div class="recipe-info">
-                        <h3 class="recipe-title">${recipe.nome || 'Receita sem nome'}</h3>
+                        <h3 class="recipe-title">${recipe.Nome || 'Receita sem nome'}</h3>
                         <div class="recipe-meta">
-                            <span>${recipe.tempo || 'Tempo não informado'}</span>
-                            <span>${recipe.dificuldade || 'Dificuldade não informada'}</span>
+                            <span>${recipe.Tempo || 'Tempo não informado'}</span>
+                            <span>${recipe.Dificuldade || 'Dificuldade não informada'}</span>
                         </div>
                         <div class="recipe-description">
                             <h4>Ingredientes:</h4>
-                            <ul>${(recipe.ingredientes ? recipe.ingredientes.split(',') : ['Ingredientes não informados']).map(i => `<li>${i.trim()}</li>`).join('')}</ul>
+                            <ul>${(recipe.Ingredientes ? recipe.Ingredientes.split(',') : ['Ingredientes não informados']).map(i => `<li>${i.trim()}</li>`).join('')}</ul>
                             <h4>Modo de Preparo:</h4>
-                            <ol>${(recipe.modo_preparo ? recipe.modo_preparo.split('\n') : ['Modo de preparo não informado']).map(p => `<li>${p.trim()}</li>`).join('')}</ol>
+                            <ol>${(recipe.Modo_Preparo ? recipe.Modo_Preparo.split('\n') : ['Modo de preparo não informado']).map(p => `<li>${p.trim()}</li>`).join('')}</ol>
                         </div>
                         <a href="#" class="view-recipe">Ver Receita Completa</a>
                     </div>

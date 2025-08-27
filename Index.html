@@ -303,28 +303,6 @@
         // ID da sua planilha do Google Sheets
         const SHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
         
-        // Dados de exemplo para demonstração
-        const sampleData = [
-            {
-                nome: "Bolo de Chocolate",
-                categoria: "Bolos",
-                tempo: "45 min",
-                ingrediente: "Farinha, açúcar, chocolate em pó, ovos, leite, óleo, fermento",
-                mododepreparo: "1. Misture os ingredientes secos. 2. Adicione os líquidos. 3. Asse por 30 minutos.",
-                porcoes: "8 porções",
-                url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1089&q=80"
-            },
-            {
-                nome: "Lasanha à Bolonhesa",
-                categoria: "Massas",
-                tempo: "1h 30min",
-                ingrediente: "Massa para lasanha, carne moída, molho de tomate, queijo mussarela, queijo parmesão",
-                mododepreparo: "1. Prepare o molho bolonhesa. 2. Monte as camadas de massa, molho e queijo. 3. Asse por 40 minutos.",
-                porcoes: "6 porções",
-                url: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80"
-            }
-        ];
-        
         // Função para carregar receitas do Google Sheets
         async function loadRecipesFromSheets() {
             try {
@@ -363,7 +341,7 @@
                     showError('Erro ao carregar receitas. Verifique se a planilha está publicada.');
                     
                     // Usa dados de exemplo em caso de erro
-                    processRecipesData(sampleData);
+                    loadSampleData();
                 }
             }
         }
@@ -381,12 +359,14 @@
                 
                 const recipe = {};
                 
-                // Mapeia os dados baseado nos cabeçalhos
-                for (let j = 0; j < headers.length; j++) {
+                // Mapeia os dados baseado nos cabeçalhos na sequência correta
+                const expectedHeaders = ['nome', 'categoria', 'tempo', 'ingrediente', 'mododepreparo', 'url'];
+                
+                for (let j = 0; j < expectedHeaders.length; j++) {
                     if (j < row.length) {
-                        recipe[headers[j]] = row[j];
+                        recipe[expectedHeaders[j]] = row[j];
                     } else {
-                        recipe[headers[j]] = "";
+                        recipe[expectedHeaders[j]] = "";
                     }
                 }
                 
@@ -402,6 +382,9 @@
             const lines = csv.split('\n');
             const headers = lines[0].split(',').map(header => header.trim());
             
+            // Mapeia os cabeçalhos para a sequência esperada
+            const expectedHeaders = ['nome', 'categoria', 'tempo', 'ingrediente', 'mododepreparo', 'url'];
+            
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i];
                 if (!line.trim()) continue;
@@ -409,8 +392,8 @@
                 const values = line.split(',').map(value => value.trim());
                 const recipe = {};
                 
-                for (let j = 0; j < headers.length; j++) {
-                    recipe[headers[j]] = values[j] || "";
+                for (let j = 0; j < expectedHeaders.length; j++) {
+                    recipe[expectedHeaders[j]] = values[j] || "";
                 }
                 
                 recipes.push(recipe);
@@ -444,7 +427,7 @@
             recipes.forEach(recipe => {
                 const recipeCard = document.createElement('a');
                 recipeCard.className = 'recipe-card';
-                recipeCard.href = `receita.html?nome=${encodeURIComponent(recipe.nome)}`;
+                recipeCard.href = `receita.html?nome=${encodeURIComponent(recipe.nome)}&categoria=${encodeURIComponent(recipe.categoria)}&tempo=${encodeURIComponent(recipe.tempo)}&ingrediente=${encodeURIComponent(recipe.ingrediente)}&mododepreparo=${encodeURIComponent(recipe.mododepreparo)}&url=${encodeURIComponent(recipe.url)}`;
                 recipeCard.target = "_blank";
                 
                 recipeCard.innerHTML = `
@@ -489,6 +472,30 @@
         function showError(message) {
             const container = document.getElementById('recipes-container');
             container.innerHTML = `<div class="error">${message}</div>`;
+        }
+        
+        // Carrega dados de exemplo em caso de erro
+        function loadSampleData() {
+            const sampleData = [
+                {
+                    nome: "Bolo de Chocolate",
+                    categoria: "Bolos",
+                    tempo: "45 min",
+                    ingrediente: "Farinha, açúcar, chocolate em pó, ovos, leite, óleo, fermento",
+                    mododepreparo: "1. Misture os ingredientes secos. 2. Adicione os líquidos. 3. Asse por 30 minutos.",
+                    url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1089&q=80"
+                },
+                {
+                    nome: "Lasanha à Bolonhesa",
+                    categoria: "Massas",
+                    tempo: "1h 30min",
+                    ingrediente: "Massa para lasanha, carne moída, molho de tomate, queijo mussarela, queijo parmesão",
+                    mododepreparo: "1. Prepare o molho bolonhesa. 2. Monte as camadas de massa, molho e queijo. 3. Asse por 40 minutos.",
+                    url: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80"
+                }
+            ];
+            
+            processRecipesData(sampleData);
         }
         
         // Inicializa o site

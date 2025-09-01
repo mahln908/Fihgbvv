@@ -366,12 +366,6 @@
         let filteredRecipes = [];
         let categories = new Set(["all"]);
 
-        // Categorias solicitadas
-        const defaultCategories = [
-            "Pratos Principais", "Massas", "Bolos", "Low Carb", 
-            "Peixes", "Sobremesas", "Sucos", "Pães"
-        ];
-
         // Função para converter link do Google Drive em link direto para imagem
         function convertGoogleDriveLink(url) {
             if (!url) return null;
@@ -396,26 +390,19 @@
             categoriesContainer.innerHTML = '';
             categoriesContainer.appendChild(allButton);
             
-            // Adicionar categorias da planilha
-            categories.forEach(category => {
-                if (category !== "all" && category) {
-                    const button = document.createElement('button');
-                    button.className = 'category-btn';
-                    button.setAttribute('data-category', category);
-                    button.textContent = category;
-                    categoriesContainer.appendChild(button);
-                }
-            });
+            // Lista de categorias permitidas (em ordem específica)
+            const allowedCategories = [
+                "Pratos Principais", "Massas", "Bolos", "Low Carb", 
+                "Peixes", "Sobremesas", "Sucos", "Pães"
+            ];
             
-            // Adicionar categorias padrão que não estão na planilha
-            defaultCategories.forEach(category => {
-                if (!categories.has(category)) {
-                    const button = document.createElement('button');
-                    button.className = 'category-btn';
-                    button.setAttribute('data-category', category);
-                    button.textContent = category;
-                    categoriesContainer.appendChild(button);
-                }
+            // Filtrar e adicionar apenas as categorias permitidas
+            allowedCategories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.setAttribute('data-category', category);
+                button.textContent = category;
+                categoriesContainer.appendChild(button);
             });
             
             addCategoryEventListeners();

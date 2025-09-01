@@ -25,7 +25,7 @@
         header{
             background: linear-gradient(135deg, var(--primary-color), #FF8C42);
             color:white;
-            padding:0.4rem 1rem; /* Reduzido ainda mais */
+            padding:0.4rem 1rem;
             text-align:center;
             box-shadow:0 4px 12px rgba(0,0,0,0.15);
             position:sticky;
@@ -36,11 +36,11 @@
             display:flex;
             justify-content:center;
             align-items:center;
-            margin-bottom:0.2rem; /* Reduzido */
+            margin-bottom:0.2rem;
         }
         .logo-text{
             background:rgba(255,255,255,0.25);
-            padding:6px 14px; /* Reduzido */
+            padding:6px 14px;
             border-radius:50px;
             backdrop-filter:blur(8px);
             display:flex;
@@ -49,9 +49,9 @@
             box-shadow:0 4px 10px rgba(0,0,0,0.1);
         }
         .pan-icon{
-            font-size:1.6rem; /* Reduzido */
+            font-size:1.6rem;
             color:var(--accent-color);
-            margin-right:10px; /* Reduzido */
+            margin-right:10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             animation: cook 4s infinite;
         }
@@ -63,7 +63,7 @@
             100% { transform: rotate(0deg) scale(1); }
         }
         h1{
-            font-size:1.6rem; /* Reduzido */
+            font-size:1.6rem;
             margin:0;
             text-shadow:2px 2px 6px rgba(0,0,0,0.3);
             display:inline;
@@ -72,21 +72,21 @@
         }
         .tagline{
             font-style:italic;
-            margin-bottom:0.4rem; /* Reduzido */
-            font-size:0.8rem; /* Reduzido */
+            margin-bottom:0.4rem;
+            font-size:0.8rem;
             opacity:0.9;
         }
         .search-container{
-            margin:0.5rem auto; /* Reduzido */
+            margin:0.5rem auto;
             max-width:450px;
             position:relative;
         }
         .search-input{
             width:100%;
-            padding:8px 16px; /* Reduzido */
+            padding:8px 16px;
             border:none;
             border-radius:50px;
-            font-size:0.9rem; /* Reduzido */
+            font-size:0.9rem;
             box-shadow:var(--shadow);
             transition:var(--transition);
         }
@@ -102,10 +102,10 @@
             background:var(--secondary-color);
             border:none;
             color:white;
-            padding:5px 12px; /* Reduzido */
+            padding:5px 12px;
             border-radius:50px;
             cursor:pointer;
-            font-size:0.9rem; /* Reduzido */
+            font-size:0.9rem;
             transition:var(--transition);
         }
         .search-btn:hover{
@@ -117,9 +117,9 @@
         .categories{
             display:flex;
             overflow-x:auto;
-            gap:6px; /* Reduzido */
-            padding:0.6rem; /* Reduzido */
-            margin:0.4rem 0; /* Reduzido */
+            gap:6px;
+            padding:0.6rem;
+            margin:0.4rem 0;
             scrollbar-width:thin;
             -ms-overflow-style:none;
         }
@@ -131,14 +131,14 @@
         .category-btn{
             background:rgba(255,255,255,0.9);
             border:none;
-            padding:5px 10px; /* Reduzido */
+            padding:5px 10px;
             border-radius:50px;
             cursor:pointer;
             font-weight:600;
             white-space:nowrap;
             transition:var(--transition);
             box-shadow:0 3px 8px rgba(0,0,0,0.1);
-            font-size:0.8rem; /* Reduzido */
+            font-size:0.8rem;
             border:2px solid transparent;
         }
         .category-btn:hover{
@@ -175,21 +175,10 @@
             height:320px;
             display:flex;
             flex-direction:column;
-            position:relative;
         }
         .recipe-card:hover{
             transform:translateY(-8px);
             box-shadow:0 15px 25px rgba(0,0,0,0.2);
-        }
-        .recipe-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-            z-index: 2;
         }
         .recipe-image{
             width:100%;
@@ -330,6 +319,7 @@
             align-items: center;
             font-weight: 600;
             transition: var(--transition);
+            z-index: 10;
         }
         .back-button:hover {
             background: var(--secondary-color);
@@ -662,10 +652,10 @@
                 recipeCard.className = 'recipe-card';
                 recipeCard.addEventListener('click', () => openRecipePage(recipe));
                 
-                const imageUrl = recipe.processedUrl || recipe.url || 'https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
+                const imageUrl = recipe.processedUrl || recipe.url || 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
                 
                 recipeCard.innerHTML = `
-                    <img src="${imageUrl}" alt="${recipe.nome}" class="recipe-image" onerror="this.src='https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'">
+                    <img src="${imageUrl}" alt="${recipe.nome}" class="recipe-image" onerror="this.src='https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'">
                     <div class="recipe-content">
                         <h3 class="recipe-title">${recipe.nome}</h3>
                         <div class="recipe-meta">
@@ -691,7 +681,7 @@
             recipePageCategory.textContent = recipe.categoria;
             recipePageTime.innerHTML = `<i class="fas fa-clock"></i> ${recipe.tempo}`;
             
-            const imageUrl = recipe.processedUrl || recipe.url || 'https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
+            const imageUrl = recipe.processedUrl || recipe.url || 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
             recipePageImage.src = imageUrl;
             recipePageImage.alt = recipe.nome;
             

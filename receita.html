@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receita - Sabor de Casa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        :root{
+            --primary-color:#FFA366;
+            --secondary-color:#7B3F00;
+            --accent-color:#FFE66D;
+            --dark-color:#292F36;
+            --light-color:#FFF9F0;
+            --card-bg:#ffffff;
+            --text-color:#333333;
+            --border-radius:12px;
+            --shadow:0 8px 20px rgba(0,0,0,0.1);
+            --transition:all 0.3s ease;
+        }
+        body{background-color:var(--light-color);color:var(--text-color);line-height:1.6}
+        
+        /* Header */
+        header{
+            background: linear-gradient(135deg, var(--primary-color), #FF8C42);
+            color:white;
+            padding:1rem;
+            text-align:center;
+            box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        }
+        .logo-container{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            margin-bottom:0.5rem;
+        }
+        .logo-text{
+            background:rgba(255,255,255,0.25);
+            padding:10px 20px;
+            border-radius:50px;
+            backdrop-filter:blur(8px);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        }
+        .pan-icon{
+            font-size:2rem;
+            color:var(--accent-color);
+            margin-right:15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        h1{
+            font-size:2rem;
+            margin:0;
+            text-shadow:2px 2px 6px rgba(0,0,0,0.3);
+            display:inline;
+            font-weight:800;
+        }
+        
+        /* Conteúdo da receita */
+        .recipe-container{
+            max-width:1000px;
+            margin:2rem auto;
+            padding:0 1.5rem;
+        }
+        .back-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-bottom: 2rem;
+        }
+        .back-button:hover {
+            background: var(--secondary-color);
+            transform: translateX(-5px);
+        }
+        .back-button i {
+            margin-right: 8px;
+        }
+        .recipe-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .recipe-title {
+            font-size: 2.5rem;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        .recipe-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 1.5rem;
+        }
+        .recipe-category {
+            background: var(--secondary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .recipe-time {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .recipe-time i {
+            margin-right: 6px;
+            color: var(--primary-color);
+        }
+        .recipe-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        .recipe-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .recipe-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .ingredients-section, .instructions-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-color);
+            font-size: 1.5rem;
+        }
+        .ingredients-list {
+            list-style-type: none;
+        }
+        .ingredients-list li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .ingredients-list li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+        .instructions-text {
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        .recipe-ad {
+            width: 100%;
+            background: #f9f9f9;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+            border: 2px dashed #ddd;
+        }
+        
+        /* Footer */
+        footer{
+            background:var(--dark-color);
+            color:white;
+            text-align:center;
+            padding:2rem;
+            margin-top:3rem;
+            font-size:0.9rem;
+        }
+        footer p:first-child {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width:768px){
+            .recipe-title { font-size: 2rem; }
+            .recipe-image { height: 300px; }
+        }
+        @media (max-width:480px){
+            .recipe-title { font-size: 1.8rem; }
+            .recipe-image { height: 250px; }
+            .back-button {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo-text">
+                <div class="pan-icon"><i class="fas fa-pot-food"></i></div>
+                <h1>Sabor de Casa</h1>
+            </div>
+        </div>
+    </header>
+
+    <div class="recipe-container">
+        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i> Voltar para receitas</button>
+        
+        <div class="recipe-header">
+            <h2 class="recipe-title" id="recipe-title"></h2>
+            <div class="recipe-meta">
+                <span class="recipe-category" id="recipe-category"></span>
+                <span class="recipe-time" id="recipe-time"></span>
+            </div>
+        </div>
+        
+        <img class="recipe-image" id="recipe-image" src="" alt="">
+        
+        <div class="recipe-ad">
+            <i class="fas fa-ad" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <p>Espaço para publicidade</p>
+        </div>
+        
+        <div class="recipe-content">
+            <div class="ingredients-section">
+                <h3 class="section-title">Ingredientes</h3>
+                <ul class="ingredients-list" id="recipe-ingredients"></ul>
+            </div>
+            
+            <div class="instructions-section">
+                <h3 class="section-title">Modo de Preparo</h3>
+                <p class="instructions-text" id="recipe-instructions"></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sabor de Casa - Todos os direitos reservados</p>
+        <p>Desenvolvido com <i class="fas fa-heart" style="color: var(--primary-color);"></i> para amantes da culinária</p>
+    </footer>
+
+    <script>
+        // Elementos do DOM
+        const backButton = document.getElementById('back-button');
+        const recipeTitle = document.getElementById('recipe-title');
+        const recipeCategory = document.getElementById('recipe-category');
+        const recipeTime = document.getElementById('recipe-time');
+        const recipeImage = document.getElementById('recipe-image');
+        const recipeIngredients = document.getElementById('recipe-ingredients');
+        const recipeInstructions = document.getElementById('recipe-instructions');
+
+        // Função para carregar a receita
+        function loadRecipe() {
+            try {
+                // Tentar obter a receita do localStorage
+                const recipeData = localStorage.getItem('currentRecipe');
+                
+                if (recipeData) {
+                    const recipe = JSON.parse(recipeData);
+                    
+                    // Preencher os dados da receita
+                    recipeTitle.textContent = recipe.nome;
+                    recipeCategory.textContent = recipe.categoria;
+                    recipeTime.innerHTML = `<i class="fas fa-clock"></i> ${recipe.tempo}`;
+                    
+                    const imageUrl = recipe.processedUrl || recipe.url || 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
+                    recipeImage.src = imageUrl;
+                    recipeImage.alt = recipe.nome;
+                    
+                    recipeIngredients.innerHTML = '';
+                    if (recipe.ingrediente && typeof recipe.ingrediente === 'string') {
+                        recipe.ingrediente.split('\n').forEach(ingredient => {
+                            if (ingredient.trim()) {
+                                const li = document.createElement('li');
+                                li.textContent = ingredient;
+                                recipeIngredients.appendChild(li);
+                            }
+                        });
+                    }
+                    
+                    recipeInstructions.textContent = recipe.mododepreparo || '';
+                } else {
+                    // Se não houver receita no localStorage, redirecionar para a página principal
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar receita:', error);
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Event listeners
+        backButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Carregar a receita quando a página carregar
+        document.addEventListener('DOMContentLoaded', loadRecipe);
+    </script>
+</body>
+</html>

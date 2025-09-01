@@ -235,31 +235,16 @@
         /* Espaço para anúncios */
         .ad-space{
             grid-column:1/-1;
-            background:linear-gradient(to right, #f9f9f9, #f0f0f0);
+            background:#f9f9f9;
             border-radius:var(--border-radius);
-            padding:1.5rem;
+            padding:1rem;
             text-align:center;
             margin:1.5rem 0;
-            height:180px;
+            min-height:90px;
             display:flex;
-            flex-direction:column;
             justify-content:center;
             align-items:center;
-            border:2px dashed #ddd;
-            transition:var(--transition);
-        }
-        .ad-space:hover{
-            border-color:var(--primary-color);
-            background:linear-gradient(to right, #f5f5f5, #eaeaea);
-        }
-        .ad-space i{
-            font-size:2.5rem;
-            color:#ccc;
-            margin-bottom:0.8rem;
-        }
-        .ad-space p{
-            color:#888;
-            font-size:1rem;
+            border:1px solid #eee;
         }
         
         /* Footer */
@@ -335,6 +320,10 @@
         <p>&copy; 2023 Sabor de Casa - Todos os direitos reservados</p>
         <p>Desenvolvido com <i class="fas fa-heart" style="color: var(--primary-color);"></i> para amantes da culinária</p>
     </footer>
+
+    <!-- Script do Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4574160955541957"
+     crossorigin="anonymous"></script>
 
     <script>
         // API key e ID da planilha
@@ -472,6 +461,32 @@
             }
         }
 
+        // Função para criar elementos de anúncio
+        function createAdElement() {
+            const adContainer = document.createElement('div');
+            adContainer.className = 'ad-space';
+            
+            // Criar elemento ins para o anúncio
+            const adIns = document.createElement('ins');
+            adIns.className = 'adsbygoogle';
+            adIns.style.display = 'block';
+            adIns.dataset.adClient = 'ca-pub-4574160955541957';
+            adIns.dataset.adSlot = Math.floor(Math.random() * 1000000000);
+            adIns.dataset.adFormat = 'auto';
+            adIns.dataset.fullWidthResponsive = 'true';
+            
+            adContainer.appendChild(adIns);
+            
+            // Inicializar o anúncio
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error('Erro ao carregar anúncio:', e);
+            }
+            
+            return adContainer;
+        }
+
         // Função para exibir as receitas
         function displayRecipes(recipesToDisplay) {
             recipeGrid.innerHTML = '';
@@ -481,10 +496,9 @@
             }
             
             recipesToDisplay.forEach((recipe, index) => {
-                if (index > 0 && index % 2 === 0) {
-                    const adSpace = document.createElement('div');
-                    adSpace.className = 'ad-space';
-                    adSpace.innerHTML = `<i class="fas fa-ad"></i><p>Espaço para publicidade</p>`;
+                if (index > 0 && index % 4 === 0) {
+                    // Adicionar espaço para anúncio do AdSense a cada 4 receitas
+                    const adSpace = createAdElement();
                     recipeGrid.appendChild(adSpace);
                 }
                 
@@ -517,6 +531,10 @@
                 
                 recipeGrid.appendChild(recipeCard);
             });
+            
+            // Adicionar um anúncio adicional no final
+            const finalAdSpace = createAdElement();
+            recipeGrid.appendChild(finalAdSpace);
         }
 
         // Função para filtrar receitas por categoria

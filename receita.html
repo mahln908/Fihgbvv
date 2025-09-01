@@ -232,9 +232,18 @@
         
         <img class="recipe-image" id="recipe-image" src="" alt="">
         
+        <!-- AdSense Ad -->
         <div class="recipe-ad">
-            <i class="fas fa-ad" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
-            <p>Espaço para publicidade</p>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4574160955541957" crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4574160955541957"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
         
         <div class="recipe-content">
@@ -247,6 +256,20 @@
                 <h3 class="section-title">Modo de Preparo</h3>
                 <p class="instructions-text" id="recipe-instructions"></p>
             </div>
+        </div>
+        
+        <!-- Segundo AdSense Ad -->
+        <div class="recipe-ad">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4574160955541957" crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4574160955541957"
+                 data-ad-slot="0987654321"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
     </div>
 
@@ -305,8 +328,13 @@
             }
         }
 
-        // Event listeners
-        backButton.addEventListener('click', () => {
+        // Event listeners - Corrigido para funcionar no primeiro clique
+        backButton.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        }, { once: true }); // O parâmetro { once: true } garante que o evento seja executado apenas uma vez
+
+        // Adicionar também um listener normal para garantir funcionalidade
+        backButton.addEventListener('click', function() {
             window.location.href = 'index.html';
         });
 
@@ -315,4 +343,3 @@
     </script>
 </body>
 </html>
-

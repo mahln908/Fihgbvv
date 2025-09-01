@@ -219,6 +219,10 @@
             margin: 2rem 0;
             display: flex;
             justify-content: center;
+            min-height: 280px;
+            background-color: #f9f9f9;
+            border-radius: var(--border-radius);
+            padding: 15px;
         }
         
         .ad-label {
@@ -251,6 +255,10 @@
             .recipe-image {
                 height: 300px;
             }
+            
+            .ad-container {
+                min-height: 250px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -265,6 +273,10 @@
             .back-button {
                 padding: 8px 16px;
                 font-size: 0.9rem;
+            }
+            
+            .ad-container {
+                min-height: 200px;
             }
         }
     </style>
@@ -293,15 +305,17 @@
         <img class="recipe-image" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1089&q=80" alt="Bolo de Chocolate">
         
         <!-- Container do AdSense -->
+        <div class="ad-label">Publicidade</div>
         <div class="ad-container">
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4574160955541957"
                  crossorigin="anonymous"></script>
+            <!-- Display ad -->
             <ins class="adsbygoogle"
-                 style="display:block; text-align:center;"
-                 data-ad-layout="in-article"
-                 data-ad-format="fluid"
+                 style="display:block"
                  data-ad-client="ca-pub-4574160955541957"
-                 data-ad-slot="1234567890"></ins>
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
             <script>
                  (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
@@ -331,7 +345,7 @@
 
                     3. Em outra tigela, bata os ovos e adicione o óleo, leite e baunilha.
 
-                    4. Junte as misturas líquidas aos ingredientes secos e mexa até obter uma massa homogênea.
+                    4. Junte as misturas líquidas aos ingredientes secos mexa até obter uma massa homogênea.
 
                     5. Despeje a massa na forma preparada e leve ao forno por aproximadamente 35-40 minutos.
 
@@ -347,11 +361,13 @@
         <div class="ad-container">
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4574160955541957"
                  crossorigin="anonymous"></script>
+            <!-- Display ad -->
             <ins class="adsbygoogle"
                  style="display:block"
-                 data-ad-format="autorelaxed"
                  data-ad-client="ca-pub-4574160955541957"
-                 data-ad-slot="0987654321"></ins>
+                 data-ad-slot="0987654321"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
             <script>
                  (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
@@ -367,11 +383,28 @@
         // Elementos do DOM
         const backButton = document.getElementById('back-button');
 
+        // Função para voltar à página de receitas
+        function goBackToRecipes() {
+            // Verifica se há histórico de navegação
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Redireciona para a página principal caso não haja histórico
+                window.location.href = 'index.html';
+            }
+        }
+
         // Event listeners
-        backButton.addEventListener('click', () => {
-            alert('Voltando para a página principal...');
-            // window.location.href = 'index.html'; // Descomente quando tiver a página principal
+        backButton.addEventListener('click', goBackToRecipes);
+
+        // Configurar o botão de voltar do navegador/navegação móvel
+        window.addEventListener('popstate', function(event) {
+            // Esta função será executada quando o usuário pressionar o botão voltar do navegador
+            // Não é necessário fazer nada adicional pois o navegador já cuida da navegação
         });
+
+        // Adicionar estado ao histórico para que o botão voltar funcione
+        window.history.pushState({page: 'recipe'}, 'Receita', window.location.href);
     </script>
 </body>
 </html>

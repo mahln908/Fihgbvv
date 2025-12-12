@@ -100,6 +100,30 @@
             line-height: 1;
         }
         
+        /* Container de anúncio */
+        .ad-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+        
+        .ad-label {
+            font-size: 0.8rem;
+            color: var(--gray-dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
         /* Conteúdo da receita */
         .recipe-content {
             padding: 40px 0;
@@ -293,6 +317,11 @@
             .recipe-section h3 {
                 font-size: 1.3rem;
             }
+            
+            .ad-container {
+                padding: 15px;
+                margin: 20px 0;
+            }
         }
         
         @media (max-width: 480px) {
@@ -348,6 +377,12 @@
                 <h3>Carregando receita...</h3>
             </div>
         </div>
+        
+        <!-- ANÚNCIO ADS TERRA NO FINAL DA RECEITA -->
+        <div id="ad-container" class="ad-container">
+            <div class="ad-label">Publicidade</div>
+            <div id="ad-content"></div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -364,6 +399,23 @@
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
+        }
+        
+        // Função para carregar anúncio do AdsTerra
+        function loadAdsTerraAd() {
+            const adContent = document.getElementById('ad-content');
+            if (!adContent) return;
+            
+            // Criar iframe para o anúncio
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.highperformanceformat.com/02e54db70437403d195d78e71089d43a/invoke.html`;
+            iframe.style.width = '320px';
+            iframe.style.height = '50px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.scrolling = 'no';
+            
+            adContent.appendChild(iframe);
         }
         
         // Função para carregar a receita
@@ -386,7 +438,6 @@
                 return;
             }
             
-            // Tentar obter dados do localStorage
             const savedRecipes = localStorage.getItem('allRecipes');
             
             if (!savedRecipes) {
@@ -424,7 +475,6 @@
                     return;
                 }
                 
-                // Preencher dados da receita
                 const nome = recipe.nome || 'Receita sem nome';
                 const categoria = recipe.categoria || 'Geral';
                 const tempo = recipe.tempo || 'N/A';
@@ -432,10 +482,8 @@
                 const instrucoes = recipe.mododepreparo ? recipe.mododepreparo.split('\n').filter(i => i.trim()) : [];
                 const url = recipe.url || 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
                 
-                // Atualizar título da página
                 document.title = `${nome} - Sabor de Casa`;
                 
-                // Gerar HTML da receita
                 const recipeHTML = `
                     <div class="recipe-card">
                         <div class="recipe-image">
@@ -486,7 +534,6 @@
                 
                 recipeContent.innerHTML = recipeHTML;
                 
-                // Adicionar funcionalidade aos checkboxes
                 document.querySelectorAll('.ingredient-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const ingredientText = this.nextElementSibling;
@@ -499,6 +546,11 @@
                         }
                     });
                 });
+                
+                // Carregar anúncio após o conteúdo
+                setTimeout(() => {
+                    loadAdsTerraAd();
+                }, 100);
                 
             } catch (error) {
                 console.error('Erro ao carregar receita:', error);
@@ -518,15 +570,12 @@
         
         // Gerenciar histórico de navegação
         function setupNavigation() {
-            // Verificar se há histórico para voltar
             if (window.history.length > 1) {
-                // Configurar botão de voltar do navegador
                 window.addEventListener('popstate', function() {
                     window.location.href = 'index.html';
                 });
             }
             
-            // Adicionar estado ao histórico
             window.history.pushState({ page: 'recipe' }, '', window.location.href);
         }
         

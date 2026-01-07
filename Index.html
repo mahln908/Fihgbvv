@@ -1,827 +1,808 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabor de Casa</title>
+    <title>Sabor de Casa - Receitas Deliciosas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        /* OTIMIZAÇÃO DE PERFORMANCE PARA ROLAGEM FLUIDA */
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
-        :root {
-            --primary-color: #FF6B35;
-            --primary-dark: #E55A2B;
-            --secondary-color: #2D3748;
-            --accent-color: #FF8C42;
-            --light-color: #F7FAFC;
-            --dark-color: #1A202C;
-            --gray-light: #EDF2F7;
-            --gray-medium: #CBD5E0;
-            --gray-dark: #718096;
-            --white: #FFFFFF;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        body, main, .recipes-grid, .recipe-card, .recipe-image {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            will-change: transform;
         }
         
-        body {
-            background-color: #F9F9F9;
-            color: var(--dark-color);
+        /* RESET E ESTILOS BASE */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body { 
+            background-color: #f8f8f8; 
+            color: #333; 
             line-height: 1.6;
-            padding-top: 60px;
+            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 15px; 
         }
-        
-        /* Header Minimalista e Fixo - Reduzido */
+
+        /* CABEÇALHO FIXO */
         header {
-            background-color: var(--white);
-            border-bottom: 1px solid var(--gray-light);
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            background-color: white; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+            z-index: 1000; 
             padding: 10px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            height: 60px;
-            display: flex;
-            align-items: center;
+            transform: translateZ(0);
         }
         
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
+        .header-top { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 36px; 
         }
         
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .logo { 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            color: #e74c3c; 
+            display: flex; 
+            align-items: center; 
+            height: 100%; 
         }
         
-        .logo-icon {
-            background-color: var(--primary-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.9rem;
-            flex-shrink: 0;
+        .logo i { 
+            margin-right: 8px; 
         }
         
-        .logo-text h1 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            line-height: 1;
+        .search-container { 
+            display: flex; 
+            width: 40%; 
+            height: 100%; 
         }
         
-        .logo-text p {
-            font-size: 0.75rem;
-            color: var(--gray-dark);
-            margin-top: 3px;
+        .search-input { 
+            flex: 1; 
+            padding: 8px 12px; 
+            border: 2px solid #e74c3c; 
+            border-radius: 20px 0 0 20px; 
+            font-size: 0.9rem; 
+            outline: none; 
+            height: 36px; 
         }
         
-        .header-stats {
-            font-size: 0.8rem;
-            color: var(--gray-dark);
-            background-color: var(--gray-light);
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-weight: 500;
-            white-space: nowrap;
+        .search-btn { 
+            background-color: #e74c3c; 
+            color: white; 
+            border: none; 
+            padding: 0 15px; 
+            border-radius: 0 20px 20px 0; 
+            cursor: pointer; 
+            transition: background-color 0.3s; 
+            height: 36px; 
         }
         
-        /* Categorias Horizontal Fixa - Ajustada */
-        .categories-section {
-            background-color: var(--white);
-            padding: 15px 0;
-            border-bottom: 1px solid var(--gray-light);
-            margin-bottom: 30px;
-            position: sticky;
-            top: 60px;
-            z-index: 999;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        .search-btn:hover { 
+            background-color: #c0392b; 
         }
-        
+
+        /* CATEGORIAS FIXAS */
         .categories-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            background-color: #fff; 
+            border-top: 1px solid #eee; 
+            position: fixed; 
+            top: 56px; 
+            left: 0; 
+            right: 0; 
+            z-index: 999; 
+            padding: 8px 0;
+            transform: translateZ(0);
         }
         
-        .categories-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--gray-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        
-        .categories-scroll {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            flex: 1;
-            padding: 5px 0;
+        .categories-scroll { 
+            display: flex; 
+            overflow-x: auto; 
+            padding: 5px 0; 
             scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) var(--gray-light);
+            -webkit-overflow-scrolling: touch;
         }
         
-        .categories-scroll::-webkit-scrollbar {
-            height: 3px;
+        .categories-scroll::-webkit-scrollbar { 
+            height: 4px; 
         }
         
-        .categories-scroll::-webkit-scrollbar-track {
-            background: var(--gray-light);
-            border-radius: 8px;
+        .categories-scroll::-webkit-scrollbar-thumb { 
+            background: #ddd; 
+            border-radius: 10px; 
         }
         
-        .categories-scroll::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 8px;
+        .category-btn {
+            flex: 0 0 auto; 
+            padding: 6px 15px; 
+            margin: 0 5px; 
+            background-color: #f8f8f8; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: 500; 
+            white-space: nowrap; 
+            border: 1px solid #eee; 
+            font-size: 0.9rem;
+            transform: translateZ(0);
         }
         
-        .category-chip {
-            background-color: var(--white);
-            border: 1.5px solid var(--gray-medium);
-            color: var(--dark-color);
-            padding: 6px 16px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
+        .category-btn:hover, .category-btn.active { 
+            background-color: #e74c3c; 
+            color: white; 
+            border-color: #e74c3c; 
+        }
+
+        /* ESPAÇADOR PARA O CONTEÚDO */
+        .content-spacer { 
+            height: 120px; 
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        main { 
+            min-height: calc(100vh - 200px); 
+            padding-bottom: 30px; 
+            transform: translateZ(0);
+            overflow-anchor: none;
+        }
+
+        /* MENSAGEM DO DIA */
+        .daily-message-container { 
+            margin-bottom: 20px; 
         }
         
-        .category-chip:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateY(-1px);
-        }
-        
-        .category-chip.active {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 3px 6px rgba(255, 107, 53, 0.2);
-        }
-        
-        /* Barra de Busca Elegante FIXA */
-        .search-section {
-            margin-bottom: 40px;
-            position: sticky;
-            top: 105px; /* 60px (header) + 45px (categorias) */
-            z-index: 998;
-            background-color: #F9F9F9;
-            padding-top: 15px;
-            padding-bottom: 15px;
-        }
-        
-        .search-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .search-box {
-            position: relative;
-            width: 100%;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 16px 24px 16px 52px;
-            border: 1px solid var(--gray-medium);
-            border-radius: 12px;
-            font-size: 1rem;
-            background-color: var(--white);
-            transition: all 0.3s ease;
-            box-shadow: var(--card-shadow);
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15), var(--card-shadow);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-dark);
-            font-size: 1.1rem;
-        }
-        
-        .search-hint {
-            font-size: 0.85rem;
-            color: var(--gray-dark);
-            text-align: center;
+        .daily-message { 
+            background-color: #fff; 
+            border-radius: 10px; 
+            padding: 15px 20px; 
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); 
+            border-left: 4px solid #e74c3c; 
             margin-top: 10px;
+            transform: translateZ(0);
         }
         
-        /* Grid de receitas */
-        .recipes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 28px;
-            margin-bottom: 60px;
+        .daily-message-title { 
+            font-size: 1rem; 
+            color: #e74c3c; 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
         }
         
-        .recipe-card {
-            background-color: var(--white);
-            border-radius: 12px;
+        .daily-message-title i { 
+            font-size: 0.9rem; 
+        }
+        
+        .daily-message-text { 
+            font-size: 0.95rem; 
+            color: #555; 
+            font-style: italic; 
+        }
+        
+        .page-title { 
+            font-size: 1.8rem; 
+            color: #333; 
+            margin-bottom: 10px; 
+            text-align: center; 
+        }
+
+        /* GRID DE RECEITAS - MODIFICADO PARA CARREGAMENTO DE BAIXO PARA CIMA */
+        .recipes-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px;
+            transform: translateZ(0);
+            grid-auto-flow: dense;
+        }
+        
+        .recipe-card { 
+            background-color: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); 
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            transform: translateZ(0);
+            opacity: 0;
+            transform: translateY(20px) translateZ(0);
+            animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        /* Animação para entrada de baixo para cima */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) translateZ(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) translateZ(0);
+            }
+        }
+        
+        /* Delay progressivo para as animações */
+        .recipe-card:nth-child(1) { animation-delay: 0.1s; }
+        .recipe-card:nth-child(2) { animation-delay: 0.2s; }
+        .recipe-card:nth-child(3) { animation-delay: 0.3s; }
+        .recipe-card:nth-child(4) { animation-delay: 0.4s; }
+        .recipe-card:nth-child(5) { animation-delay: 0.5s; }
+        .recipe-card:nth-child(6) { animation-delay: 0.6s; }
+        .recipe-card:nth-child(7) { animation-delay: 0.7s; }
+        .recipe-card:nth-child(8) { animation-delay: 0.8s; }
+        .recipe-card:nth-child(9) { animation-delay: 0.9s; }
+        .recipe-card:nth-child(10) { animation-delay: 1.0s; }
+        .recipe-card:nth-child(11) { animation-delay: 1.1s; }
+        .recipe-card:nth-child(12) { animation-delay: 1.2s; }
+        
+        .recipe-card:hover { 
+            transform: translateY(-3px) translateZ(0); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12); 
+        }
+        
+        .recipe-image { 
+            height: 180px; 
+            background-color: #f5f5f5; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #777; 
+            font-size: 0.85rem; 
             overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            transform: translateZ(0);
         }
         
-        .recipe-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--card-shadow-hover);
+        .recipe-content { 
+            padding: 15px; 
         }
         
-        .recipe-image {
-            height: 200px;
-            width: 100%;
-            overflow: hidden;
-            position: relative;
+        .recipe-category { 
+            display: inline-block; 
+            background-color: #f0f7ff; 
+            color: #3498db; 
+            padding: 4px 10px; 
+            border-radius: 15px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
         }
         
-        .recipe-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
+        .recipe-title { 
+            font-size: 1.1rem; 
+            margin-bottom: 8px; 
+            color: #333; 
+            line-height: 1.3; 
         }
         
-        .recipe-card:hover .recipe-image img {
-            transform: scale(1.05);
+        .recipe-time { 
+            display: flex; 
+            align-items: center; 
+            color: #e74c3c; 
+            font-weight: 500; 
+            margin-bottom: 12px; 
+            font-size: 0.85rem; 
         }
         
-        .recipe-time-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background-color: rgba(255, 255, 255, 0.95);
-            color: var(--dark-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .recipe-content {
-            padding: 24px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .recipe-category {
-            display: inline-block;
-            background-color: var(--gray-light);
-            color: var(--primary-dark);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            align-self: flex-start;
-        }
-        
-        .recipe-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--dark-color);
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .recipe-ingredients {
-            margin-bottom: 20px;
-            max-height: 110px;
-            overflow-y: auto;
-            padding-right: 5px;
-            flex-grow: 1;
-        }
-        
-        .recipe-ingredients h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--secondary-color);
-        }
-        
-        .recipe-ingredients ul {
-            padding-left: 18px;
-            font-size: 0.9rem;
-            color: var(--gray-dark);
-        }
-        
-        .recipe-ingredients li {
-            margin-bottom: 6px;
-            line-height: 1.4;
+        .recipe-time i { 
+            margin-right: 5px; 
+            font-size: 0.85rem; 
         }
         
         .view-recipe-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            margin-top: auto;
+            display: inline-block; 
+            background-color: #e74c3c; 
+            color: white; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            text-align: center; 
+            font-weight: 600; 
+            transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            width: 100%; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            transform: translateZ(0);
         }
         
-        .view-recipe-btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
+        .view-recipe-btn:hover { 
+            background-color: #c0392b; 
+        }
+
+        /* MENSAGEM QUANDO NÃO HÁ RECEITAS */
+        .no-recipes { 
+            text-align: center; 
+            padding: 40px 20px; 
+            color: #666;
+            animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* LOADING */
+        .loading { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 200px; 
+            flex-direction: column; 
+            gap: 15px; 
         }
         
-        /* Mensagens de estado */
-        .loading, .no-results {
-            text-align: center;
-            padding: 80px 20px;
-            grid-column: 1 / -1;
+        .spinner { 
+            width: 40px; 
+            height: 40px; 
+            border: 4px solid rgba(231, 76, 60, 0.2); 
+            border-radius: 50%; 
+            border-top-color: #e74c3c; 
+            animation: spin 1s linear infinite; 
         }
         
-        .loading i {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 24px;
+        @keyframes spin { 
+            to { 
+                transform: rotate(360deg); 
+            } 
+        }
+
+        /* RODAPÉ */
+        footer { 
+            background-color: #333; 
+            color: white; 
+            padding: 30px 0 15px; 
+            text-align: center; 
         }
         
-        .loading h3 {
-            color: var(--dark-color);
-            margin-bottom: 12px;
+        .footer-content { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column; 
+            margin-bottom: 20px; 
         }
         
-        .no-results {
-            color: var(--gray-dark);
+        .footer-logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: #e74c3c; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
         }
         
-        .no-results i {
-            font-size: 3rem;
-            color: var(--gray-medium);
-            margin-bottom: 24px;
+        .social-icons { 
+            display: flex; 
+            gap: 15px; 
+            margin-top: 10px; 
         }
         
-        /* Footer Minimalista */
-        footer {
-            background-color: var(--secondary-color);
-            color: var(--gray-light);
-            padding: 25px 0;
-            margin-top: 40px;
+        .social-icons a {
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 36px; 
+            height: 36px; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            border-radius: 50%; 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            transform: translateZ(0);
         }
         
-        .footer-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+        .social-icons a:hover { 
+            background-color: #e74c3c; 
+            transform: translateY(-2px) translateZ(0); 
         }
         
-        .footer-content p {
-            font-size: 0.85rem;
-            color: var(--gray-medium);
-            text-align: center;
+        .footer-bottom { 
+            padding-top: 15px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.1); 
+            color: #ccc; 
+            font-size: 0.85rem; 
         }
-        
-        .copyright {
-            font-size: 0.8rem;
-            color: var(--gray-dark);
-        }
-        
-        /* Responsividade */
-        @media (max-width: 1024px) {
-            .recipes-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 24px;
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 992px) {
+            .header-top { 
+                flex-direction: column; 
+                gap: 10px; 
+                height: auto; 
+            }
+            
+            .search-container { 
+                width: 100%; 
+                max-width: 500px; 
+            }
+            
+            .content-spacer { 
+                height: 140px; 
+            }
+            
+            .categories-container { 
+                top: 86px; 
             }
         }
         
         @media (max-width: 768px) {
-            body {
-                padding-top: 60px;
+            .recipes-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
             }
             
-            .categories-section {
-                top: 60px;
-                padding: 12px 0;
+            .page-title { 
+                font-size: 1.6rem; 
             }
             
-            .search-section {
-                top: 102px; /* Ajustado para mobile */
+            .content-spacer { 
+                height: 150px; 
             }
             
-            .categories-container {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
+            .daily-message { 
+                padding: 12px 15px; 
             }
             
-            .categories-title {
-                margin-bottom: 0;
+            .recipe-card {
+                animation: slideUpMobile 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             }
             
-            .categories-scroll {
-                width: 100%;
-            }
-            
-            .header-stats {
-                display: none;
-            }
-            
-            .logo-text p {
-                display: none;
-            }
-            
-            .search-box input {
-                padding: 14px 20px 14px 48px;
+            @keyframes slideUpMobile {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px) translateZ(0);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) translateZ(0);
+                }
             }
         }
         
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 16px;
+        @media (max-width: 576px) {
+            .recipes-grid { 
+                grid-template-columns: 1fr; 
             }
             
-            .recipes-grid {
-                grid-template-columns: 1fr;
+            .search-container { 
+                width: 100%; 
             }
             
-            .category-chip {
-                padding: 5px 12px;
-                font-size: 0.75rem;
+            .logo { 
+                font-size: 1.4rem; 
             }
             
-            .logo-text h1 {
-                font-size: 1rem;
+            .content-spacer { 
+                height: 160px; 
             }
             
-            .logo-icon {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
+            .categories-container { 
+                top: 96px; 
             }
-            
-            .search-section {
-                top: 104px; /* Ajuste fino para mobile */
-            }
+        }
+
+        /* MENSAGENS DE ERRO */
+        .error-message {
+            background-color: #ffeaea; 
+            color: #c0392b; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+            text-align: center; 
+            border-left: 4px solid #c0392b;
+            animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* ESTILO PARA IMAGENS */
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            transform: translateZ(0);
         }
     </style>
 </head>
 <body>
-    <!-- Header Minimalista e Fixo - Reduzido -->
+    <!-- CABEÇALHO FIXO -->
     <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <div class="logo-text">
-                        <h1>Sabor de Casa</h1>
-                        <p id="header-message">Receitas especiais para você</p>
-                    </div>
-                </div>
-                <div class="header-stats" id="recipe-count">
-                    Carregando...
-                </div>
+        <div class="container header-top">
+            <div class="logo"><i class="fas fa-utensils"></i>Sabor de Casa</div>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Buscar receitas..." id="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="categories-container">
+            <div class="container">
+                <div class="categories-scroll" id="categories-scroll"></div>
             </div>
         </div>
     </header>
 
-    <!-- Categorias Horizontal Fixa - Ajustada -->
-    <section class="categories-section">
-        <div class="container">
-            <div class="categories-container">
-                <div class="categories-title">Categorias</div>
-                <div class="categories-scroll" id="categories-container">
-                    <div class="category-chip active" data-category="">Todas</div>
-                    <!-- Categorias serão carregadas dinamicamente -->
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- ESPAÇADOR -->
+    <div class="content-spacer"></div>
 
-    <!-- Barra de Busca FIXA -->
-    <section class="search-section">
-        <div class="container">
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-filter" placeholder="Buscar receitas por nome, ingrediente...">
-                </div>
-                <p class="search-hint">Digite para filtrar as receitas</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Grid de receitas -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
-        <div id="recipes-container">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                <h3>Carregando receitas...</h3>
+        <section id="home-page">
+            <h1 class="page-title">Receitas Deliciosas</h1>
+            <div class="daily-message-container" id="daily-message-container">
+                <div class="daily-message">
+                    <div class="daily-message-title"><i class="fas fa-lightbulb"></i>Mensagem do Dia</div>
+                    <div class="daily-message-text" id="daily-message-text">Carregando mensagem...</div>
+                </div>
             </div>
-        </div>
+            <div class="loading" id="loading"><div class="spinner"></div><p>Carregando receitas...</p></div>
+            <div class="recipes-grid" id="recipes-grid"></div>
+        </section>
     </main>
 
-    <!-- Footer -->
+    <!-- RODAPÉ -->
     <footer>
         <div class="container">
             <div class="footer-content">
-                <p>Direitos reservados ©2023</p>
+                <div class="footer-logo"><i class="fas fa-utensils"></i>Sabor de Casa</div>
+                <p>Receitas deliciosas para o seu dia a dia</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
             </div>
+            <div class="footer-bottom"><p>&copy; 2023 Sabor de Casa - Todos os direitos reservados</p></div>
         </div>
     </footer>
 
     <script>
-        // Configurações da planilha
-        const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
-        const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
-        const SHEET_NAME = 'Receitas Sabor de Casa';
+        // URL DA PLANILHA
+        const spreadsheetId = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
+        const apiKey = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
+        const sheetName = 'Receitas Sabor de Casa';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}?key=${apiKey}`;
         
-        // Variáveis globais
-        let allRecipes = [];
-        let categories = [];
+        // ESTADO DA APLICAÇÃO
+        let recipes = [], filteredRecipes = [], currentCategory = 'Todas', dailyMessage = '';
         
-        // DOM Elements
-        const recipesContainer = document.getElementById('recipes-container');
-        const categoriesContainer = document.getElementById('categories-container');
-        const searchFilter = document.getElementById('search-filter');
-        const recipeCount = document.getElementById('recipe-count');
-        const headerMessage = document.getElementById('header-message');
-        
-        // Função para carregar dados da planilha
+        // ELEMENTOS DOM
+        const recipesGrid = document.getElementById('recipes-grid');
+        const loadingElement = document.getElementById('loading');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.querySelector('.search-btn');
+        const categoriesScroll = document.getElementById('categories-scroll');
+        const dailyMessageText = document.getElementById('daily-message-text');
+
+        // CARREGAR RECEITAS DA PLANILHA
         async function loadRecipes() {
             try {
-                // URL para acessar a planilha via Google Sheets API
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-                
                 const response = await fetch(url);
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                 const data = await response.json();
                 
-                if (!data.values || data.values.length === 0) {
-                    throw new Error('Nenhum dado encontrado na planilha');
-                }
-                
-                // Converter dados da planilha em array de objetos
-                const headers = data.values[0];
-                const rows = data.values.slice(1);
-                
-                allRecipes = rows.map(row => {
-                    const recipe = {};
-                    headers.forEach((header, index) => {
-                        // Normalizar nomes das colunas
-                        const normalizedHeader = header.toLowerCase().trim();
-                        recipe[normalizedHeader] = row[index] || '';
+                if (data.values && data.values.length > 1) {
+                    const headers = data.values[0];
+                    let allMessages = [];
+                    
+                    recipes = data.values.slice(1).map(row => {
+                        const recipe = {};
+                        headers.forEach((header, index) => {
+                            const value = row[index] || '';
+                            if (header === 'nome') recipe.title = value;
+                            else if (header === 'categoria') recipe.category = value;
+                            else if (header === 'tempo') recipe.time = value;
+                            else if (header === 'ingrediente') recipe.ingredients = value;
+                            else if (header === 'mododepreparo') recipe.instructions = value;
+                            else if (header === 'url') recipe.imageUrl = value;
+                            // BUSCA ESPECÍFICA DA COLUNA G (ÍNDICE 6)
+                            else if (index === 6) {
+                                recipe.message = value;
+                                if (value && value.trim() !== '') allMessages.push(value.trim());
+                            }
+                        });
+                        return recipe;
                     });
-                    return recipe;
-                });
-                
-                // Extrair categorias únicas
-                categories = [...new Set(allRecipes.map(recipe => recipe.categoria).filter(Boolean))];
-                
-                // Verificar se há uma mensagem na planilha
-                let foundMessage = '';
-                for (const recipe of allRecipes) {
-                    if (recipe.mensagem && recipe.mensagem.trim() !== '') {
-                        foundMessage = recipe.mensagem;
-                        break;
+                    
+                    recipes = recipes.filter(recipe => recipe.title && recipe.title.trim() !== '');
+                    filteredRecipes = [...recipes];
+                    
+                    // MENSAGEM DO DIA (PRIMEIRA NÃO VAZIA DA COLUNA G)
+                    if (allMessages.length > 0) {
+                        dailyMessage = allMessages[0];
+                        dailyMessageText.textContent = dailyMessage;
+                    } else {
+                        dailyMessageText.textContent = "Cozinhar é um ato de amor. Prepare algo especial hoje!";
                     }
-                }
-                
-                // Atualizar mensagem no header
-                if (foundMessage) {
-                    headerMessage.textContent = foundMessage;
+                    
+                    setTimeout(() => {
+                        loadingElement.style.display = 'none';
+                        renderRecipes();
+                        updateCategories();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 800);
+                    
                 } else {
-                    headerMessage.textContent = 'Receitas da família para momentos especiais';
+                    showErrorMessage('Nenhuma receita encontrada na planilha.');
                 }
-                
-                // Popular categorias horizontal
-                populateCategories();
-                
-                // Exibir receitas
-                displayRecipes(allRecipes);
-                
-                // Atualizar contador
-                updateRecipeCount(allRecipes.length);
-                
             } catch (error) {
-                console.error('Erro ao carregar receitas:', error);
-                recipesContainer.innerHTML = `
-                    <div class="no-results">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Erro ao carregar receitas</h3>
-                        <p>Não foi possível conectar à planilha de receitas.</p>
-                    </div>
-                `;
-                recipeCount.textContent = "Erro";
-                headerMessage.textContent = "Receitas especiais para você";
+                console.error('Erro:', error);
+                showErrorMessage('Erro ao carregar. Verifique sua conexão e a chave da API.');
             }
         }
-        
-        // Popular categorias horizontal
-        function populateCategories() {
-            // Limpar container (exceto o botão "Todas")
-            const allButton = document.querySelector('.category-chip[data-category=""]');
-            categoriesContainer.innerHTML = '';
-            categoriesContainer.appendChild(allButton);
+
+        // ATUALIZAR CATEGORIAS
+        function updateCategories() {
+            const categories = new Set();
+            recipes.forEach(recipe => { if (recipe.category && recipe.category.trim() !== '') categories.add(recipe.category.trim()); });
+            const categoriesArray = Array.from(categories).sort((a, b) => a.localeCompare(b));
+            categoriesScroll.innerHTML = '';
             
-            // Adicionar cada categoria
-            categories.forEach(category => {
-                const chip = document.createElement('div');
-                chip.className = 'category-chip';
-                chip.setAttribute('data-category', category);
-                chip.textContent = category;
-                chip.addEventListener('click', () => filterByCategory(category));
-                categoriesContainer.appendChild(chip);
+            const todasBtn = document.createElement('div');
+            todasBtn.className = 'category-btn active';
+            todasBtn.textContent = 'Todas';
+            todasBtn.addEventListener('click', () => {
+                filterByCategory('Todas');
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                todasBtn.classList.add('active');
+            });
+            categoriesScroll.appendChild(todasBtn);
+            
+            categoriesArray.forEach(category => {
+                const categoryBtn = document.createElement('div');
+                categoryBtn.className = 'category-btn';
+                categoryBtn.textContent = category;
+                categoryBtn.addEventListener('click', () => {
+                    filterByCategory(category);
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    categoryBtn.classList.add('active');
+                });
+                categoriesScroll.appendChild(categoryBtn);
             });
         }
-        
-        // Filtrar por categoria
-        function filterByCategory(category) {
-            // Atualizar chips ativos
-            document.querySelectorAll('.category-chip').forEach(chip => {
-                chip.classList.remove('active');
-                if (chip.getAttribute('data-category') === category) {
-                    chip.classList.add('active');
-                }
-            });
-            
-            // Aplicar filtros
-            filterRecipes();
-        }
-        
-        // Exibir receitas no grid
-        function displayRecipes(recipes) {
-            if (recipes.length === 0) {
-                recipesContainer.innerHTML = `
-                    <div class="no-results">
-                        <i class="fas fa-utensils"></i>
-                        <h3>Nenhuma receita encontrada</h3>
-                        <p>Tente ajustar os filtros ou a busca.</p>
-                    </div>
-                `;
+
+        // RENDERIZAR RECEITAS
+        function renderRecipes() {
+            recipesGrid.innerHTML = '';
+            if (filteredRecipes.length === 0) {
+                recipesGrid.innerHTML = `<div class="no-recipes"><h3>Nenhuma receita encontrada</h3><p>Tente outra busca ou categoria.</p></div>`;
                 return;
             }
             
-            let recipesHTML = '<div class="recipes-grid">';
+            // INVERTER A ORDEM DAS RECEITAS PARA CARREGAR DE BAIXO PARA CIMA
+            const reversedRecipes = [...filteredRecipes].reverse();
             
-            recipes.forEach(recipe => {
-                // Verificar se a receita tem os dados necessários
-                const nome = recipe.nome || 'Receita sem nome';
-                const categoria = recipe.categoria || 'Geral';
-                const tempo = recipe.tempo || 'N/A';
-                const ingredientes = recipe.ingrediente ? recipe.ingrediente.split('\n').filter(i => i.trim()) : [];
-                const url = recipe.url || 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            reversedRecipes.forEach((recipe, index) => {
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'recipe-card';
+                const delayIndex = reversedRecipes.length - 1 - index;
+                recipeCard.style.animationDelay = `${delayIndex * 0.1}s`;
                 
-                // Limitar ingredientes para exibição no card
-                const displayedIngredients = ingredientes.slice(0, 4);
-                
-                // Gerar um ID único para a receita
-                const recipeId = encodeURIComponent(nome);
-                
-                recipesHTML += `
-                    <div class="recipe-card">
-                        <div class="recipe-image">
-                            <img src="${url}" alt="${nome}" onerror="this.src='https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
-                            <div class="recipe-time-badge">
-                                <i class="far fa-clock"></i>
-                                <span>${tempo} min</span>
-                            </div>
-                        </div>
-                        <div class="recipe-content">
-                            <span class="recipe-category">${categoria}</span>
-                            <h3 class="recipe-title">${nome}</h3>
-                            <div class="recipe-ingredients">
-                                <h4>Ingredientes</h4>
-                                <ul>
-                                    ${displayedIngredients.map(ing => `<li>${ing}</li>`).join('')}
-                                    ${ingredientes.length > 4 ? '<li>...</li>' : ''}
-                                </ul>
-                            </div>
-                            <a href="receita.html?id=${recipeId}" class="view-recipe-btn" data-id="${nome}">
-                                <i class="fas fa-book-open"></i>
-                                Ver Receita Completa
-                            </a>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            recipesHTML += '</div>';
-            recipesContainer.innerHTML = recipesHTML;
-        }
-        
-        // Filtrar receitas
-        function filterRecipes() {
-            const activeCategory = document.querySelector('.category-chip.active').getAttribute('data-category');
-            const searchTerm = searchFilter.value.toLowerCase();
-            
-            let filteredRecipes = allRecipes;
-            
-            // Filtrar por categoria
-            if (activeCategory) {
-                filteredRecipes = filteredRecipes.filter(recipe => 
-                    recipe.categoria && recipe.categoria === activeCategory
-                );
-            }
-            
-            // Filtrar por termo de busca
-            if (searchTerm) {
-                filteredRecipes = filteredRecipes.filter(recipe => {
-                    const nome = recipe.nome ? recipe.nome.toLowerCase() : '';
-                    const ingredientes = recipe.ingrediente ? recipe.ingrediente.toLowerCase() : '';
-                    const modo = recipe.mododepreparo ? recipe.mododepreparo.toLowerCase() : '';
-                    
-                    return nome.includes(searchTerm) || 
-                           ingredientes.includes(searchTerm) || 
-                           modo.includes(searchTerm);
-                });
-            }
-            
-            // Exibir receitas filtradas
-            displayRecipes(filteredRecipes);
-            
-            // Atualizar contador
-            updateRecipeCount(filteredRecipes.length);
-        }
-        
-        // Atualizar contador de receitas
-        function updateRecipeCount(count) {
-            recipeCount.textContent = `${count} receita${count !== 1 ? 's' : ''}`;
-        }
-        
-        // Event Listeners
-        searchFilter.addEventListener('input', filterRecipes);
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', loadRecipes);
-        
-        // Salvar dados para a página de receita
-        window.saveRecipeData = function() {
-            localStorage.setItem('allRecipes', JSON.stringify(allRecipes));
-        };
-        
-        // Adicionar evento de clique aos botões (após o DOM ser carregado)
-        setTimeout(() => {
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.view-recipe-btn')) {
-                    e.preventDefault();
-                    const link = e.target.closest('.view-recipe-btn');
-                    const recipeId = link.getAttribute('data-id');
-                    
-                    // Salvar dados antes de navegar
-                    saveRecipeData();
-                    
-                    // Navegar para a página de receita
-                    const encodedId = encodeURIComponent(recipeId);
-                    window.location.href = `receita.html?id=${encodedId}`;
+                let imageContent = 'Imagem da Receita';
+                if (recipe.imageUrl && recipe.imageUrl.trim() !== '') {
+                    imageContent = `<img src="${recipe.imageUrl.trim()}" alt="${recipe.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
                 }
+                
+                // Link para a página de receita completa
+                const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                recipeCard.innerHTML = `
+                    <div class="recipe-image">${imageContent}</div>
+                    <div class="recipe-content">
+                        <span class="recipe-category">${recipe.category || 'Geral'}</span>
+                        <h3 class="recipe-title">${recipe.title || 'Receita sem nome'}</h3>
+                        <div class="recipe-time"><i class="far fa-clock"></i> ${recipe.time || 'Tempo não informado'}</div>
+                        <a href="receitascompleta.html?receita=${recipeId}" class="view-recipe-btn">Ver Receita</a>
+                    </div>`;
+                recipesGrid.appendChild(recipeCard);
             });
-        }, 1000);
+            
+            // Reorganizar a ordem no grid para manter layout consistente
+            setTimeout(() => {
+                const cards = recipesGrid.querySelectorAll('.recipe-card');
+                cards.forEach(card => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0) translateZ(0)';
+                });
+            }, 100);
+            
+            // Scroll suave para mostrar as receitas
+            setTimeout(() => {
+                recipesGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+
+        // FILTRAR POR CATEGORIA
+        function filterByCategory(category) {
+            currentCategory = category;
+            filteredRecipes = (category === 'Todas') ? [...recipes] : recipes.filter(recipe => recipe.category && recipe.category.toLowerCase() === category.toLowerCase());
+            renderRecipes();
+        }
+        
+        // FILTRAR POR BUSCA
+        function filterBySearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm === '') { filterByCategory(currentCategory); return; }
+            filteredRecipes = recipes.filter(recipe => {
+                const title = recipe.title ? recipe.title.toLowerCase() : '';
+                const category = recipe.category ? recipe.category.toLowerCase() : '';
+                const ingredients = recipe.ingredients ? recipe.ingredients.toLowerCase() : '';
+                return title.includes(searchTerm) || category.includes(searchTerm) || ingredients.includes(searchTerm);
+            });
+            document.querySelectorAll('.category-btn').forEach(btn => { btn.classList.remove('active'); if (btn.textContent === 'Todas') btn.classList.add('active'); });
+            renderRecipes();
+        }
+        
+        // MOSTRAR MENSAGEM DE ERRO
+        function showErrorMessage(message) {
+            loadingElement.innerHTML = `<div class="error-message"><h3>Erro ao carregar receitas</h3><p>${message}</p>
+                <button onclick="location.reload()" class="view-recipe-btn" style="margin-top:10px;width:auto;display:inline-block;">Tentar novamente</button></div>`;
+        }
+
+        // CONFIGURAR EVENT LISTENERS
+        function setupEventListeners() {
+            searchBtn.addEventListener('click', filterBySearch);
+            searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') filterBySearch(); });
+            searchInput.addEventListener('input', function() { if (this.value === '') filterByCategory(currentCategory); });
+            document.querySelector('.search-container').addEventListener('submit', (e) => { e.preventDefault(); filterBySearch(); });
+            
+            // Scroll suave para links internos
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        }
+
+        // INICIALIZAR APLICAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadRecipes();
+            
+            // Configurar Intersection Observer para animações de scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0) translateZ(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observar cards de receita quando forem adicionados
+            const recipeGridObserver = new MutationObserver(() => {
+                document.querySelectorAll('.recipe-card').forEach(card => {
+                    observer.observe(card);
+                });
+            });
+            
+            recipeGridObserver.observe(recipesGrid, { childList: true });
+        });
     </script>
 </body>
 </html>

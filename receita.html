@@ -356,16 +356,6 @@
             max-width: 100%; 
             height: auto; 
         }
-        
-        .not-found {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .not-found h2 {
-            color: #e74c3c;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
@@ -412,19 +402,19 @@
         const sheetName = 'Receitas Sabor de Casa';
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}?key=${apiKey}`;
         
+        // FUNÇÃO PARA CRIAR ID DA RECEITA (DEVE SER IGUAL AO principal.html)
+        function createRecipeId(title) {
+            return title
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+        
         // OBTER ID DA RECEITA DA URL
         function getRecipeIdFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('receita') || urlParams.get('id') || '';
-        }
-        
-        // FORMATAR TEXTO PARA ID
-        function formatToId(text) {
-            return text
-                .toLowerCase()
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
-                .replace(/[^a-z0-9]+/g, '-') // Substitui caracteres especiais por hífen
-                .replace(/^-+|-+$/g, ''); // Remove hífens do início e fim
+            return urlParams.get('id') || '';
         }
         
         // CARREGAR RECEITA
@@ -449,7 +439,7 @@
                 const headers = data.values[0];
                 let foundRecipe = null;
                 
-                // Procurar receita pelo ID ou usar a primeira
+                // PROCURAR RECEITA PELO ID
                 for (let i = 1; i < data.values.length; i++) {
                     const row = data.values[i];
                     const recipe = {};
@@ -465,9 +455,9 @@
                         else if (index === 6) recipe.message = value;
                     });
                     
-                    // Verificar se é a receita procurada
+                    // VERIFICAR SE É A RECEITA PROCURADA
                     if (recipe.title) {
-                        const currentRecipeId = formatToId(recipe.title);
+                        const currentRecipeId = createRecipeId(recipe.title);
                         if (recipeId && currentRecipeId === recipeId) {
                             foundRecipe = recipe;
                             break;
@@ -475,7 +465,7 @@
                     }
                 }
                 
-                // Se não encontrou, usar a primeira receita
+                // SE NÃO ENCONTROU, USAR A PRIMEIRA RECEITA
                 if (!foundRecipe && data.values.length > 1) {
                     const firstRow = data.values[1];
                     foundRecipe = {};
@@ -510,13 +500,13 @@
             
             loadingElement.style.display = 'none';
             
-            // Criar HTML da receita
+            // CRIAR HTML DA RECEITA
             let imageHtml = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#777;">Imagem da Receita</div>';
             if (recipe.imageUrl && recipe.imageUrl.trim() !== '') {
                 imageHtml = `<img src="${recipe.imageUrl.trim()}" alt="${recipe.title}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
             }
             
-            // Processar ingredientes
+            // PROCESSAR INGREDIENTES
             let ingredientsHtml = '<li>Ingredientes não informados</li>';
             if (recipe.ingredients && recipe.ingredients.trim() !== '') {
                 const ingredients = recipe.ingredients.split('\n').filter(item => item.trim() !== '');
@@ -532,7 +522,7 @@
                 }
             }
             
-            // Processar modo de preparo
+            // PROCESSAR MODO DE PREPARO
             let instructionsHtml = '<li>Modo de preparo não informado</li>';
             if (recipe.instructions && recipe.instructions.trim() !== '') {
                 const instructions = recipe.instructions.split('\n').filter(item => item.trim() !== '');
@@ -543,7 +533,7 @@
                 }
             }
             
-            // Verificar se tem mensagem
+            // VERIFICAR SE TEM MENSAGEM
             let messageHtml = '';
             if (recipe.message && recipe.message.trim() !== '') {
                 messageHtml = `
@@ -553,7 +543,7 @@
                 `;
             }
             
-            // Montar HTML completo
+            // MONTAR HTML COMPLETO
             recipeContainer.innerHTML = `
                 <div class="recipe-header">
                     <a href="principal.html" class="back-home-btn">

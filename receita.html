@@ -8,52 +8,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilos específicos para página de receita */
-        body {
-            padding-top: 60px !important;
+        .recipe-page {
+            padding-top: 60px;
         }
         
-        .recipe-page-header {
+        .recipe-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: white;
+            background: white;
             padding: 10px 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-bottom: 2px solid #FF6B35;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 3px solid #FF6B35;
         }
         
-        .recipe-header-content {
+        .nav-inner {
             display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: space-between;
         }
         
-        .back-button {
+        .back-btn {
             display: flex;
             align-items: center;
             gap: 8px;
             color: #FF6B35;
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.9rem;
             padding: 6px 12px;
             border-radius: 20px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
         
-        .back-button:hover {
-            background-color: #FFF5F2;
+        .back-btn:hover {
+            background: #FFF5F2;
         }
         
-        .recipe-detail-container {
+        .recipe-detail {
             max-width: 800px;
-            margin: 0 auto 40px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 30px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         
@@ -61,12 +59,11 @@
             background: linear-gradient(135deg, #FF6B35, #FF8B5A);
             padding: 25px;
             color: white;
-            position: relative;
         }
         
-        .recipe-category-tag {
+        .recipe-cat {
             display: inline-block;
-            background-color: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             color: #FF6B35;
             padding: 6px 15px;
             border-radius: 15px;
@@ -75,14 +72,13 @@
             margin-bottom: 15px;
         }
         
-        .recipe-detail-title {
+        .recipe-name {
             font-family: 'Playfair Display', serif;
             font-size: 2rem;
             margin-bottom: 10px;
-            line-height: 1.2;
         }
         
-        .recipe-meta-info {
+        .recipe-time-info {
             display: flex;
             align-items: center;
             gap: 20px;
@@ -90,19 +86,15 @@
             opacity: 0.95;
         }
         
-        .recipe-meta-info i {
-            margin-right: 5px;
-        }
-        
-        .recipe-content {
+        .recipe-body {
             padding: 30px;
         }
         
-        .content-section {
+        .section {
             margin-bottom: 30px;
         }
         
-        .section-header {
+        .section-title {
             font-family: 'Playfair Display', serif;
             font-size: 1.4rem;
             color: #2C3E50;
@@ -114,144 +106,117 @@
             gap: 10px;
         }
         
-        .section-header i {
+        .section-title i {
             color: #FF6B35;
         }
         
-        .ingredients-list {
-            list-style-type: none;
+        .ingredients {
+            list-style: none;
             padding-left: 0;
         }
         
-        .ingredients-list li {
-            padding: 10px 0;
+        .ingredients li {
+            padding: 8px 0;
             border-bottom: 1px solid #F0F0F0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .ingredients-list li:before {
+        .ingredients li:before {
             content: "•";
             color: #FF6B35;
             font-size: 1.2rem;
         }
         
-        .preparation-steps {
-            counter-reset: step-counter;
+        .steps {
+            counter-reset: step;
         }
         
-        .preparation-step {
+        .step {
             position: relative;
-            padding: 15px 0 15px 45px;
+            padding: 12px 0 12px 40px;
             border-bottom: 1px solid #F0F0F0;
             line-height: 1.6;
         }
         
-        .preparation-step:before {
-            counter-increment: step-counter;
-            content: counter(step-counter);
+        .step:before {
+            counter-increment: step;
+            content: counter(step);
             position: absolute;
             left: 0;
-            top: 15px;
-            width: 28px;
-            height: 28px;
-            background-color: #FF6B35;
+            top: 12px;
+            width: 26px;
+            height: 26px;
+            background: #FF6B35;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
-        .recipe-message {
-            background-color: #FFF5F2;
+        .message-box {
+            background: #FFF5F2;
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #FF6B35;
             font-style: italic;
-            line-height: 1.6;
             margin-top: 20px;
         }
         
-        .recipe-url-link {
+        .external-link {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background-color: #2C3E50;
+            background: #2C3E50;
             color: white;
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 20px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
         
-        .recipe-url-link:hover {
-            background-color: #FF6B35;
+        .external-link:hover {
+            background: #FF6B35;
         }
         
-        .mobile-back-button {
+        .mobile-back {
             display: none;
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background-color: #FF6B35;
+            background: #FF6B35;
             color: white;
             padding: 12px 20px;
             border-radius: 25px;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 15px rgba(255,107,53,0.3);
             z-index: 100;
-            font-weight: 500;
             align-items: center;
             gap: 8px;
         }
         
-        .loading-recipe {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .error-message {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-        
-        .error-message i {
-            font-size: 3rem;
-            color: #FF6B35;
-            margin-bottom: 20px;
-        }
-        
         @media (max-width: 768px) {
-            .recipe-detail-title {
+            .recipe-name {
                 font-size: 1.6rem;
             }
             
-            .recipe-hero {
+            .recipe-body {
                 padding: 20px;
             }
             
-            .recipe-content {
-                padding: 20px;
-            }
-            
-            .section-header {
-                font-size: 1.2rem;
-            }
-            
-            .mobile-back-button {
+            .mobile-back {
                 display: flex;
             }
             
-            .back-button span {
+            .back-btn span {
                 display: none;
             }
             
-            .back-button {
+            .back-btn {
                 padding: 8px;
                 border-radius: 50%;
                 width: 40px;
@@ -259,30 +224,14 @@
                 justify-content: center;
             }
         }
-        
-        @media (max-width: 480px) {
-            .recipe-detail-title {
-                font-size: 1.4rem;
-            }
-            
-            .recipe-meta-info {
-                flex-direction: column;
-                gap: 8px;
-                align-items: flex-start;
-            }
-            
-            .preparation-step {
-                padding: 12px 0 12px 35px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Header com botão voltar -->
-    <header class="recipe-page-header">
+    <!-- Navegação -->
+    <nav class="recipe-nav">
         <div class="container">
-            <div class="recipe-header-content">
-                <a href="index.html" class="back-button">
+            <div class="nav-inner">
+                <a href="index.html" class="back-btn">
                     <i class="fas fa-arrow-left"></i>
                     <span>Voltar</span>
                 </a>
@@ -293,217 +242,171 @@
                 </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <!-- Conteúdo principal -->
-    <main class="container">
+    <!-- Conteúdo -->
+    <main class="container recipe-page">
         <div id="recipeContent">
-            <div class="loading-recipe" id="loadingRecipe">
-                <div class="spinner"></div>
+            <div class="loading-state">
+                <div class="loader"></div>
                 <p>Carregando receita...</p>
             </div>
         </div>
     </main>
 
-    <!-- Botão voltar para celular -->
-    <a href="index.html" class="mobile-back-button">
+    <!-- Botão mobile -->
+    <a href="index.html" class="mobile-back">
         <i class="fas fa-arrow-left"></i> Voltar
     </a>
 
     <script>
-        // Configuração da planilha (MESMA do index.html)
         const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
         const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
-        const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Receitas%20Sabor%20de%20Casa?key=${API_KEY}`;
+        const SHEET_NAME = 'Receitas Sabor de Casa';
+        const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
         
-        let allRecipes = [];
-        
-        // Obter ID da receita da URL
-        function getRecipeIdFromURL() {
+        // Obter ID da URL
+        function getIdDaUrl() {
             const params = new URLSearchParams(window.location.search);
             const id = parseInt(params.get('id'));
             return isNaN(id) ? 1 : id;
         }
         
-        // Carregar todas as receitas
-        async function loadAllRecipes() {
+        // Carregar receita
+        async function carregarReceita() {
             try {
-                console.log('📥 Carregando receitas...');
+                console.log('Carregando receita...');
                 
-                const response = await fetch(API_URL);
+                const resposta = await fetch(API_URL);
                 
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                if (!resposta.ok) {
+                    throw new Error(`Erro ${resposta.status}`);
                 }
                 
-                const data = await response.json();
+                const dados = await resposta.json();
                 
-                if (!data.values || data.values.length < 2) {
-                    throw new Error('Planilha vazia ou sem dados');
+                if (!dados.values || dados.values.length < 2) {
+                    throw new Error('Sem dados');
                 }
                 
-                // Processar dados
-                processRecipeData(data.values);
+                // Processar
+                processarReceitas(dados.values);
                 
-            } catch (error) {
-                console.error('❌ Erro ao carregar receita:', error);
-                showRecipeError('Não foi possível carregar a receita. Tente novamente mais tarde.');
+            } catch (erro) {
+                console.error('Erro:', erro);
+                mostrarErro('Não foi possível carregar a receita.');
             }
         }
         
-        // Processar dados da planilha
-        function processRecipeData(sheetData) {
-            const headers = sheetData[0];
-            const rows = sheetData.slice(1);
+        function processarReceitas(dados) {
+            const cabecalhos = dados[0];
+            const linhas = dados.slice(1);
             
-            // Mapear cabeçalhos
-            const headerMap = {};
-            headers.forEach((header, index) => {
-                headerMap[header.toLowerCase().trim()] = index;
+            // Mapear
+            const indices = {};
+            cabecalhos.forEach((cab, idx) => {
+                indices[cab.toLowerCase().trim()] = idx;
             });
             
-            // Processar cada receita
-            allRecipes = rows.map((row, index) => {
-                const recipe = {
-                    id: index + 1,
-                    nome: getRecipeValue(row, headerMap, 'nome') || `Receita ${index + 1}`,
-                    categoria: getRecipeValue(row, headerMap, 'categoria') || 'Geral',
-                    tempo: getRecipeValue(row, headerMap, 'tempo') || 'Tempo não informado',
-                    ingrediente: getRecipeValue(row, headerMap, 'ingrediente') || 'Ingredientes não informados',
-                    mododepreparo: getRecipeValue(row, headerMap, 'mododepreparo') || 'Modo de preparo não informado',
-                    url: getRecipeValue(row, headerMap, 'url') || '',
-                    mensagem: getRecipeValue(row, headerMap, 'mensagem') || ''
-                };
-                
-                return recipe;
-            });
+            // Encontrar receita
+            const idReceita = getIdDaUrl();
+            const linha = linhas[idReceita - 1];
             
-            console.log(`✅ ${allRecipes.length} receitas processadas`);
-            
-            // Carregar a receita específica
-            loadSpecificRecipe();
-        }
-        
-        function getRecipeValue(row, headerMap, field) {
-            const index = headerMap[field];
-            return (index !== undefined && row[index]) ? row[index].toString().trim() : '';
-        }
-        
-        // Carregar receita específica
-        function loadSpecificRecipe() {
-            const recipeId = getRecipeIdFromURL();
-            const recipe = allRecipes.find(r => r.id === recipeId);
-            
-            if (!recipe) {
-                showRecipeError('Receita não encontrada');
+            if (!linha) {
+                mostrarErro('Receita não encontrada');
                 return;
             }
             
-            displayRecipe(recipe);
+            const receita = {
+                nome: obterValor(linha, indices, 'nome') || 'Receita',
+                categoria: obterValor(linha, indices, 'categoria') || 'Geral',
+                tempo: obterValor(linha, indices, 'tempo') || 'Tempo não informado',
+                ingrediente: obterValor(linha, indices, 'ingrediente') || '',
+                mododepreparo: obterValor(linha, indices, 'mododepreparo') || '',
+                url: obterValor(linha, indices, 'url') || '',
+                mensagem: obterValor(linha, indices, 'mensagem') || ''
+            };
+            
+            exibirReceita(receita);
         }
         
-        // Exibir receita na página
-        function displayRecipe(recipe) {
-            const recipeContent = document.getElementById('recipeContent');
+        function obterValor(linha, indices, campo) {
+            const idx = indices[campo];
+            return (idx !== undefined && linha[idx]) ? linha[idx].toString().trim() : '';
+        }
+        
+        function exibirReceita(receita) {
+            const content = document.getElementById('recipeContent');
             
-            // Processar ingredientes (quebrar por vírgula)
-            let ingredientsHtml = '';
-            if (recipe.ingrediente && recipe.ingrediente.trim()) {
-                const ingredients = recipe.ingrediente.split(',').map(ing => ing.trim());
-                ingredientsHtml = ingredients.map(ing => `<li>${ing}</li>`).join('');
-            } else {
-                ingredientsHtml = '<li>Ingredientes não informados</li>';
+            // Ingredientes
+            let ingredientesHtml = '<li>Ingredientes não informados</li>';
+            if (receita.ingrediente) {
+                const ingredientes = receita.ingrediente.split(',').map(i => i.trim());
+                ingredientesHtml = ingredientes.map(i => `<li>${i}</li>`).join('');
             }
             
-            // Processar modo de preparo (quebrar por linha)
-            let preparationHtml = '';
-            if (recipe.mododepreparo && recipe.mododepreparo.trim()) {
-                const steps = recipe.mododepreparo.split('\n').filter(step => step.trim());
-                preparationHtml = steps.map(step => 
-                    `<div class="preparation-step">${step.trim()}</div>`
-                ).join('');
+            // Modo de preparo
+            let preparoHtml = '';
+            if (receita.mododepreparo) {
+                const passos = receita.mododepreparo.split('\n').filter(p => p.trim());
+                preparoHtml = passos.map(passo => `<div class="step">${passo.trim()}</div>`).join('');
             } else {
-                preparationHtml = '<p>Modo de preparo não informado</p>';
+                preparoHtml = '<p>Modo de preparo não informado</p>';
             }
             
-            // Primeira categoria para display
-            const firstCategory = recipe.categoria.split(',')[0].trim();
-            
-            // Construir HTML
-            recipeContent.innerHTML = `
-                <div class="recipe-detail-container">
+            content.innerHTML = `
+                <div class="recipe-detail">
                     <div class="recipe-hero">
-                        <div class="recipe-category-tag">${firstCategory}</div>
-                        <h1 class="recipe-detail-title">${recipe.nome}</h1>
-                        <div class="recipe-meta-info">
-                            <span><i class="far fa-clock"></i> ${recipe.tempo}</span>
+                        <div class="recipe-cat">${receita.categoria.split(',')[0]}</div>
+                        <h1 class="recipe-name">${receita.nome}</h1>
+                        <div class="recipe-time-info">
+                            <span><i class="far fa-clock"></i> ${receita.tempo}</span>
                         </div>
                     </div>
                     
-                    <div class="recipe-content">
-                        <!-- Ingredientes -->
-                        <div class="content-section">
-                            <h2 class="section-header">
-                                <i class="fas fa-shopping-basket"></i> Ingredientes
-                            </h2>
-                            <ul class="ingredients-list">
-                                ${ingredientsHtml}
-                            </ul>
+                    <div class="recipe-body">
+                        <div class="section">
+                            <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Ingredientes</h2>
+                            <ul class="ingredients">${ingredientesHtml}</ul>
                         </div>
                         
-                        <!-- Modo de Preparo -->
-                        <div class="content-section">
-                            <h2 class="section-header">
-                                <i class="fas fa-list-ol"></i> Modo de Preparo
-                            </h2>
-                            <div class="preparation-steps">
-                                ${preparationHtml}
-                            </div>
+                        <div class="section">
+                            <h2 class="section-title"><i class="fas fa-list-ol"></i> Modo de Preparo</h2>
+                            <div class="steps">${preparoHtml}</div>
                         </div>
                         
-                        <!-- Mensagem (se houver) -->
-                        ${recipe.mensagem && recipe.mensagem.trim() ? `
-                        <div class="recipe-message">
-                            <p><strong>💬 Mensagem:</strong> ${recipe.mensagem}</p>
+                        ${receita.mensagem ? `
+                        <div class="message-box">
+                            <p><strong>💬 Nota:</strong> ${receita.mensagem}</p>
                         </div>
                         ` : ''}
                         
-                        <!-- URL (se houver) -->
-                        ${recipe.url && recipe.url.trim() ? `
-                        <div class="content-section">
-                            <h2 class="section-header">
-                                <i class="fas fa-link"></i> Link Relacionado
-                            </h2>
-                            <a href="${recipe.url}" target="_blank" class="recipe-url-link">
-                                <i class="fas fa-external-link-alt"></i> Ver conteúdo relacionado
+                        ${receita.url ? `
+                        <div class="section">
+                            <h2 class="section-title"><i class="fas fa-link"></i> Link</h2>
+                            <a href="${receita.url}" target="_blank" class="external-link">
+                                <i class="fas fa-external-link-alt"></i> Ver mais
                             </a>
                         </div>
                         ` : ''}
                     </div>
                 </div>
             `;
-            
-            // Esconder loading
-            document.getElementById('loadingRecipe').style.display = 'none';
         }
         
-        // Mostrar erro
-        function showRecipeError(message) {
-            const recipeContent = document.getElementById('recipeContent');
-            recipeContent.innerHTML = `
-                <div class="error-message">
+        function mostrarErro(msg) {
+            document.getElementById('recipeContent').innerHTML = `
+                <div class="no-results">
                     <i class="fas fa-exclamation-triangle"></i>
                     <h3>Erro</h3>
-                    <p>${message}</p>
-                    <a href="index.html" class="load-more-btn" style="margin-top: 20px; display: inline-block;">
-                        Voltar para receitas
-                    </a>
+                    <p>${msg}</p>
+                    <a href="index.html" class="load-more">Voltar</a>
                 </div>
             `;
         }
         
-        // Iniciar quando a página carregar
-        document.addEventListener('DOMContentLoaded', loadAllRecipes);
+        // Iniciar
+        document.addEventListener('DOMContentLoaded', carregarReceita);
     </script>
 </body>
 </html>

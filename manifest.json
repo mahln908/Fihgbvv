@@ -1,12 +1,14 @@
 {
   "name": "Sabor de Casa",
-  "short_name": "Sabor de Casa",
+  "short_name": "Receitas",
   "description": "Receitas deliciosas da família",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FF6B35",
   "orientation": "portrait",
+  "scope": "/",
+  "categories": ["food", "lifestyle"],
   "icons": [
     {
       "src": "icon-72.png",
@@ -55,6 +57,20 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshot-2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }

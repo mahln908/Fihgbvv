@@ -9,68 +9,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Barra de pesquisa fixa no topo -->
+    <!-- Header fixo -->
     <header class="header">
         <div class="container">
-            <div class="header-content">
+            <div class="header-inner">
                 <div class="logo">
                     <h1><i class="fas fa-utensils"></i> Sabor de Casa</h1>
                 </div>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar receitas por nome ou ingrediente...">
+                <div class="search-box">
+                    <div class="search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar receitas...">
+                    </div>
                     <button id="searchButton" class="search-btn">Buscar</button>
                 </div>
-                <button id="refreshBtn" class="refresh-btn" title="Atualizar receitas">
-                    <i class="fas fa-redo"></i>
-                </button>
             </div>
         </div>
     </header>
 
-    <!-- Navegação por categorias - horizontal scroll -->
-    <nav class="categories-nav">
+    <!-- Categorias scroll horizontal -->
+    <nav class="categories">
         <div class="container">
-            <div class="categories-container">
-                <button class="category-btn active" data-category="todas">
+            <div class="categories-inner">
+                <button class="cat-btn active" data-category="todas">
                     <i class="fas fa-utensils"></i> Todas
                 </button>
-                <div class="categories-scroll" id="categoriesScroll">
-                    <!-- Categorias serão carregadas dinamicamente -->
-                    <span class="loading-text">Carregando categorias...</span>
+                <div class="cat-scroll-container">
+                    <button class="scroll-arrow left-arrow" id="scrollLeft">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="cat-scroll" id="categoriesScroll">
+                        <span class="loading-cats">Carregando categorias...</span>
+                    </div>
+                    <button class="scroll-arrow right-arrow" id="scrollRight">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
-                <button class="scroll-btn scroll-left" id="scrollLeft">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="scroll-btn scroll-right" id="scrollRight">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo principal -->
-    <main class="container main-content">
-        <div class="page-title">
-            <h2>Receitas da Família</h2>
-            <div class="recipes-stats">
-                <span id="recipesCount">0</span> receitas encontradas
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Receitas da Família</h2>
+                <div class="counter">
+                    <span id="recipesCount">0</span> receitas
+                </div>
             </div>
-        </div>
 
-        <!-- Área de receitas -->
-        <div class="recipes-container" id="recipesContainer">
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Carregando receitas da planilha...</p>
+            <div class="recipes-grid" id="recipesContainer">
+                <div class="loading-state" id="loading">
+                    <div class="loader"></div>
+                    <p>Carregando receitas...</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Botão para carregar mais receitas -->
-        <div class="load-more-container">
-            <button id="loadMoreBtn" class="load-more-btn" style="display: none;">
-                <i class="fas fa-plus"></i> Carregar mais receitas
-            </button>
+            <div class="load-more-wrapper">
+                <button id="loadMoreBtn" class="load-more">
+                    <i class="fas fa-plus"></i> Carregar mais
+                </button>
+            </div>
         </div>
     </main>
 

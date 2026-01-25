@@ -22,6 +22,9 @@
                     <input type="text" id="searchInput" placeholder="Buscar receitas por nome ou ingrediente...">
                     <button id="searchButton" class="search-btn">Buscar</button>
                 </div>
+                <button id="reloadBtn" class="reload-btn" title="Atualizar receitas">
+                    <i class="fas fa-redo"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -35,6 +38,9 @@
                 </button>
                 <div class="categories-scroll" id="categoriesScroll">
                     <!-- Categorias serão carregadas dinamicamente -->
+                    <div class="loading-categories">
+                        <div class="spinner-small"></div>
+                    </div>
                 </div>
                 <button class="scroll-btn scroll-left" id="scrollLeft">
                     <i class="fas fa-chevron-left"></i>
@@ -64,11 +70,10 @@
             <!-- As receitas serão carregadas dinamicamente aqui -->
         </div>
 
-        <!-- Botão para carregar mais receitas -->
-        <div class="load-more-container" id="loadMoreContainer">
-            <button id="loadMoreBtn" class="load-more-btn">
-                <i class="fas fa-plus"></i> Carregar mais receitas
-            </button>
+        <!-- Indicador de carregamento automático -->
+        <div class="auto-load-indicator" id="autoLoadIndicator">
+            <div class="spinner-small"></div>
+            <span>Carregando mais receitas...</span>
         </div>
     </main>
 
@@ -79,7 +84,7 @@
                 <div class="footer-info">
                     <h3><i class="fas fa-utensils"></i> Sabor de Casa</h3>
                     <p>Todas as receitas são carregadas diretamente do Google Sheets</p>
-                    <p class="footer-note">Planilha ID: 14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc</p>
+                    <p class="footer-note">Atualizado automaticamente</p>
                 </div>
             </div>
         </div>

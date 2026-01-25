@@ -1,4 +1,4 @@
-// Configurações da planilha - CORRIGIDO
+// Configurações da planilha
 const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
 const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
 const SHEET_NAME = 'Receitas Sabor de Casa';
@@ -22,9 +22,21 @@ const scrollRight = document.getElementById('scrollRight');
 const recipesCount = document.getElementById('recipesCount');
 const autoLoadIndicator = document.getElementById('autoLoadIndicator');
 
-// Carregar dados da planilha - SIMPLIFICADO E FUNCIONAL
+// Verificar conexão
+function verificarConexao() {
+    if (!navigator.onLine) {
+        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+        return false;
+    }
+    return true;
+}
+
+// Carregar dados da planilha
 async function carregarReceitas() {
     try {
+        // Verificar conexão primeiro
+        if (!verificarConexao()) return;
+        
         mostrarLoading();
         console.log('📥 Carregando receitas...');
         
@@ -42,21 +54,26 @@ async function carregarReceitas() {
         
         console.log('✅ Dados recebidos:', data.values.length, 'linhas');
         
-        // Processar dados - SIMPLIFICADO
+        // Processar dados
         processarDados(data.values);
         
     } catch (error) {
         console.error('❌ Erro ao carregar receitas:', error);
-        mostrarErro('Não foi possível carregar as receitas. Verifique sua conexão.');
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+            mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+        } else {
+            mostrarErro('Não foi possível carregar as receitas. Verifique sua conexão.');
+        }
     }
 }
 
-// Processar dados - CORRIGIDO
+// Processar dados - CORRIGIDO: remover receitas duplicadas
 function processarDados(dadosPlanilha) {
     const cabecalhos = dadosPlanilha[0];
     const linhas = dadosPlanilha.slice(1);
     
-    // Mapear índices - SIMPLES E DIRETO
+    // Mapear índices
     const nomeIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('nome'));
     const categoriaIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('categoria'));
     const tempoIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('tempo'));
@@ -66,6 +83,8 @@ function processarDados(dadosPlanilha) {
     const mensagemIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('mensagem'));
     
     // Processar linhas da MAIS RECENTE para a MAIS ANTIGA
+    // Usar Set para evitar duplicatas
+    const nomesVistos = new Set();
     todasReceitas = [];
     
     for (let i = linhas.length - 1; i >= 0; i--) {
@@ -82,13 +101,14 @@ function processarDados(dadosPlanilha) {
             mensagem: (mensagemIndex >= 0 && linha[mensagemIndex]) ? linha[mensagemIndex].toString().trim() : ''
         };
         
-        // Apenas adicionar se tiver nome
-        if (receita.nome && receita.nome !== 'Receita') {
+        // Verificar se é duplicada (mesmo nome) e se tem nome válido
+        if (receita.nome && receita.nome !== 'Receita' && !nomesVistos.has(receita.nome.toLowerCase())) {
+            nomesVistos.add(receita.nome.toLowerCase());
             todasReceitas.push(receita);
         }
     }
     
-    console.log(`🍳 ${todasReceitas.length} receitas processadas`);
+    console.log(`🍳 ${todasReceitas.length} receitas processadas (sem duplicatas)`);
     
     // Inicializar
     receitasFiltradas = [...todasReceitas];
@@ -105,22 +125,23 @@ function processarDados(dadosPlanilha) {
     esconderLoading();
 }
 
-// Carregar categorias
+// Carregar categorias - CORRIGIDO: categorias únicas
 function carregarCategorias() {
-    // Extrair categorias únicas
-    const categorias = new Set();
+    // Extrair categorias únicas (sem duplicatas)
+    const categoriasSet = new Set();
     
     todasReceitas.forEach(receita => {
-        if (receita.categoria) {
-            receita.categoria.split(',').forEach(cat => {
-                const categoriaLimpa = cat.trim();
-                if (categoriaLimpa) categorias.add(categoriaLimpa);
+        if (receita.categoria && receita.categoria.trim()) {
+            // Dividir por vírgula e adicionar cada categoria
+            const categorias = receita.categoria.split(',').map(cat => cat.trim());
+            categorias.forEach(cat => {
+                if (cat) categoriasSet.add(cat);
             });
         }
     });
     
-    // Ordenar categorias
-    const categoriasOrdenadas = Array.from(categorias).sort();
+    // Converter para array e ordenar
+    const categoriasOrdenadas = Array.from(categoriasSet).sort();
     
     // Limpar e criar categorias
     categoriesScroll.innerHTML = '';
@@ -168,7 +189,7 @@ function carregarCategorias() {
     }
 }
 
-// Exibir receitas - SIMPLIFICADO
+// Exibir receitas
 function exibirReceitas() {
     // Calcular quantas receitas mostrar
     const receitasParaMostrar = receitasFiltradas.slice(0, receitasExibidas + RECIPES_PER_LOAD);
@@ -215,7 +236,8 @@ function criarCardReceita(receita, indice) {
         receita.url.includes('.jpg') || 
         receita.url.includes('.jpeg') || 
         receita.url.includes('.png') ||
-        receita.url.includes('.gif')
+        receita.url.includes('.gif') ||
+        receita.url.includes('http')
     );
     
     card.innerHTML = `
@@ -301,8 +323,8 @@ function esconderLoading() {
 function mostrarErro(mensagem) {
     recipesContainer.innerHTML = `
         <div class="no-results">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Erro ao carregar</h3>
+            <i class="fas fa-wifi-slash"></i>
+            <h3>Sem conexão</h3>
             <p>${mensagem}</p>
             <button onclick="carregarReceitas()" class="view-recipe" style="margin-top: 20px;">
                 <i class="fas fa-redo"></i> Tentar novamente
@@ -356,12 +378,33 @@ function executarBusca() {
     atualizarContador();
 }
 
+// Detectar mudanças na conexão
+window.addEventListener('online', () => {
+    console.log('✅ Conexão restaurada');
+    // Tentar recarregar se estava com erro
+    if (recipesContainer.querySelector('.no-results i.fa-wifi-slash')) {
+        carregarReceitas();
+    }
+});
+
+window.addEventListener('offline', () => {
+    console.log('❌ Conexão perdida');
+    if (!todasReceitas.length) {
+        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+    }
+});
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Iniciando Sabor de Casa...');
     
-    // Carregar receitas
-    carregarReceitas();
+    // Verificar conexão inicial
+    if (!navigator.onLine) {
+        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+    } else {
+        // Carregar receitas
+        carregarReceitas();
+    }
     
     // Configurar eventos
     if (searchButton) {

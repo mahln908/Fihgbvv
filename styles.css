@@ -23,7 +23,7 @@ body {
     background: var(--light);
     color: #333;
     line-height: 1.6;
-    padding-top: 135px; /* AUMENTADO para categorias mais baixas */
+    padding-top: 140px; /* MAIS ESPAÇO NO TOPO */
 }
 
 .container {
@@ -32,16 +32,16 @@ body {
     padding: 0 15px;
 }
 
-/* Header - AJUSTADO */
+/* Header */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     background: var(--light);
-    padding: 15px 0; /* AUMENTADO */
+    padding: 15px 0;
     z-index: 1000;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.12); /* SOMBRA MAIS FORTE */
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
     border-bottom: 3px solid var(--orange);
 }
 
@@ -54,7 +54,7 @@ body {
 
 .logo h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.6rem; /* AUMENTADO */
+    font-size: 1.6rem;
     color: var(--orange);
     font-weight: 700;
 }
@@ -76,8 +76,8 @@ body {
     display: flex;
     align-items: center;
     background: var(--light-gray);
-    border-radius: 30px; /* MAIS ARREDONDADO */
-    padding: 0 18px; /* MAIS PADDING */
+    border-radius: 30px;
+    padding: 0 18px;
     border: 2px solid var(--border);
     transition: all 0.3s ease;
 }
@@ -108,7 +108,7 @@ body {
     color: white;
     border: none;
     border-radius: 30px;
-    padding: 10px 25px; /* MAIS PADDING */
+    padding: 10px 25px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -123,17 +123,17 @@ body {
     box-shadow: 0 5px 12px rgba(255,107,53,0.4);
 }
 
-/* Categorias - MAIS BAIXAS E VISÍVEIS */
+/* Categorias */
 .categories {
     position: fixed;
-    top: 75px; /* AUMENTADO - MAIS BAIXO */
+    top: 75px;
     left: 0;
     width: 100%;
     background: var(--light);
     z-index: 999;
-    padding: 12px 0; /* MAIS PADDING */
+    padding: 12px 0;
     border-bottom: 2px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* SOMBRA MAIS FORTE */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .categories-inner {
@@ -152,9 +152,9 @@ body {
 .cat-scroll {
     flex: 1;
     display: flex;
-    gap: 10px; /* MAIS ESPAÇO */
+    gap: 10px;
     overflow-x: auto;
-    padding: 8px 15px; /* MAIS PADDING */
+    padding: 8px 15px;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     background: var(--light-gray);
@@ -184,8 +184,8 @@ body {
     background: var(--light);
     border: 2px solid var(--border);
     border-radius: 25px;
-    padding: 8px 18px; /* MAIS PADDING */
-    font-size: 0.9rem; /* FONTE MAIOR */
+    padding: 8px 18px;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #333;
     cursor: pointer;
@@ -215,7 +215,7 @@ body {
     background: white;
     border: 2px solid var(--border);
     border-radius: 50%;
-    width: 36px; /* MAIOR */
+    width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
@@ -243,23 +243,23 @@ body {
     font-weight: 500;
 }
 
-/* Conteúdo principal - MAIS VISÍVEL */
+/* Conteúdo principal - MAIS ESPAÇO EM CIMA */
 .main {
-    padding: 25px 0 50px;
+    padding: 40px 0 60px; /* MAIS PADDING EM CIMA */
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding: 15px 0;
+    margin-bottom: 40px; /* MAIS ESPAÇO ABAIXO */
+    padding: 20px 0;
     border-bottom: 2px solid var(--light-gray);
 }
 
 .page-title {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem; /* MAIOR */
+    font-size: 2.2rem; /* MAIOR */
     color: var(--dark);
     font-weight: 700;
     margin: 0;
@@ -268,19 +268,19 @@ body {
 .counter {
     background: var(--orange);
     color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 0.95rem;
+    padding: 10px 22px;
+    border-radius: 25px;
+    font-size: 1rem;
     font-weight: 700;
-    box-shadow: 0 3px 8px rgba(255,107,53,0.3);
+    box-shadow: 0 4px 12px rgba(255,107,53,0.3);
 }
 
 /* Grid de receitas */
 .recipes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
+    gap: 30px; /* MAIS ESPAÇO ENTRE CARDS */
+    margin-bottom: 50px;
 }
 
 /* Card de receita */
@@ -290,7 +290,7 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: all 0.3s ease;
-    border: 2px solid var(--border); /* BORDA MAIS GROSSA */
+    border: 2px solid var(--border);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -314,7 +314,7 @@ body {
 }
 
 .recipe-image-container {
-    height: 200px; /* MAIOR */
+    height: 200px;
     position: relative;
     overflow: hidden;
 }
@@ -389,7 +389,7 @@ body {
 
 .recipe-title {
     font-family: 'Playfair Display', serif;
-    font-size: 1.4rem; /* MAIOR */
+    font-size: 1.4rem;
     margin-bottom: 12px;
     color: var(--dark);
     line-height: 1.3;
@@ -474,7 +474,7 @@ body {
     font-weight: 500;
     background: var(--light-gray);
     border-radius: var(--radius);
-    margin: 20px 0;
+    margin: 30px 0;
 }
 
 /* Sem resultados */
@@ -497,18 +497,40 @@ body {
     color: var(--dark);
 }
 
-/* Botão de instalação PWA */
-.install-container {
+/* Modal PWA */
+.pwa-modal {
+    display: none;
     position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 1001;
-    animation: slideInUp 0.5s ease;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
 }
 
-@keyframes slideInUp {
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.pwa-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
     from {
-        transform: translateY(100px);
+        transform: translateY(50px);
         opacity: 0;
     }
     to {
@@ -517,45 +539,82 @@ body {
     }
 }
 
-.install-btn {
+.pwa-icon {
+    font-size: 4rem;
+    color: var(--orange);
+    margin-bottom: 20px;
+}
+
+.pwa-modal-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--dark);
+    margin-bottom: 10px;
+}
+
+.pwa-modal-content p {
+    color: var(--gray);
+    margin-bottom: 30px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.pwa-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pwa-install-btn {
     background: var(--orange);
     color: white;
     border: none;
-    border-radius: 50px;
-    padding: 14px 28px;
+    border-radius: 25px;
+    padding: 14px 30px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+    gap: 10px;
     transition: all 0.3s ease;
+    min-width: 160px;
+    justify-content: center;
 }
 
-.install-btn:hover {
+.pwa-install-btn:hover {
     background: var(--orange-dark);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255,107,53,0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,107,53,0.3);
 }
 
-.install-btn i {
-    font-size: 1.2rem;
+.pwa-cancel-btn {
+    background: var(--light-gray);
+    color: var(--gray);
+    border: 2px solid var(--border);
+    border-radius: 25px;
+    padding: 14px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.pwa-cancel-btn:hover {
+    background: #e9ecef;
 }
 
 /* Responsivo */
 @media (max-width: 768px) {
     body {
-        padding-top: 130px;
+        padding-top: 135px;
     }
     
     .categories {
         top: 70px;
         padding: 10px 0;
-    }
-    
-    .header {
-        padding: 12px 0;
     }
     
     .header-inner {
@@ -592,27 +651,30 @@ body {
     }
     
     .page-title {
-        font-size: 1.7rem;
+        font-size: 1.8rem;
+    }
+    
+    .main {
+        padding: 30px 0 50px;
     }
     
     .recipes-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
+        gap: 25px;
     }
     
-    .recipe-image-container {
-        height: 180px;
+    .pwa-modal-content {
+        padding: 30px 20px;
     }
     
-    .install-btn {
-        padding: 12px 24px;
-        font-size: 0.95rem;
+    .pwa-buttons {
+        flex-direction: column;
     }
 }
 
 @media (max-width: 480px) {
     body {
-        padding-top: 125px;
+        padding-top: 130px;
     }
     
     .recipes-grid {
@@ -633,14 +695,14 @@ body {
         height: 32px;
     }
     
-    .install-container {
-        bottom: 15px;
-        right: 15px;
+    .page-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
     }
     
-    .install-btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
+    .counter {
+        align-self: flex-start;
     }
 }
 

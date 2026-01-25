@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
 </head>
 <body>
     <!-- Barra de pesquisa fixa no topo -->
@@ -15,57 +16,58 @@
             <div class="header-content">
                 <div class="logo">
                     <h1><i class="fas fa-utensils"></i> Sabor de Casa</h1>
-                    <p>Receitas com amor para sua família</p>
                 </div>
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Pesquisar receitas...">
-                    <button id="searchButton">Buscar</button>
-                </div>
-                <div class="header-icons">
-                    <button id="themeToggle" class="icon-btn" title="Alternar tema">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <input type="text" id="searchInput" placeholder="Buscar receitas por nome ou ingrediente...">
+                    <button id="searchButton" class="search-btn">Buscar</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Navegação por categorias -->
+    <!-- Navegação por categorias - horizontal scroll -->
     <nav class="categories-nav">
         <div class="container">
-            <div class="categories-scroll">
-                <button class="category-btn active" data-category="todas">Todas</button>
-                <!-- As categorias serão carregadas dinamicamente via JavaScript -->
-                <div class="categories-list" id="categoriesList">
-                    <!-- Categorias serão inseridas aqui -->
+            <div class="categories-container">
+                <button class="category-btn active" data-category="todas">
+                    <i class="fas fa-utensils"></i> Todas
+                </button>
+                <div class="categories-scroll" id="categoriesScroll">
+                    <!-- Categorias serão carregadas dinamicamente -->
                 </div>
+                <button class="scroll-btn scroll-left" id="scrollLeft">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="scroll-btn scroll-right" id="scrollRight">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo principal -->
-    <main class="container">
-        <div class="recipes-header">
-            <h2>Receitas Recentes</h2>
-            <div class="recipes-count">
+    <main class="container main-content">
+        <div class="page-title">
+            <h2>Receitas da Família</h2>
+            <div class="recipes-stats">
                 <span id="recipesCount">0</span> receitas encontradas
             </div>
         </div>
 
         <!-- Área de receitas -->
-        <div class="recipes-grid" id="recipesGrid">
-            <!-- As receitas serão carregadas dinamicamente aqui -->
+        <div class="recipes-container" id="recipesContainer">
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Carregando receitas...</p>
+                <p>Conectando ao Google Sheets...</p>
             </div>
+            <!-- As receitas serão carregadas dinamicamente aqui -->
         </div>
 
         <!-- Botão para carregar mais receitas -->
-        <div class="load-more-container">
+        <div class="load-more-container" id="loadMoreContainer">
             <button id="loadMoreBtn" class="load-more-btn">
-                <i class="fas fa-arrow-up"></i> Carregar mais receitas
+                <i class="fas fa-plus"></i> Carregar mais receitas
             </button>
         </div>
     </main>
@@ -74,13 +76,10 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">
-                    <h3><i class="fas fa-utensils"></i> Sabor de Casa</h3>
-                    <p>Compartilhando o sabor do lar desde 2023</p>
-                </div>
                 <div class="footer-info">
-                    <p>Receitas carregadas do Google Sheets</p>
-                    <p>Desenvolvido com <i class="fas fa-heart"></i> para amantes da culinária</p>
+                    <h3><i class="fas fa-utensils"></i> Sabor de Casa</h3>
+                    <p>Todas as receitas são carregadas diretamente do Google Sheets</p>
+                    <p class="footer-note">Planilha ID: 14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc</p>
                 </div>
             </div>
         </div>

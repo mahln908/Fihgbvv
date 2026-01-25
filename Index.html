@@ -27,7 +27,7 @@
         </div>
     </header>
 
-    <!-- Categorias scroll horizontal -->
+    <!-- Categorias scroll horizontal - AJUSTADO -->
     <nav class="categories">
         <div class="container">
             <div class="categories-inner">
@@ -66,10 +66,10 @@
                 </div>
             </div>
 
-            <div class="load-more-wrapper">
-                <button id="loadMoreBtn" class="load-more">
-                    <i class="fas fa-plus"></i> Carregar mais
-                </button>
+            <!-- Removido botão "Carregar mais" - agora é automático -->
+            <div class="auto-load-indicator" id="autoLoadIndicator" style="display: none;">
+                <div class="loader small"></div>
+                <span>Carregando mais receitas...</span>
             </div>
         </div>
     </main>

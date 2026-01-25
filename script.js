@@ -1,15 +1,15 @@
-// Configuração da API do Google Sheets
+// Configurações da planilha
 const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
 const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
-// IMPORTANTE: A planilha precisa estar pública para funcionar!
-const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Receitas%20Sabor%20de%20Casa?key=${API_KEY}`;
+const SHEET_NAME = 'Receitas Sabor de Casa';
+const URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
 
-// Variáveis globais
-let allRecipes = [];
-let filteredRecipes = [];
-let currentCategory = 'todas';
-let displayedRecipes = 0;
-const RECIPES_PER_PAGE = 6;
+// Estado da aplicação
+let todasReceitas = [];
+let receitasFiltradas = [];
+let categoriaAtual = 'todas';
+let receitasExibidas = 0;
+const RECIPES_PER_LOAD = 6;
 
 // Elementos DOM
 const recipesContainer = document.getElementById('recipesContainer');
@@ -20,11 +20,9 @@ const loadMoreBtn = document.getElementById('loadMoreBtn');
 const recipesCount = document.getElementById('recipesCount');
 const scrollLeft = document.getElementById('scrollLeft');
 const scrollRight = document.getElementById('scrollRight');
-const refreshBtn = document.getElementById('refreshBtn');
-const loadingElement = document.getElementById('loading');
 
-// Cores para diferentes categorias
-const categoryColors = {
+// Cores para categorias
+const coresCategorias = {
     'pratos principais': '#FF6B35',
     'low carb': '#27AE60',
     'sobremesa': '#9B59B6',
@@ -37,290 +35,216 @@ const categoryColors = {
     'sopas': '#16A085',
     'bolos': '#8E44AD',
     'doces': '#F39C12',
-    'bebidas': '#3498DB',
-    'tradicional': '#E67E22',
-    'café da manhã': '#F1C40F',
-    'light': '#2ECC71'
+    'bebidas': '#3498DB'
 };
 
-// Função principal para carregar dados da planilha
-async function loadRecipes() {
+// Carregar dados da planilha
+async function carregarReceitas() {
     try {
-        showLoading();
-        console.log('🔄 Conectando ao Google Sheets...');
+        mostrarLoading();
         
-        const response = await fetch(API_URL);
+        console.log('🔗 Acessando Google Sheets...');
+        const resposta = await fetch(URL);
         
-        if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
+        if (!resposta.ok) {
+            throw new Error(`Erro ${resposta.status}: ${resposta.statusText}`);
         }
         
-        const data = await response.json();
+        const dados = await resposta.json();
         
-        if (!data.values || data.values.length === 0) {
-            throw new Error('Planilha vazia ou sem dados');
+        if (!dados.values || dados.values.length === 0) {
+            throw new Error('Planilha vazia');
         }
         
-        console.log('✅ Dados recebidos!');
-        console.log('Primeira linha (cabeçalhos):', data.values[0]);
+        console.log('✅ Dados carregados!');
         
-        // Processar os dados
-        allRecipes = processSheetData(data.values);
+        // Processar dados
+        todasReceitas = processarDados(dados.values);
         
-        if (allRecipes.length === 0) {
-            throw new Error('Nenhuma receita válida encontrada');
+        if (todasReceitas.length === 0) {
+            throw new Error('Nenhuma receita encontrada');
         }
         
-        console.log(`🍳 ${allRecipes.length} receitas processadas`);
+        console.log(`🍳 ${todasReceitas.length} receitas processadas`);
         
-        // Resetar filtros
-        filteredRecipes = [...allRecipes];
-        displayedRecipes = 0;
-        currentCategory = 'todas';
+        // Inicializar
+        receitasFiltradas = [...todasReceitas];
+        receitasExibidas = 0;
         
-        // Atualizar a interface
-        renderCategories();
-        renderRecipes();
-        updateRecipesCount();
+        // Atualizar interface
+        carregarCategorias();
+        exibirReceitas();
+        atualizarContador();
         
-    } catch (error) {
-        console.error('❌ Erro ao carregar receitas:', error);
-        showError(`Erro: ${error.message}<br><br>Verifique se a planilha está pública:<br>1. Acesse a planilha no Google Sheets<br>2. Clique em "Compartilhar"<br>3. Configure como "Qualquer pessoa com o link pode visualizar"`);
-    } finally {
-        hideLoading();
+        esconderLoading();
+        
+    } catch (erro) {
+        console.error('❌ Erro:', erro);
+        mostrarErro(`Erro ao carregar: ${erro.message}<br><br>Verifique se a planilha está pública.`);
     }
 }
 
-// Função para processar dados da planilha
-function processSheetData(sheetData) {
-    if (!sheetData || sheetData.length < 2) {
-        return [];
-    }
+// Processar dados da planilha
+function processarDados(dadosPlanilha) {
+    if (!dadosPlanilha || dadosPlanilha.length < 2) return [];
     
-    const headers = sheetData[0]; // Primeira linha = cabeçalhos
-    const rows = sheetData.slice(1); // Resto = dados
+    const cabecalhos = dadosPlanilha[0];
+    const linhas = dadosPlanilha.slice(1);
     
-    console.log('Cabeçalhos:', headers);
-    
-    // Encontrar índices das colunas (case insensitive)
-    const headerIndices = {};
-    headers.forEach((header, index) => {
-        const headerLower = header.toLowerCase().trim();
-        headerIndices[headerLower] = index;
+    // Mapear índices
+    const indices = {};
+    cabecalhos.forEach((cabecalho, indice) => {
+        const nomeCampo = cabecalho.toLowerCase().trim();
+        indices[nomeCampo] = indice;
     });
     
-    console.log('Índices encontrados:', headerIndices);
+    console.log('Índices encontrados:', indices);
     
     // Processar cada linha
-    const recipes = [];
+    const receitas = [];
     
-    rows.forEach((row, rowIndex) => {
+    linhas.forEach((linha, indiceLinha) => {
         try {
-            // Criar objeto da receita
-            const recipe = {
-                id: rowIndex + 1,
-                nome: getValue(row, headerIndices, 'nome') || `Receita ${rowIndex + 1}`,
-                categoria: getValue(row, headerIndices, 'categoria') || 'Geral',
-                tempo: getValue(row, headerIndices, 'tempo') || 'Tempo não informado',
-                ingrediente: getValue(row, headerIndices, 'ingrediente') || 'Ingredientes não informados',
-                mododepreparo: getValue(row, headerIndices, 'mododepreparo') || 'Modo de preparo não informado',
-                url: getValue(row, headerIndices, 'url') || '',
-                mensagem: getValue(row, headerIndices, 'mensagem') || ''
+            const receita = {
+                id: indiceLinha + 1,
+                nome: obterValor(linha, indices, 'nome') || `Receita ${indiceLinha + 1}`,
+                categoria: obterValor(linha, indices, 'categoria') || 'Geral',
+                tempo: obterValor(linha, indices, 'tempo') || 'Tempo não informado',
+                ingrediente: obterValor(linha, indices, 'ingrediente') || 'Ingredientes não informados',
+                mododepreparo: obterValor(linha, indices, 'mododepreparo') || 'Modo de preparo não informado',
+                url: obterValor(linha, indices, 'url') || '',
+                mensagem: obterValor(linha, indices, 'mensagem') || ''
             };
             
             // Gerar cor baseada na categoria
-            const firstCategory = recipe.categoria.toLowerCase().split(',')[0].trim();
-            recipe.color = categoryColors[firstCategory] || generateRandomColor();
+            const primeiraCategoria = receita.categoria.toLowerCase().split(',')[0].trim();
+            receita.cor = coresCategorias[primeiraCategoria] || gerarCor(primeiraCategoria);
             
-            // Adicionar à lista
-            recipes.push(recipe);
+            receitas.push(receita);
             
-        } catch (error) {
-            console.warn(`⚠️ Erro ao processar linha ${rowIndex + 1}:`, error);
+        } catch (erro) {
+            console.warn(`Erro linha ${indiceLinha}:`, erro);
         }
     });
     
-    return recipes;
+    return receitas.filter(r => r.nome && r.nome.trim());
 }
 
-// Função auxiliar para obter valor da célula
-function getValue(row, headerIndices, fieldName) {
-    const index = headerIndices[fieldName];
-    if (index !== undefined && row[index] !== undefined) {
-        return row[index].toString().trim();
+function obterValor(linha, indices, campo) {
+    const indice = indices[campo];
+    return (indice !== undefined && linha[indice]) ? linha[indice].toString().trim() : '';
+}
+
+function gerarCor(texto) {
+    const cores = ['#FF6B35', '#E55A2B', '#FF8B5A', '#2ECC71', '#3498DB', '#9B59B6'];
+    let hash = 0;
+    for (let i = 0; i < texto.length; i++) {
+        hash = texto.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return '';
+    return cores[Math.abs(hash) % cores.length];
 }
 
-// Gerar cor aleatória
-function generateRandomColor() {
-    const colors = [
-        '#FF6B35', '#FF8B5A', '#E55A2B', '#FFB347',
-        '#2ECC71', '#27AE60', '#3498DB', '#2980B9',
-        '#9B59B6', '#8E44AD', '#F39C12', '#E67E22'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// Função para extrair categorias únicas
-function getUniqueCategories() {
-    const categories = new Set();
+// Carregar categorias
+function carregarCategorias() {
+    const categoriasUnicas = obterCategoriasUnicas();
     
-    allRecipes.forEach(recipe => {
-        if (recipe.categoria && recipe.categoria.trim()) {
-            // Separar categorias por vírgula
-            recipe.categoria.split(',').forEach(cat => {
-                const trimmedCat = cat.trim();
-                if (trimmedCat) {
-                    categories.add(trimmedCat);
-                }
-            });
-        }
-    });
-    
-    return Array.from(categories).sort();
-}
-
-// Função para renderizar categorias
-function renderCategories() {
-    const categories = getUniqueCategories();
-    
-    // Limpar e criar novo conteúdo
     categoriesScroll.innerHTML = '';
     
-    categories.forEach(category => {
-        const button = document.createElement('button');
-        button.className = 'category-btn';
-        button.dataset.category = category.toLowerCase();
+    categoriasUnicas.forEach(categoria => {
+        const botao = document.createElement('button');
+        botao.className = 'cat-btn';
+        botao.dataset.category = categoria.toLowerCase();
+        botao.textContent = categoria;
         
-        // Adicionar ícone baseado na categoria
-        const icon = document.createElement('i');
-        icon.className = getCategoryIcon(category);
-        button.appendChild(icon);
-        
-        // Adicionar texto
-        const text = document.createTextNode(` ${category}`);
-        button.appendChild(text);
-        
-        // Event listener
-        button.addEventListener('click', () => {
-            // Remover active de todos
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        botao.addEventListener('click', () => {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            botao.classList.add('active');
             
-            // Adicionar active ao clicado
-            button.classList.add('active');
-            
-            // Filtrar receitas
-            currentCategory = category.toLowerCase();
-            filteredRecipes = filterRecipes();
-            displayedRecipes = 0;
-            renderRecipes();
-            updateRecipesCount();
+            categoriaAtual = categoria.toLowerCase();
+            receitasFiltradas = filtrarReceitas();
+            receitasExibidas = 0;
+            exibirReceitas();
+            atualizarContador();
         });
         
-        categoriesScroll.appendChild(button);
+        categoriesScroll.appendChild(botao);
     });
 }
 
-// Função para obter ícone da categoria
-function getCategoryIcon(category) {
-    const catLower = category.toLowerCase();
+function obterCategoriasUnicas() {
+    const categorias = new Set();
     
-    if (catLower.includes('prato') || catLower.includes('principal')) return 'fas fa-utensils';
-    if (catLower.includes('low') || catLower.includes('carb')) return 'fas fa-leaf';
-    if (catLower.includes('doce') || catLower.includes('sobremesa')) return 'fas fa-birthday-cake';
-    if (catLower.includes('vegetar')) return 'fas fa-seedling';
-    if (catLower.includes('salada')) return 'fas fa-apple-alt';
-    if (catLower.includes('massa')) return 'fas fa-pizza-slice';
-    if (catLower.includes('carne')) return 'fas fa-drumstick-bite';
-    if (catLower.includes('ave') || catLower.includes('frango')) return 'fas fa-drumstick-bite';
-    if (catLower.includes('peixe')) return 'fas fa-fish';
-    if (catLower.includes('sopa')) return 'fas fa-mug-hot';
-    if (catLower.includes('bolo')) return 'fas fa-birthday-cake';
-    if (catLower.includes('bebida')) return 'fas fa-glass-whiskey';
-    if (catLower.includes('café')) return 'fas fa-coffee';
-    if (catLower.includes('lanche')) return 'fas fa-hamburger';
+    todasReceitas.forEach(receita => {
+        if (receita.categoria) {
+            receita.categoria.split(',').forEach(cat => {
+                const catLimpa = cat.trim();
+                if (catLimpa) categorias.add(catLimpa);
+            });
+        }
+    });
     
-    return 'fas fa-utensils';
+    return Array.from(categorias).sort();
 }
 
-// Função para filtrar receitas
-function filterRecipes() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
+// Filtrar receitas
+function filtrarReceitas() {
+    const termoBusca = searchInput.value.toLowerCase().trim();
     
-    return allRecipes.filter(recipe => {
-        // Filtrar por categoria
-        const categoryMatch = currentCategory === 'todas' || 
-            recipe.categoria.toLowerCase().includes(currentCategory);
+    return todasReceitas.filter(receita => {
+        const categoriaCorreta = categoriaAtual === 'todas' || 
+            receita.categoria.toLowerCase().includes(categoriaAtual);
         
-        // Filtrar por termo de busca
-        const searchMatch = !searchTerm ||
-            recipe.nome.toLowerCase().includes(searchTerm) ||
-            recipe.ingrediente.toLowerCase().includes(searchTerm) ||
-            recipe.categoria.toLowerCase().includes(searchTerm);
+        const buscaCorreta = !termoBusca ||
+            receita.nome.toLowerCase().includes(termoBusca) ||
+            receita.ingrediente.toLowerCase().includes(termoBusca) ||
+            receita.categoria.toLowerCase().includes(termoBusca);
         
-        return categoryMatch && searchMatch;
+        return categoriaCorreta && buscaCorreta;
     });
 }
 
-// Função para renderizar receitas
-function renderRecipes() {
-    // Calcular receitas para mostrar
-    const recipesToShow = filteredRecipes.slice(0, displayedRecipes + RECIPES_PER_PAGE);
+// Exibir receitas
+function exibirReceitas() {
+    const receitasParaMostrar = receitasFiltradas.slice(0, receitasExibidas + RECIPES_PER_LOAD);
     
-    // Limpar container se for a primeira página
-    if (displayedRecipes === 0) {
+    if (receitasExibidas === 0) {
         recipesContainer.innerHTML = '';
     }
     
-    if (filteredRecipes.length === 0) {
-        showNoResults();
+    if (receitasFiltradas.length === 0) {
+        mostrarSemResultados();
         loadMoreBtn.style.display = 'none';
         return;
     }
     
-    // Adicionar receitas
-    recipesToShow.forEach((recipe, index) => {
-        const recipeCard = createRecipeCard(recipe, index);
-        recipesContainer.appendChild(recipeCard);
+    receitasParaMostrar.forEach((receita, indice) => {
+        const card = criarCardReceita(receita, indice);
+        recipesContainer.appendChild(card);
     });
     
-    displayedRecipes = recipesToShow.length;
+    receitasExibidas = receitasParaMostrar.length;
     
-    // Mostrar/ocultar botão "Carregar mais"
-    if (displayedRecipes < filteredRecipes.length) {
-        loadMoreBtn.style.display = 'inline-flex';
-    } else {
-        loadMoreBtn.style.display = 'none';
-    }
+    // Mostrar/ocultar botão carregar mais
+    loadMoreBtn.style.display = receitasExibidas < receitasFiltradas.length ? 'block' : 'none';
 }
 
-// Função para criar card de receita
-function createRecipeCard(recipe, index) {
+function criarCardReceita(receita, indice) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
-    card.style.animationDelay = `${index * 0.1}s`;
     
-    // Limitar ingredientes para preview
-    let ingredientsPreview = recipe.ingrediente;
-    if (ingredientsPreview.length > 100) {
-        ingredientsPreview = ingredientsPreview.substring(0, 100) + '...';
-    }
-    
-    // Primeira categoria
-    const firstCategory = recipe.categoria.split(',')[0].trim();
+    const primeiraCategoria = receita.categoria.split(',')[0].trim();
+    const ingredientesPreview = receita.ingrediente.length > 100 ? 
+        receita.ingrediente.substring(0, 100) + '...' : receita.ingrediente;
     
     card.innerHTML = `
-        <div class="recipe-image" style="background: linear-gradient(135deg, ${recipe.color}, ${recipe.color}80)">
-            <span class="recipe-category">${firstCategory}</span>
-            <span class="recipe-time"><i class="far fa-clock"></i> ${recipe.tempo}</span>
+        <div class="recipe-img" style="background: linear-gradient(135deg, ${receita.cor}, ${receita.cor}80)">
+            <span class="recipe-badge">${primeiraCategoria}</span>
+            <span class="recipe-time"><i class="far fa-clock"></i> ${receita.tempo}</span>
         </div>
-        <div class="recipe-info">
-            <h3 class="recipe-title">${recipe.nome}</h3>
-            <p class="recipe-ingredients">${ingredientsPreview}</p>
-            <a href="receita.html?id=${recipe.id}" class="recipe-link">
+        <div class="recipe-content">
+            <h3 class="recipe-title">${receita.nome}</h3>
+            <p class="recipe-desc">${ingredientesPreview}</p>
+            <a href="receita.html?id=${receita.id}" class="recipe-link">
                 Ver receita completa <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -329,59 +253,56 @@ function createRecipeCard(recipe, index) {
     return card;
 }
 
-// Função para carregar mais receitas
-function loadMore() {
-    displayedRecipes += RECIPES_PER_PAGE;
-    renderRecipes();
+// Carregar mais receitas
+function carregarMais() {
+    receitasExibidas += RECIPES_PER_LOAD;
+    exibirReceitas();
 }
 
-// Função para atualizar contador
-function updateRecipesCount() {
+// Atualizar contador
+function atualizarContador() {
     if (recipesCount) {
-        recipesCount.textContent = filteredRecipes.length;
+        recipesCount.textContent = receitasFiltradas.length;
     }
 }
 
-// Funções de UI
-function showLoading() {
-    if (loadingElement) {
-        loadingElement.style.display = 'block';
-    }
+// Funções UI
+function mostrarLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'block';
 }
 
-function hideLoading() {
-    if (loadingElement) {
-        loadingElement.style.display = 'none';
-    }
+function esconderLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
 }
 
-function showError(message) {
+function mostrarErro(mensagem) {
     recipesContainer.innerHTML = `
         <div class="no-results">
             <i class="fas fa-exclamation-triangle"></i>
-            <h3>Erro ao carregar receitas</h3>
-            <p>${message}</p>
-            <button id="retryButton" class="load-more-btn" style="margin-top: 20px;">
+            <h3>Erro ao carregar</h3>
+            <p>${mensagem}</p>
+            <button onclick="carregarReceitas()" class="load-more" style="margin-top: 20px;">
                 <i class="fas fa-redo"></i> Tentar novamente
             </button>
         </div>
     `;
-    
-    document.getElementById('retryButton').addEventListener('click', loadRecipes);
+    esconderLoading();
 }
 
-function showNoResults() {
+function mostrarSemResultados() {
     recipesContainer.innerHTML = `
         <div class="no-results">
             <i class="fas fa-search"></i>
             <h3>Nenhuma receita encontrada</h3>
-            <p>Tente buscar por outro termo ou selecione uma categoria diferente.</p>
+            <p>Tente outro termo de busca ou selecione uma categoria diferente.</p>
         </div>
     `;
 }
 
-// Funções para scroll horizontal
-function initCategoryScroll() {
+// Scroll horizontal
+function configurarScroll() {
     if (scrollLeft && scrollRight) {
         scrollLeft.addEventListener('click', () => {
             categoriesScroll.scrollBy({ left: -200, behavior: 'smooth' });
@@ -393,71 +314,50 @@ function initCategoryScroll() {
     }
 }
 
+// Busca
+function executarBusca() {
+    receitasFiltradas = filtrarReceitas();
+    receitasExibidas = 0;
+    exibirReceitas();
+    atualizarContador();
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Sabor de Casa - Iniciando...');
+    console.log('🚀 Iniciando Sabor de Casa...');
     
-    // Carregar receitas
-    loadRecipes();
+    // Carregar dados
+    carregarReceitas();
     
     // Configurar eventos
     if (searchButton) {
-        searchButton.addEventListener('click', () => {
-            filteredRecipes = filterRecipes();
-            displayedRecipes = 0;
-            renderRecipes();
-            updateRecipesCount();
-        });
+        searchButton.addEventListener('click', executarBusca);
     }
     
     if (searchInput) {
         searchInput.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') {
-                filteredRecipes = filterRecipes();
-                displayedRecipes = 0;
-                renderRecipes();
-                updateRecipesCount();
-            }
+            if (e.key === 'Enter') executarBusca();
         });
     }
     
     if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', loadMore);
-    }
-    
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadRecipes);
+        loadMoreBtn.addEventListener('click', carregarMais);
     }
     
     // Configurar categoria "Todas"
-    const todasBtn = document.querySelector('.category-btn[data-category="todas"]');
+    const todasBtn = document.querySelector('.cat-btn[data-category="todas"]');
     if (todasBtn) {
         todasBtn.addEventListener('click', () => {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
             todasBtn.classList.add('active');
-            currentCategory = 'todas';
-            filteredRecipes = filterRecipes();
-            displayedRecipes = 0;
-            renderRecipes();
-            updateRecipesCount();
+            categoriaAtual = 'todas';
+            receitasFiltradas = filtrarReceitas();
+            receitasExibidas = 0;
+            exibirReceitas();
+            atualizarContador();
         });
     }
     
-    // Inicializar scroll horizontal
-    initCategoryScroll();
-    
-    // Verificar parâmetro de busca na URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchParam = urlParams.get('search');
-    if (searchParam && searchInput) {
-        searchInput.value = searchParam;
-        setTimeout(() => {
-            filteredRecipes = filterRecipes();
-            displayedRecipes = 0;
-            renderRecipes();
-            updateRecipesCount();
-        }, 500);
-    }
+    // Configurar scroll
+    configurarScroll();
 });

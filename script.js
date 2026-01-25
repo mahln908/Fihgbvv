@@ -1,4 +1,4 @@
-// Configuração EXATA da sua planilha
+// Configuração da sua planilha
 const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
 const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
 const SHEET_NAME = 'Receitas Sabor de Casa';
@@ -8,26 +8,46 @@ const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}
 let allRecipes = [];
 let filteredRecipes = [];
 let currentCategory = 'todas';
-let currentPage = 1;
-const recipesPerPage = 9;
+let isLoading = false;
+let isAutoLoading = false;
+let displayedRecipes = 0;
+const INITIAL_RECIPES = 9;
+const AUTO_LOAD_INCREMENT = 6;
 
 // Elementos DOM
 const recipesContainer = document.getElementById('recipesContainer');
 const categoriesScroll = document.getElementById('categoriesScroll');
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
 const recipesCount = document.getElementById('recipesCount');
 const scrollLeft = document.getElementById('scrollLeft');
 const scrollRight = document.getElementById('scrollRight');
+const reloadBtn = document.getElementById('reloadBtn');
+const autoLoadIndicator = document.getElementById('autoLoadIndicator');
+const loadingElement = document.getElementById('loading');
 
-// Função principal para carregar dados da planilha
+// Cores para as imagens das receitas (baseadas na categoria)
+const categoryColors = {
+    'pratos principais': '#FF6B35',
+    'low carb': '#2ECC71',
+    'sobremesa': '#9B59B6',
+    'vegetariano': '#3498DB',
+    'salada': '#1ABC9C',
+    'massas': '#E74C3C',
+    'carnes': '#C0392B',
+    'aves': '#D35400',
+    'peixes': '#2980B9',
+    'sopas': '#16A085',
+    'bolos': '#8E44AD',
+    'doces': '#F39C12',
+    'bebidas': '#3498DB'
+};
+
+// Função principal para carregar dados
 async function loadRecipes() {
     try {
         showLoading();
-        
-        console.log('🔗 Conectando ao Google Sheets...');
-        console.log('📊 URL da API:', API_URL);
+        console.log('🔄 Carregando receitas do Google Sheets...');
         
         const response = await fetch(API_URL);
         
@@ -41,236 +61,236 @@ async function loadRecipes() {
             throw new Error('Planilha vazia ou sem dados');
         }
         
-        console.log('✅ Dados recebidos com sucesso!');
-        console.log('📋 Total de linhas:', data.values.length);
+        console.log('✅ Dados recebidos:', data.values.length, 'linhas');
         
-        // Processar os dados EXATAMENTE como estão na planilha
+        // Processar dados
         allRecipes = processSheetData(data.values);
         
-        console.log('🍳 Total de receitas processadas:', allRecipes.length);
-        
-        // Mostrar primeira receita no console para debug
-        if (allRecipes.length > 0) {
-            console.log('📝 Primeira receita:', allRecipes[0]);
+        if (allRecipes.length === 0) {
+            throw new Error('Nenhuma receita válida encontrada na planilha');
         }
         
-        // Inicializar receitas filtradas
+        console.log(`🍳 ${allRecipes.length} receitas processadas`);
+        
+        // Inicializar
         filteredRecipes = [...allRecipes];
+        displayedRecipes = 0;
         
-        // Renderizar categorias
+        // Renderizar
         renderCategories();
-        
-        // Renderizar receitas
         renderRecipes();
-        
         updateRecipesCount();
+        
+        // Configurar scroll infinito
+        setupInfiniteScroll();
         
     } catch (error) {
         console.error('❌ Erro ao carregar receitas:', error);
-        showError(`Erro ao carregar receitas: ${error.message}`);
+        showError(`Erro ao carregar: ${error.message}`);
     } finally {
         hideLoading();
     }
 }
 
-// Função para processar os dados da planilha EXATAMENTE como você configurou
+// Função para processar dados da planilha
 function processSheetData(sheetData) {
-    if (!sheetData || sheetData.length < 2) {
-        return [];
-    }
+    if (!sheetData || sheetData.length < 2) return [];
     
-    const headers = sheetData[0]; // Primeira linha: cabeçalhos
-    const rows = sheetData.slice(1); // Resto: dados das receitas
+    const headers = sheetData[0].map(h => h.toLowerCase().trim());
+    const rows = sheetData.slice(1);
     
-    console.log('📋 Cabeçalhos encontrados:', headers);
+    // Mapear índices das colunas
+    const colIndices = {
+        nome: headers.indexOf('nome'),
+        categoria: headers.indexOf('categoria'),
+        tempo: headers.indexOf('tempo'),
+        ingrediente: headers.indexOf('ingrediente'),
+        mododepreparo: headers.indexOf('mododepreparo'),
+        url: headers.indexOf('url'),
+        mensagem: headers.indexOf('mensagem')
+    };
     
-    // Mapear os índices das colunas baseado nos cabeçalhos
-    const headerMap = {};
-    headers.forEach((header, index) => {
-        headerMap[header.trim().toLowerCase()] = index;
-    });
-    
-    console.log('🗺️ Mapeamento de colunas:', headerMap);
-    
-    // Processar cada linha/registro
-    const recipes = rows.map((row, rowIndex) => {
-        // Criar objeto de receita
+    // Processar cada receita
+    const recipes = rows.map((row, index) => {
         const recipe = {
-            id: rowIndex + 1,
-            nome: getValue(row, headerMap, ['nome']),
-            categoria: getValue(row, headerMap, ['categoria']),
-            tempo: getValue(row, headerMap, ['tempo']),
-            ingrediente: getValue(row, headerMap, ['ingrediente']),
-            mododepreparo: getValue(row, headerMap, ['modo de preparo', 'mododepreparo']),
-            url: getValue(row, headerMap, ['url']),
-            mensagem: getValue(row, headerMap, ['mensagem'])
+            id: index + 1,
+            nome: getCellValue(row, colIndices.nome),
+            categoria: getCellValue(row, colIndices.categoria),
+            tempo: getCellValue(row, colIndices.tempo),
+            ingrediente: getCellValue(row, colIndices.ingrediente),
+            mododepreparo: getCellValue(row, colIndices.mododepreparo),
+            url: getCellValue(row, colIndices.url),
+            mensagem: getCellValue(row, colIndices.mensagem)
         };
         
-        // Garantir que não haja valores undefined
-        Object.keys(recipe).forEach(key => {
-            if (recipe[key] === undefined) recipe[key] = '';
-        });
+        // Gerar cor baseada na categoria
+        const firstCategory = recipe.categoria.toLowerCase().split(',')[0].trim();
+        recipe.imageColor = categoryColors[firstCategory] || generateColorFromText(recipe.nome);
         
         return recipe;
     });
     
-    // Filtrar receitas que têm pelo menos nome ou ingredientes
-    const validRecipes = recipes.filter(recipe => 
-        recipe.nome.trim() !== '' || recipe.ingrediente.trim() !== ''
-    );
-    
-    console.log(`✅ ${validRecipes.length} receitas válidas de ${recipes.length} linhas`);
-    
-    return validRecipes;
+    // Filtrar receitas válidas
+    return recipes.filter(recipe => recipe.nome && recipe.nome.trim());
 }
 
-// Função auxiliar para obter valores das células
-function getValue(row, headerMap, possibleHeaders) {
-    for (const header of possibleHeaders) {
-        const index = headerMap[header];
-        if (index !== undefined && row[index] !== undefined) {
-            return row[index].toString().trim();
-        }
+function getCellValue(row, index) {
+    return (index !== -1 && row[index]) ? row[index].toString().trim() : '';
+}
+
+function generateColorFromText(text) {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        hash = text.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return '';
+    
+    const colors = [
+        '#FF6B35', '#FF8B5A', '#E55A2B', '#FFB347', '#FF7F50',
+        '#2ECC71', '#27AE60', '#3498DB', '#2980B9', '#9B59B6',
+        '#8E44AD', '#F39C12', '#E67E22', '#E74C3C', '#C0392B'
+    ];
+    
+    return colors[Math.abs(hash) % colors.length];
 }
 
 // Função para extrair categorias únicas
 function getUniqueCategories() {
-    const categories = new Set(['Todas']);
+    const categories = new Set();
     
     allRecipes.forEach(recipe => {
-        if (recipe.categoria && recipe.categoria.trim()) {
-            // Dividir por vírgula, ponto e vírgula, ou "e"
-            const cats = recipe.categoria.split(/[,;e]/).map(cat => cat.trim());
-            cats.forEach(cat => {
-                if (cat) categories.add(cat);
+        if (recipe.categoria) {
+            recipe.categoria.split(/[,;]/).forEach(cat => {
+                const trimmedCat = cat.trim();
+                if (trimmedCat) {
+                    categories.add(trimmedCat);
+                }
             });
         }
     });
     
-    return Array.from(categories);
+    return Array.from(categories).sort();
 }
 
 // Função para renderizar categorias
 function renderCategories() {
     const categories = getUniqueCategories();
     
-    // Limpar lista de categorias
+    // Limpar e criar novo conteúdo
     categoriesScroll.innerHTML = '';
     
-    console.log('🏷️ Categorias encontradas:', categories);
-    
-    // Adicionar cada categoria (exceto "Todas" que já está fixa)
-    categories.filter(cat => cat !== 'Todas').forEach(category => {
+    categories.forEach(category => {
         const button = document.createElement('button');
         button.className = 'category-btn';
         button.dataset.category = category.toLowerCase();
         button.textContent = category;
         
+        // Adicionar ícone baseado na categoria
+        addCategoryIcon(button, category);
+        
         button.addEventListener('click', () => {
-            // Remover classe active de todos os botões
+            // Atualizar categoria ativa
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
-            // Adicionar classe active ao botão clicado
             button.classList.add('active');
             
-            // Atualizar categoria atual
-            currentCategory = category.toLowerCase();
-            
             // Filtrar receitas
-            filterRecipes();
+            currentCategory = category.toLowerCase();
+            filteredRecipes = filterRecipesByCategory();
+            displayedRecipes = 0;
+            renderRecipes();
+            updateRecipesCount();
         });
         
         categoriesScroll.appendChild(button);
     });
 }
 
-// Função para filtrar receitas
-function filterRecipes() {
+function addCategoryIcon(button, category) {
+    const icon = document.createElement('i');
+    icon.className = 'fas';
+    
+    const catLower = category.toLowerCase();
+    
+    if (catLower.includes('prato')) icon.className += ' fa-utensils';
+    else if (catLower.includes('low')) icon.className += ' fa-leaf';
+    else if (catLower.includes('doce') || catLower.includes('sobremesa')) icon.className += ' fa-birthday-cake';
+    else if (catLower.includes('vegetar')) icon.className += ' fa-seedling';
+    else if (catLower.includes('salada')) icon.className += ' fa-apple-alt';
+    else if (catLower.includes('massa')) icon.className += ' fa-pizza-slice';
+    else if (catLower.includes('carne')) icon.className += ' fa-drumstick-bite';
+    else if (catLower.includes('ave') || catLower.includes('frango')) icon.className += ' fa-drumstick-bite';
+    else if (catLower.includes('peixe')) icon.className += ' fa-fish';
+    else if (catLower.includes('sopa')) icon.className += ' fa-mug-hot';
+    else if (catLower.includes('bolo')) icon.className += ' fa-birthday-cake';
+    else if (catLower.includes('bebida')) icon.className += ' fa-glass-whiskey';
+    else icon.className += ' fa-utensils';
+    
+    button.prepend(icon);
+    button.insertAdjacentText('afterbegin', ' ');
+}
+
+// Função para filtrar receitas por categoria
+function filterRecipesByCategory() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     
-    filteredRecipes = allRecipes.filter(recipe => {
+    return allRecipes.filter(recipe => {
         // Filtrar por categoria
-        let categoryMatch = currentCategory === 'todas';
-        if (!categoryMatch && recipe.categoria) {
-            const recipeCategories = recipe.categoria.toLowerCase();
-            categoryMatch = recipeCategories.includes(currentCategory);
-        }
+        const categoryMatch = currentCategory === 'todas' || 
+            (recipe.categoria && recipe.categoria.toLowerCase().includes(currentCategory));
         
         // Filtrar por termo de pesquisa
-        let searchMatch = searchTerm === '';
-        if (!searchMatch) {
-            searchMatch = 
-                (recipe.nome && recipe.nome.toLowerCase().includes(searchTerm)) ||
-                (recipe.ingrediente && recipe.ingrediente.toLowerCase().includes(searchTerm)) ||
-                (recipe.categoria && recipe.categoria.toLowerCase().includes(searchTerm));
-        }
+        const searchMatch = !searchTerm ||
+            (recipe.nome && recipe.nome.toLowerCase().includes(searchTerm)) ||
+            (recipe.ingrediente && recipe.ingrediente.toLowerCase().includes(searchTerm)) ||
+            (recipe.categoria && recipe.categoria.toLowerCase().includes(searchTerm));
         
         return categoryMatch && searchMatch;
     });
-    
-    // Resetar para a primeira página
-    currentPage = 1;
-    
-    // Renderizar receitas
-    renderRecipes();
-    
-    // Atualizar contador
-    updateRecipesCount();
 }
 
 // Função para renderizar receitas
 function renderRecipes() {
-    // Calcular quais receitas mostrar
-    const startIndex = 0;
-    const endIndex = currentPage * recipesPerPage;
-    const recipesToShow = filteredRecipes.slice(startIndex, endIndex);
+    // Calcular quantas receitas mostrar
+    const recipesToShow = Math.min(displayedRecipes + INITIAL_RECIPES, filteredRecipes.length);
     
-    // Limpar container
-    recipesContainer.innerHTML = '';
+    // Limpar container apenas se for a primeira renderização
+    if (displayedRecipes === 0) {
+        recipesContainer.innerHTML = '';
+    }
     
-    if (recipesToShow.length === 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h3>Nenhuma receita encontrada</h3>
-            <p>Tente buscar por outro termo ou selecione uma categoria diferente.</p>
-        `;
-        recipesContainer.appendChild(noResults);
-        
-        document.getElementById('loadMoreContainer').style.display = 'none';
+    if (filteredRecipes.length === 0) {
+        showNoResults();
         return;
     }
     
-    // Adicionar receitas
-    recipesToShow.forEach(recipe => {
-        const recipeCard = createRecipeCard(recipe);
+    // Adicionar novas receitas
+    for (let i = displayedRecipes; i < recipesToShow; i++) {
+        const recipe = filteredRecipes[i];
+        const recipeCard = createRecipeCard(recipe, i);
         recipesContainer.appendChild(recipeCard);
-    });
-    
-    // Mostrar/ocultar botão "Carregar mais"
-    const loadMoreContainer = document.getElementById('loadMoreContainer');
-    if (endIndex < filteredRecipes.length) {
-        loadMoreContainer.style.display = 'block';
-    } else {
-        loadMoreContainer.style.display = 'none';
     }
+    
+    displayedRecipes = recipesToShow;
+    
+    // Ocultar indicador de carregamento
+    autoLoadIndicator.classList.remove('active');
+    isAutoLoading = false;
 }
 
 // Função para criar card de receita
-function createRecipeCard(recipe) {
+function createRecipeCard(recipe, index) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
+    card.style.animationDelay = `${index * 0.05}s`;
+    card.style.transform = 'translateY(20px)';
     
-    // Limitar ingredientes para preview
-    let ingredientsPreview = 'Ingredientes não disponíveis';
-    if (recipe.ingrediente && recipe.ingrediente.trim()) {
-        const ingredients = recipe.ingrediente.split(',').slice(0, 3);
-        ingredientsPreview = ingredients.join(', ') + (recipe.ingrediente.split(',').length > 3 ? '...' : '');
+    // Preparar ingredientes para preview
+    let ingredientsPreview = 'Ingredientes não informados';
+    if (recipe.ingrediente) {
+        const ingredients = recipe.ingrediente.split(',').slice(0, 3).map(i => i.trim());
+        ingredientsPreview = ingredients.join(', ') + 
+            (recipe.ingrediente.split(',').length > 3 ? '...' : '');
     }
     
     // Primeira categoria
@@ -278,13 +298,13 @@ function createRecipeCard(recipe) {
         recipe.categoria.split(/[,;]/)[0].trim() : 'Geral';
     
     card.innerHTML = `
-        <div class="recipe-header">
+        <div class="recipe-image" style="background: linear-gradient(135deg, ${recipe.imageColor}, ${recipe.imageColor}80)">
             <span class="recipe-category">${firstCategory}</span>
             ${recipe.tempo ? `<span class="recipe-time"><i class="far fa-clock"></i> ${recipe.tempo}</span>` : ''}
-            <h3 class="recipe-title-main">${recipe.nome || 'Receita sem nome'}</h3>
         </div>
         <div class="recipe-info">
-            <p class="recipe-ingredients-preview">${ingredientsPreview}</p>
+            <h3 class="recipe-title">${recipe.nome}</h3>
+            <p class="recipe-ingredients">${ingredientsPreview}</p>
             <a href="receita.html?id=${recipe.id}" class="recipe-link">
                 Ver receita completa <i class="fas fa-arrow-right"></i>
             </a>
@@ -294,17 +314,37 @@ function createRecipeCard(recipe) {
     return card;
 }
 
-// Função para carregar mais receitas
+// Função para carregar mais receitas automaticamente
 function loadMoreRecipes() {
-    currentPage++;
+    if (isAutoLoading || displayedRecipes >= filteredRecipes.length) return;
     
-    // Calcular receitas para a nova página
-    const startIndex = 0;
-    const endIndex = currentPage * recipesPerPage;
-    const newRecipes = filteredRecipes.slice(startIndex, endIndex);
+    isAutoLoading = true;
+    autoLoadIndicator.classList.add('active');
     
-    // Limpar e renderizar todas as receitas novamente
-    renderRecipes();
+    // Simular delay para melhor UX
+    setTimeout(() => {
+        displayedRecipes += AUTO_LOAD_INCREMENT;
+        renderRecipes();
+    }, 500);
+}
+
+// Função para configurar scroll infinito
+function setupInfiniteScroll() {
+    let isScrolling;
+    
+    window.addEventListener('scroll', () => {
+        clearTimeout(isScrolling);
+        
+        isScrolling = setTimeout(() => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            const threshold = 100; // pixels antes do fim
+            
+            if (scrollPosition >= pageHeight - threshold) {
+                loadMoreRecipes();
+            }
+        }, 100);
+    });
 }
 
 // Função para atualizar contador
@@ -314,32 +354,26 @@ function updateRecipesCount() {
     }
 }
 
-// Funções de loading
+// Funções de UI
 function showLoading() {
-    const loading = document.getElementById('loading');
-    if (loading) {
-        loading.style.display = 'block';
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
     }
 }
 
 function hideLoading() {
-    const loading = document.getElementById('loading');
-    if (loading) {
-        loading.style.display = 'none';
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
     }
 }
 
-// Função para mostrar erro
 function showError(message) {
     recipesContainer.innerHTML = `
         <div class="no-results">
             <i class="fas fa-exclamation-triangle"></i>
-            <h3>Erro ao carregar receitas</h3>
+            <h3>Erro ao carregar</h3>
             <p>${message}</p>
-            <p style="font-size: 0.9rem; margin-top: 10px;">
-                Verifique se a planilha está pública e se a API Key está correta.
-            </p>
-            <button id="retryButton" class="load-more-btn" style="margin-top: 20px;">
+            <button id="retryButton" class="action-btn" style="margin-top: 15px;">
                 <i class="fas fa-redo"></i> Tentar novamente
             </button>
         </div>
@@ -348,20 +382,38 @@ function showError(message) {
     document.getElementById('retryButton').addEventListener('click', loadRecipes);
 }
 
+function showNoResults() {
+    recipesContainer.innerHTML = `
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>Nenhuma receita encontrada</h3>
+            <p>Tente outro termo de busca ou selecione uma categoria diferente.</p>
+        </div>
+    `;
+}
+
 // Funções para scroll horizontal
 function initCategoryScroll() {
     if (scrollLeft && scrollRight) {
         scrollLeft.addEventListener('click', () => {
-            categoriesScroll.scrollBy({ left: -200, behavior: 'smooth' });
+            categoriesScroll.scrollBy({ left: -150, behavior: 'smooth' });
         });
         
         scrollRight.addEventListener('click', () => {
-            categoriesScroll.scrollBy({ left: 200, behavior: 'smooth' });
+            categoriesScroll.scrollBy({ left: 150, behavior: 'smooth' });
         });
     }
 }
 
-// Inicialização quando a página carrega
+// Função para pesquisar
+function performSearch() {
+    filteredRecipes = filterRecipesByCategory();
+    displayedRecipes = 0;
+    renderRecipes();
+    updateRecipesCount();
+}
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Inicializando Sabor de Casa...');
     
@@ -370,19 +422,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Configurar eventos
     if (searchButton) {
-        searchButton.addEventListener('click', filterRecipes);
+        searchButton.addEventListener('click', performSearch);
     }
     
     if (searchInput) {
         searchInput.addEventListener('keyup', (e) => {
             if (e.key === 'Enter') {
-                filterRecipes();
+                performSearch();
             }
         });
     }
     
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', loadMoreRecipes);
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+            loadRecipes();
+        });
     }
     
     // Configurar categoria "Todas"
@@ -394,7 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             todasBtn.classList.add('active');
             currentCategory = 'todas';
-            filterRecipes();
+            filteredRecipes = filterRecipesByCategory();
+            displayedRecipes = 0;
+            renderRecipes();
+            updateRecipesCount();
         });
     }
     
@@ -406,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchParam = urlParams.get('search');
     if (searchParam && searchInput) {
         searchInput.value = searchParam;
-        // Aguardar um pouco para garantir que as receitas foram carregadas
-        setTimeout(() => filterRecipes(), 500);
+        setTimeout(performSearch, 100);
     }
 });

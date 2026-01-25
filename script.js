@@ -9,19 +9,39 @@ let todasReceitas = [];
 let receitasFiltradas = [];
 let categoriaAtual = 'todas';
 let receitasExibidas = 0;
-const RECIPES_PER_LOAD = 6;
+const RECIPES_PER_LOAD = 9;
+let carregandoMais = false;
 
 // Elementos DOM
 const recipesContainer = document.getElementById('recipesContainer');
 const categoriesScroll = document.getElementById('categoriesScroll');
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
-const recipesCount = document.getElementById('recipesCount');
 const scrollLeft = document.getElementById('scrollLeft');
 const scrollRight = document.getElementById('scrollRight');
+const recipesCount = document.getElementById('recipesCount');
+const autoLoadIndicator = document.getElementById('autoLoadIndicator');
 
-// Cores para categorias
+// Imagens padrão para categorias
+const imagensCategorias = {
+    'pratos principais': '🍳',
+    'low carb': '🥗',
+    'sobremesa': '🍰',
+    'vegetariano': '🥦',
+    'salada': '🥙',
+    'massas': '🍝',
+    'carnes': '🥩',
+    'aves': '🍗',
+    'peixes': '🐟',
+    'sopas': '🍲',
+    'bolos': '🎂',
+    'doces': '🍬',
+    'bebidas': '🥤',
+    'café da manhã': '☕',
+    'lanche': '🥪'
+};
+
+// Cores para categorias (fallback)
 const coresCategorias = {
     'pratos principais': '#FF6B35',
     'low carb': '#27AE60',
@@ -76,11 +96,14 @@ async function carregarReceitas() {
         exibirReceitas();
         atualizarContador();
         
+        // Configurar scroll infinito
+        configurarScrollInfinito();
+        
         esconderLoading();
         
     } catch (erro) {
         console.error('❌ Erro:', erro);
-        mostrarErro(`Erro ao carregar: ${erro.message}<br><br>Verifique se a planilha está pública.`);
+        mostrarErro(`Erro ao carregar: ${erro.message}`);
     }
 }
 
@@ -116,9 +139,10 @@ function processarDados(dadosPlanilha) {
                 mensagem: obterValor(linha, indices, 'mensagem') || ''
             };
             
-            // Gerar cor baseada na categoria
+            // Gerar cor e emoji baseado na categoria
             const primeiraCategoria = receita.categoria.toLowerCase().split(',')[0].trim();
             receita.cor = coresCategorias[primeiraCategoria] || gerarCor(primeiraCategoria);
+            receita.emoji = imagensCategorias[primeiraCategoria] || '🍽️';
             
             receitas.push(receita);
             
@@ -154,7 +178,15 @@ function carregarCategorias() {
         const botao = document.createElement('button');
         botao.className = 'cat-btn';
         botao.dataset.category = categoria.toLowerCase();
-        botao.textContent = categoria;
+        
+        // Adicionar ícone
+        const icone = document.createElement('i');
+        icone.className = getIconeCategoria(categoria);
+        botao.appendChild(icone);
+        
+        // Adicionar texto
+        const texto = document.createTextNode(` ${categoria}`);
+        botao.appendChild(texto);
         
         botao.addEventListener('click', () => {
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
@@ -169,6 +201,25 @@ function carregarCategorias() {
         
         categoriesScroll.appendChild(botao);
     });
+}
+
+function getIconeCategoria(categoria) {
+    const cat = categoria.toLowerCase();
+    if (cat.includes('prato') || cat.includes('principal')) return 'fas fa-utensils';
+    if (cat.includes('low') || cat.includes('carb')) return 'fas fa-leaf';
+    if (cat.includes('doce') || cat.includes('sobremesa')) return 'fas fa-birthday-cake';
+    if (cat.includes('vegetar')) return 'fas fa-seedling';
+    if (cat.includes('salada')) return 'fas fa-apple-alt';
+    if (cat.includes('massa')) return 'fas fa-pizza-slice';
+    if (cat.includes('carne')) return 'fas fa-drumstick-bite';
+    if (cat.includes('ave') || cat.includes('frango')) return 'fas fa-drumstick-bite';
+    if (cat.includes('peixe')) return 'fas fa-fish';
+    if (cat.includes('sopa')) return 'fas fa-mug-hot';
+    if (cat.includes('bolo')) return 'fas fa-birthday-cake';
+    if (cat.includes('bebida')) return 'fas fa-glass-whiskey';
+    if (cat.includes('café')) return 'fas fa-coffee';
+    if (cat.includes('lanche')) return 'fas fa-hamburger';
+    return 'fas fa-utensils';
 }
 
 function obterCategoriasUnicas() {
@@ -213,7 +264,6 @@ function exibirReceitas() {
     
     if (receitasFiltradas.length === 0) {
         mostrarSemResultados();
-        loadMoreBtn.style.display = 'none';
         return;
     }
     
@@ -224,8 +274,9 @@ function exibirReceitas() {
     
     receitasExibidas = receitasParaMostrar.length;
     
-    // Mostrar/ocultar botão carregar mais
-    loadMoreBtn.style.display = receitasExibidas < receitasFiltradas.length ? 'block' : 'none';
+    // Ocultar indicador de carregamento
+    carregandoMais = false;
+    autoLoadIndicator.style.display = 'none';
 }
 
 function criarCardReceita(receita, indice) {
@@ -233,30 +284,72 @@ function criarCardReceita(receita, indice) {
     card.className = 'recipe-card';
     
     const primeiraCategoria = receita.categoria.split(',')[0].trim();
-    const ingredientesPreview = receita.ingrediente.length > 100 ? 
-        receita.ingrediente.substring(0, 100) + '...' : receita.ingrediente;
+    const ingredientesPreview = receita.ingrediente.length > 80 ? 
+        receita.ingrediente.substring(0, 80) + '...' : receita.ingrediente;
+    
+    // Verificar se tem URL de imagem
+    const temImagem = receita.url && receita.url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
     
     card.innerHTML = `
-        <div class="recipe-img" style="background: linear-gradient(135deg, ${receita.cor}, ${receita.cor}80)">
+        <div class="recipe-image-container">
+            ${temImagem ? 
+                `<img src="${receita.url}" alt="${receita.nome}" class="recipe-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'image-placeholder\\'><i class=\\'fas fa-utensils\\'></i></div>';" loading="lazy">` :
+                `<div class="image-placeholder" style="background: linear-gradient(135deg, ${receita.cor}, ${receita.cor}80)">
+                    <i class="fas fa-utensils"></i>
+                </div>`
+            }
             <span class="recipe-badge">${primeiraCategoria}</span>
             <span class="recipe-time"><i class="far fa-clock"></i> ${receita.tempo}</span>
         </div>
         <div class="recipe-content">
             <h3 class="recipe-title">${receita.nome}</h3>
             <p class="recipe-desc">${ingredientesPreview}</p>
-            <a href="receita.html?id=${receita.id}" class="recipe-link">
+            <a href="receita.html?id=${receita.id}" class="view-recipe">
                 Ver receita completa <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     `;
     
+    // Adicionar evento de clique em todo o card
+    card.addEventListener('click', (e) => {
+        if (!e.target.closest('.view-recipe')) {
+            window.location.href = `receita.html?id=${receita.id}`;
+        }
+    });
+    
     return card;
 }
 
-// Carregar mais receitas
-function carregarMais() {
-    receitasExibidas += RECIPES_PER_LOAD;
-    exibirReceitas();
+// Carregar mais receitas automaticamente
+function carregarMaisAutomaticamente() {
+    if (carregandoMais || receitasExibidas >= receitasFiltradas.length) return;
+    
+    carregandoMais = true;
+    autoLoadIndicator.style.display = 'flex';
+    
+    setTimeout(() => {
+        receitasExibidas += RECIPES_PER_LOAD;
+        exibirReceitas();
+    }, 300);
+}
+
+// Configurar scroll infinito
+function configurarScrollInfinito() {
+    let timer;
+    
+    window.addEventListener('scroll', () => {
+        clearTimeout(timer);
+        
+        timer = setTimeout(() => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            const threshold = 100; // pixels antes do fim
+            
+            if (scrollPosition >= pageHeight - threshold) {
+                carregarMaisAutomaticamente();
+            }
+        }, 100);
+    });
 }
 
 // Atualizar contador
@@ -283,7 +376,7 @@ function mostrarErro(mensagem) {
             <i class="fas fa-exclamation-triangle"></i>
             <h3>Erro ao carregar</h3>
             <p>${mensagem}</p>
-            <button onclick="carregarReceitas()" class="load-more" style="margin-top: 20px;">
+            <button onclick="carregarReceitas()" class="view-recipe" style="margin-top: 20px;">
                 <i class="fas fa-redo"></i> Tentar novamente
             </button>
         </div>
@@ -301,8 +394,8 @@ function mostrarSemResultados() {
     `;
 }
 
-// Scroll horizontal
-function configurarScroll() {
+// Scroll horizontal das categorias
+function configurarScrollHorizontal() {
     if (scrollLeft && scrollRight) {
         scrollLeft.addEventListener('click', () => {
             categoriesScroll.scrollBy({ left: -200, behavior: 'smooth' });
@@ -340,10 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', carregarMais);
-    }
-    
     // Configurar categoria "Todas"
     const todasBtn = document.querySelector('.cat-btn[data-category="todas"]');
     if (todasBtn) {
@@ -358,6 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Configurar scroll
-    configurarScroll();
+    // Configurar scroll horizontal
+    configurarScrollHorizontal();
 });

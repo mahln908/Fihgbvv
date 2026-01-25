@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
 </head>
 <body>
     <!-- Barra de pesquisa fixa no topo -->
@@ -22,7 +21,7 @@
                     <input type="text" id="searchInput" placeholder="Buscar receitas por nome ou ingrediente...">
                     <button id="searchButton" class="search-btn">Buscar</button>
                 </div>
-                <button id="reloadBtn" class="reload-btn" title="Atualizar receitas">
+                <button id="refreshBtn" class="refresh-btn" title="Atualizar receitas">
                     <i class="fas fa-redo"></i>
                 </button>
             </div>
@@ -38,9 +37,7 @@
                 </button>
                 <div class="categories-scroll" id="categoriesScroll">
                     <!-- Categorias serão carregadas dinamicamente -->
-                    <div class="loading-categories">
-                        <div class="spinner-small"></div>
-                    </div>
+                    <span class="loading-text">Carregando categorias...</span>
                 </div>
                 <button class="scroll-btn scroll-left" id="scrollLeft">
                     <i class="fas fa-chevron-left"></i>
@@ -65,30 +62,17 @@
         <div class="recipes-container" id="recipesContainer">
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Conectando ao Google Sheets...</p>
+                <p>Carregando receitas da planilha...</p>
             </div>
-            <!-- As receitas serão carregadas dinamicamente aqui -->
         </div>
 
-        <!-- Indicador de carregamento automático -->
-        <div class="auto-load-indicator" id="autoLoadIndicator">
-            <div class="spinner-small"></div>
-            <span>Carregando mais receitas...</span>
+        <!-- Botão para carregar mais receitas -->
+        <div class="load-more-container">
+            <button id="loadMoreBtn" class="load-more-btn" style="display: none;">
+                <i class="fas fa-plus"></i> Carregar mais receitas
+            </button>
         </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <h3><i class="fas fa-utensils"></i> Sabor de Casa</h3>
-                    <p>Todas as receitas são carregadas diretamente do Google Sheets</p>
-                    <p class="footer-note">Atualizado automaticamente</p>
-                </div>
-            </div>
-        </div>
-    </footer>
 
     <script src="script.js"></script>
 </body>

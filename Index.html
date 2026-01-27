@@ -4,159 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabor de Casa - Receitas Deliciosas</title>
-    <meta name="description" content="Receitas deliciosas carregadas diretamente do Google Sheets">
-    <meta name="theme-color" content="#FF6B35">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Ícone base64 inline para PWA -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23FF6B35%22>🍳</text></svg>">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header fixo -->
+    <!-- Cabeçalho fixo -->
     <header class="header">
         <div class="container">
-            <div class="header-inner">
-                <div class="logo">
-                    <h1><i class="fas fa-utensils"></i> Sabor de Casa</h1>
-                </div>
-                <div class="search-box">
-                    <div class="search-input">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar receitas...">
-                    </div>
-                    <button id="searchButton" class="search-btn">Buscar</button>
-                </div>
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Sabor de Casa</h1>
+            </div>
+            
+            <!-- Barra de pesquisa fixa -->
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Buscar receitas por nome, ingrediente ou categoria...">
+                <button id="clear-search" class="clear-btn" title="Limpar busca">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-btn" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </header>
-
-    <!-- Categorias scroll horizontal -->
-    <nav class="categories">
+    
+    <!-- Barra de categorias com scroll horizontal -->
+    <nav class="categories-nav">
         <div class="container">
-            <div class="categories-inner">
-                <button class="cat-btn active" data-category="todas">
-                    <i class="fas fa-utensils"></i> Todas
+            <div class="categories-scroll">
+                <button class="category-btn active" data-category="todas">
+                    <i class="fas fa-th-large"></i>
+                    <span>Todas</span>
                 </button>
-                <div class="cat-scroll-container">
-                    <button class="scroll-arrow left-arrow" id="scrollLeft">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="cat-scroll" id="categoriesScroll">
-                        <span class="loading-cats">Carregando categorias...</span>
-                    </div>
-                    <button class="scroll-arrow right-arrow" id="scrollRight">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                <!-- As categorias serão carregadas dinamicamente -->
+                <div id="categories-container" class="categories-list">
+                    <!-- Categorias serão inseridas aqui via JavaScript -->
                 </div>
             </div>
         </div>
     </nav>
-
-    <!-- Conteúdo principal -->
-    <main class="main">
+    
+    <main class="main-content">
         <div class="container">
-            <!-- Título mais para baixo -->
-            <div class="page-header">
-                <h2 class="page-title">Receitas da Família</h2>
-                <div class="counter">
-                    <span id="recipesCount">0</span> receitas
-                </div>
+            <!-- Indicador de carregamento -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Carregando receitas...</p>
             </div>
-
-            <!-- Área de receitas -->
-            <div class="recipes-grid" id="recipesContainer">
-                <div class="loading-state" id="loading">
-                    <div class="loader"></div>
-                    <p>Carregando receitas...</p>
-                </div>
+            
+            <!-- Contador de receitas -->
+            <div id="recipes-counter" class="recipes-counter" style="display: none;">
+                <span id="recipes-count">0</span> receitas encontradas
             </div>
-
-            <!-- Indicador de carregamento automático -->
-            <div class="auto-load-indicator" id="autoLoadIndicator">
-                <div class="loader small"></div>
-                <span>Carregando mais receitas...</span>
+            
+            <!-- Container de receitas (carregadas de baixo para cima) -->
+            <div id="recipes-container" class="recipes-grid">
+                <!-- As receitas serão inseridas aqui via JavaScript -->
+            </div>
+            
+            <!-- Mensagem quando não houver receitas -->
+            <div id="no-recipes" class="no-recipes" style="display: none;">
+                <i class="fas fa-meh"></i>
+                <h3>Nenhuma receita encontrada</h3>
+                <p>Tente ajustar sua busca ou filtrar por outra categoria</p>
+            </div>
+            
+            <!-- Botão para carregar mais receitas -->
+            <div id="load-more-container" class="load-more-container" style="display: none;">
+                <button id="load-more-btn" class="load-more-btn">
+                    <i class="fas fa-sync-alt"></i>
+                    Carregar mais receitas
+                </button>
             </div>
         </div>
     </main>
-
-    <!-- Modal de instalação PWA -->
-    <div id="pwaInstallModal" class="pwa-modal">
-        <div class="pwa-modal-content">
-            <div class="pwa-icon">
-                <i class="fas fa-utensils"></i>
-            </div>
-            <h3>Instalar Sabor de Casa</h3>
-            <p>Instale nosso app para acessar receitas offline e mais rápido!</p>
-            <div class="pwa-buttons">
-                <button id="installPwaBtn" class="pwa-install-btn">
-                    <i class="fas fa-download"></i> Instalar App
-                </button>
-                <button id="cancelPwaBtn" class="pwa-cancel-btn">
-                    Agora não
-                </button>
+    
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-utensils"></i>
+                    <h3>Sabor de Casa</h3>
+                    <p>Receitas deliciosas para o seu dia a dia</p>
+                </div>
+                <div class="footer-info">
+                    <p><i class="fas fa-database"></i> Receitas carregadas do Google Sheets</p>
+                    <p><i class="fas fa-code"></i> Desenvolvido com HTML, CSS e JavaScript</p>
+                    <p class="disclaimer">Este site é apenas para fins demonstrativos.</p>
+                </div>
             </div>
         </div>
-    </div>
-
+    </footer>
+    
     <script src="script.js"></script>
-    <script>
-        // PWA Installation
-        let deferredPrompt;
-        const pwaModal = document.getElementById('pwaInstallModal');
-        const installBtn = document.getElementById('installPwaBtn');
-        const cancelBtn = document.getElementById('cancelPwaBtn');
-        
-        // Mostrar modal após 3 segundos
-        setTimeout(() => {
-            if (!window.matchMedia('(display-mode: standalone)').matches) {
-                pwaModal.style.display = 'flex';
-            }
-        }, 3000);
-        
-        // Capturar evento de instalação
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            installBtn.addEventListener('click', async () => {
-                pwaModal.style.display = 'none';
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('✅ Usuário instalou o PWA');
-                }
-                deferredPrompt = null;
-            });
-        });
-        
-        // Fechar modal
-        cancelBtn.addEventListener('click', () => {
-            pwaModal.style.display = 'none';
-            // Salvar preferência por 7 dias
-            localStorage.setItem('pwaDismissed', Date.now());
-        });
-        
-        // Verificar se já rejeitou recentemente
-        const lastDismiss = localStorage.getItem('pwaDismissed');
-        if (lastDismiss && (Date.now() - lastDismiss) < 7 * 24 * 60 * 60 * 1000) {
-            pwaModal.style.display = 'none';
-        }
-        
-        // Registrar Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('✅ Service Worker registrado'))
-                    .catch(err => console.log('❌ Service Worker falhou:', err));
-            });
-        }
-    </script>
 </body>
-  </html>
+</html>

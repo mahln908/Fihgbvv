@@ -1,80 +1,263 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receita Completa - Sabor de Casa</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary-color: #2c3e50;
+            --light-color: #f9f9f9;
+            --gray-color: #ecf0f1;
+            --dark-color: #34495e;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background-color: white;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .recipe-detail-card {
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .recipe-header {
+            padding: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            text-align: center;
+        }
+
+        .recipe-category {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .recipe-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .recipe-time {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .recipe-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray-color);
+        }
+
+        .ingredients-list {
+            list-style-type: none;
+        }
+
+        .ingredients-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ingredients-list li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .instructions {
+            white-space: pre-line;
+            line-height: 1.8;
+        }
+
+        .recipe-message {
+            background-color: var(--gray-color);
+            padding: 30px;
+            border-radius: var(--radius);
+            margin-top: 30px;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .no-recipe {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .no-recipe i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .recipe-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .recipe-title {
+                font-size: 2rem;
+            }
+            
+            .recipe-header {
+                padding: 30px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Cabeçalho fixo -->
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-utensils"></i>
-                    <h1>Sabor de Casa</h1>
-                </a>
-            </div>
-            
-            <div class="header-actions">
-                <button id="theme-toggle" class="theme-btn" title="Alternar tema">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <a href="index.html" class="view-recipe-btn" style="text-decoration: none;">
-                    <i class="fas fa-home"></i>
-                    Voltar
-                </a>
+    <div class="container">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Voltar para receitas
+        </a>
+        
+        <div id="recipe-detail-container">
+            <div class="no-recipe">
+                <i class="fas fa-utensils"></i>
+                <h2>Receita não encontrada</h2>
+                <p>Volte para a página inicial e selecione uma receita.</p>
             </div>
         </div>
-    </header>
-    
-    <main class="main-content">
-        <div class="container">
-            <!-- Indicador de carregamento -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Carregando receita...</p>
-            </div>
+    </div>
+
+    <script>
+        // Função para carregar receita do localStorage
+        function loadRecipeFromStorage() {
+            const recipeData = localStorage.getItem('currentRecipe');
             
-            <!-- Container da receita completa -->
-            <div id="recipe-detail" style="display: none;">
-                <!-- A receita será carregada aqui -->
-            </div>
+            if (!recipeData) {
+                return null;
+            }
             
-            <!-- Mensagem de erro -->
-            <div id="recipe-error" class="no-recipes" style="display: none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Receita não encontrada</h3>
-                <p>A receita que você está procurando não está disponível.</p>
-                <a href="index.html" class="view-recipe-btn" style="margin-top: 20px; text-decoration: none; display: inline-block;">
-                    <i class="fas fa-arrow-left"></i>
-                    Voltar para todas as receitas
-                </a>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Rodapé -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-utensils"></i>
-                    <h3>Sabor de Casa</h3>
-                    <p>Receitas deliciosas para o seu dia a dia</p>
+            try {
+                return JSON.parse(decodeURIComponent(recipeData));
+            } catch (error) {
+                console.error('Erro ao carregar receita:', error);
+                return null;
+            }
+        }
+        
+        // Função para exibir receita
+        function displayRecipe(recipe) {
+            const container = document.getElementById('recipe-detail-container');
+            
+            // Atualizar título da página
+            document.title = `${recipe.name} - Sabor de Casa`;
+            
+            container.innerHTML = `
+                <div class="recipe-detail-card">
+                    <div class="recipe-header">
+                        <div class="recipe-category">${recipe.category || 'Sem categoria'}</div>
+                        <h1 class="recipe-title">${recipe.name}</h1>
+                        <div class="recipe-time">
+                            <i class="far fa-clock"></i> ${recipe.time}
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-content">
+                        <div class="ingredients-section">
+                            <h2 class="section-title">Ingredientes</h2>
+                            <ul class="ingredients-list">
+                                ${formatIngredients(recipe.ingredients)}
+                            </ul>
+                        </div>
+                        
+                        <div class="instructions-section">
+                            <h2 class="section-title">Modo de Preparo</h2>
+                            <div class="instructions">${recipe.instructions}</div>
+                        </div>
+                    </div>
+                    
+                    ${recipe.message ? `
+                    <div class="recipe-message">
+                        <p>${recipe.message}</p>
+                    </div>
+                    ` : ''}
                 </div>
-                <div class="footer-info">
-                    <p><i class="fas fa-database"></i> Receitas carregadas do Google Sheets</p>
-                    <p><i class="fas fa-code"></i> Desenvolvido com HTML, CSS e JavaScript</p>
-                    <p class="disclaimer">Este site é apenas para fins demonstrativos.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
-    <script src="receita-script.js"></script>
+            `;
+        }
+        
+        // Função para formatar ingredientes em lista
+        function formatIngredients(ingredientsText) {
+            // Separar por vírgulas, pontos e vírgulas, ou quebras de linha
+            const separators = /[,;]|\n/;
+            const items = ingredientsText.split(separators);
+            
+            return items
+                .filter(item => item.trim() !== '')
+                .map(item => `<li>${item.trim()}</li>`)
+                .join('');
+        }
+        
+        // Carregar a receita quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            const recipe = loadRecipeFromStorage();
+            
+            if (recipe) {
+                displayRecipe(recipe);
+            }
+        });
+    </script>
 </body>
 </html>

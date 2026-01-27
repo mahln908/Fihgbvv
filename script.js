@@ -1,422 +1,429 @@
-// Configurações da planilha
-const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
-const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
-const SHEET_NAME = 'Receitas Sabor de Casa';
-const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+// Configurações
+const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc/values/Receitas%20Sabor%20de%20Casa?key=AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc`;
 
-// Estado da aplicação
-let todasReceitas = [];
-let receitasFiltradas = [];
-let categoriaAtual = 'todas';
-let receitasExibidas = 0;
-const RECIPES_PER_LOAD = 12;
-let carregandoMais = false;
+// Variáveis globais
+let allRecipes = [];
+let filteredRecipes = [];
+let currentCategory = 'todas';
+let currentSearch = '';
+let displayCount = 9;
+let categories = [];
 
 // Elementos DOM
-const recipesContainer = document.getElementById('recipesContainer');
-const categoriesScroll = document.getElementById('categoriesScroll');
-const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
-const scrollLeft = document.getElementById('scrollLeft');
-const scrollRight = document.getElementById('scrollRight');
-const recipesCount = document.getElementById('recipesCount');
-const autoLoadIndicator = document.getElementById('autoLoadIndicator');
+const recipesContainer = document.getElementById('recipes-container');
+const loadingElement = document.getElementById('loading');
+const noRecipesElement = document.getElementById('no-recipes');
+const recipesCounter = document.getElementById('recipes-counter');
+const recipesCount = document.getElementById('recipes-count');
+const categoriesContainer = document.getElementById('categories-container');
+const searchInput = document.getElementById('search-input');
+const clearSearchBtn = document.getElementById('clear-search');
+const themeToggle = document.getElementById('theme-toggle');
+const loadMoreContainer = document.getElementById('load-more-container');
+const loadMoreBtn = document.getElementById('load-more-btn');
 
-// Verificar conexão
-function verificarConexao() {
-    if (!navigator.onLine) {
-        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
-        return false;
-    }
-    return true;
-}
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    loadRecipes();
+    setupEventListeners();
+});
 
-// Carregar dados da planilha
-async function carregarReceitas() {
+// Carregar receitas da API
+async function loadRecipes() {
     try {
-        // Verificar conexão primeiro
-        if (!verificarConexao()) return;
-        
-        mostrarLoading();
-        console.log('📥 Carregando receitas...');
-        
-        const response = await fetch(API_URL);
+        const response = await fetch(SHEET_URL);
         
         if (!response.ok) {
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            throw new Error(`Erro HTTP: ${response.status}`);
         }
         
         const data = await response.json();
         
-        if (!data.values || data.values.length === 0) {
-            throw new Error('Planilha vazia ou sem dados');
+        if (!data.values || data.values.length <= 1) {
+            throw new Error('Planilha vazia ou formato inválido');
         }
         
-        console.log('✅ Dados recebidos:', data.values.length, 'linhas');
+        // Converter dados da planilha em objetos de receita
+        processSheetData(data.values);
         
-        // Processar dados
-        processarDados(data.values);
+        // Inicializar categorias
+        initCategories();
+        
+        // Renderizar receitas
+        renderRecipes();
         
     } catch (error) {
-        console.error('❌ Erro ao carregar receitas:', error);
+        console.error('Erro ao carregar receitas:', error);
+        showError('Erro ao carregar receitas. Verifique a conexão ou a API.');
+    }
+}
+
+// Processar dados da planilha
+function processSheetData(sheetData) {
+    // A primeira linha contém os cabeçalhos
+    const headers = sheetData[0].map(header => header.toLowerCase());
+    
+    // Converter cada linha em um objeto de receita
+    allRecipes = sheetData.slice(1).map((row, index) => {
+        const recipe = {};
         
-        if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
-            mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+        headers.forEach((header, i) => {
+            // Garantir que temos um valor (string vazia se não)
+            recipe[header] = row[i] || '';
+        });
+        
+        // Adicionar um ID único para cada receita
+        recipe.id = index + 1;
+        
+        return recipe;
+    });
+    
+    // Inverter a ordem para carregar de baixo para cima
+    allRecipes.reverse();
+    
+    filteredRecipes = [...allRecipes];
+}
+
+// Inicializar categorias
+function initCategories() {
+    // Extrair todas as categorias únicas
+    const categorySet = new Set();
+    
+    allRecipes.forEach(recipe => {
+        if (recipe.categoria && recipe.categoria.trim() !== '') {
+            // Separar múltiplas categorias (se houver vírgulas)
+            const cats = recipe.categoria.split(',').map(cat => cat.trim());
+            cats.forEach(cat => categorySet.add(cat));
+        }
+    });
+    
+    // Converter Set para array e ordenar
+    categories = Array.from(categorySet).sort();
+    
+    // Renderizar botões de categoria
+    renderCategories();
+}
+
+// Renderizar categorias
+function renderCategories() {
+    categoriesContainer.innerHTML = '';
+    
+    categories.forEach(category => {
+        const button = document.createElement('button');
+        button.className = 'category-btn';
+        button.dataset.category = category;
+        button.innerHTML = `
+            <i class="fas fa-tag"></i>
+            <span>${category}</span>
+        `;
+        
+        button.addEventListener('click', () => {
+            setActiveCategory(category);
+        });
+        
+        categoriesContainer.appendChild(button);
+    });
+}
+
+// Definir categoria ativa
+function setActiveCategory(category) {
+    currentCategory = category;
+    
+    // Atualizar botões de categoria
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+            btn.classList.add('active');
+        } else if (btn.dataset.category === 'todas' && category === 'todas') {
+            btn.classList.add('active');
         } else {
-            mostrarErro('Não foi possível carregar as receitas. Verifique sua conexão.');
-        }
-    }
-}
-
-// Processar dados - CORRIGIDO: remover receitas duplicadas
-function processarDados(dadosPlanilha) {
-    const cabecalhos = dadosPlanilha[0];
-    const linhas = dadosPlanilha.slice(1);
-    
-    // Mapear índices
-    const nomeIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('nome'));
-    const categoriaIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('categoria'));
-    const tempoIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('tempo'));
-    const ingredienteIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('ingrediente'));
-    const preparoIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('modo') || h.toLowerCase().includes('preparo'));
-    const urlIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('url'));
-    const mensagemIndex = cabecalhos.findIndex(h => h.toLowerCase().includes('mensagem'));
-    
-    // Processar linhas da MAIS RECENTE para a MAIS ANTIGA
-    // Usar Set para evitar duplicatas
-    const nomesVistos = new Set();
-    todasReceitas = [];
-    
-    for (let i = linhas.length - 1; i >= 0; i--) {
-        const linha = linhas[i];
-        
-        const receita = {
-            id: i + 1,
-            nome: (nomeIndex >= 0 && linha[nomeIndex]) ? linha[nomeIndex].toString().trim() : `Receita ${i + 1}`,
-            categoria: (categoriaIndex >= 0 && linha[categoriaIndex]) ? linha[categoriaIndex].toString().trim() : 'Geral',
-            tempo: (tempoIndex >= 0 && linha[tempoIndex]) ? linha[tempoIndex].toString().trim() : 'Tempo não informado',
-            ingrediente: (ingredienteIndex >= 0 && linha[ingredienteIndex]) ? linha[ingredienteIndex].toString().trim() : '',
-            mododepreparo: (preparoIndex >= 0 && linha[preparoIndex]) ? linha[preparoIndex].toString().trim() : '',
-            url: (urlIndex >= 0 && linha[urlIndex]) ? linha[urlIndex].toString().trim() : '',
-            mensagem: (mensagemIndex >= 0 && linha[mensagemIndex]) ? linha[mensagemIndex].toString().trim() : ''
-        };
-        
-        // Verificar se é duplicada (mesmo nome) e se tem nome válido
-        if (receita.nome && receita.nome !== 'Receita' && !nomesVistos.has(receita.nome.toLowerCase())) {
-            nomesVistos.add(receita.nome.toLowerCase());
-            todasReceitas.push(receita);
-        }
-    }
-    
-    console.log(`🍳 ${todasReceitas.length} receitas processadas (sem duplicatas)`);
-    
-    // Inicializar
-    receitasFiltradas = [...todasReceitas];
-    receitasExibidas = 0;
-    
-    // Atualizar interface
-    carregarCategorias();
-    exibirReceitas();
-    atualizarContador();
-    
-    // Configurar scroll infinito
-    configurarScrollInfinito();
-    
-    esconderLoading();
-}
-
-// Carregar categorias - CORRIGIDO: categorias únicas
-function carregarCategorias() {
-    // Extrair categorias únicas (sem duplicatas)
-    const categoriasSet = new Set();
-    
-    todasReceitas.forEach(receita => {
-        if (receita.categoria && receita.categoria.trim()) {
-            // Dividir por vírgula e adicionar cada categoria
-            const categorias = receita.categoria.split(',').map(cat => cat.trim());
-            categorias.forEach(cat => {
-                if (cat) categoriasSet.add(cat);
-            });
+            btn.classList.remove('active');
         }
     });
     
-    // Converter para array e ordenar
-    const categoriasOrdenadas = Array.from(categoriasSet).sort();
+    // Filtrar receitas
+    filterRecipes();
+}
+
+// Filtrar receitas
+function filterRecipes() {
+    // Filtrar por categoria
+    if (currentCategory === 'todas') {
+        filteredRecipes = [...allRecipes];
+    } else {
+        filteredRecipes = allRecipes.filter(recipe => {
+            return recipe.categoria && 
+                   recipe.categoria.toLowerCase().includes(currentCategory.toLowerCase());
+        });
+    }
     
-    // Limpar e criar categorias
-    categoriesScroll.innerHTML = '';
-    
-    categoriasOrdenadas.forEach(categoria => {
-        const botao = document.createElement('button');
-        botao.className = 'cat-btn';
-        botao.textContent = categoria;
-        botao.dataset.category = categoria.toLowerCase();
-        
-        botao.addEventListener('click', () => {
-            // Atualizar botão ativo
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            botao.classList.add('active');
-            
-            // Filtrar receitas
-            categoriaAtual = categoria.toLowerCase();
-            receitasFiltradas = todasReceitas.filter(receita => 
-                receita.categoria.toLowerCase().includes(categoriaAtual)
+    // Filtrar por busca
+    if (currentSearch.trim() !== '') {
+        const searchTerm = currentSearch.toLowerCase().trim();
+        filteredRecipes = filteredRecipes.filter(recipe => {
+            return (
+                (recipe.nome && recipe.nome.toLowerCase().includes(searchTerm)) ||
+                (recipe.categoria && recipe.categoria.toLowerCase().includes(searchTerm)) ||
+                (recipe.ingrediente && recipe.ingrediente.toLowerCase().includes(searchTerm)) ||
+                (recipe.mensagem && recipe.mensagem.toLowerCase().includes(searchTerm))
             );
-            receitasExibidas = 0;
-            exibirReceitas();
-            atualizarContador();
-        });
-        
-        categoriesScroll.appendChild(botao);
-    });
-    
-    // Atualizar botão "Todas"
-    const todasBtn = document.querySelector('.cat-btn[data-category="todas"]');
-    if (todasBtn) {
-        todasBtn.addEventListener('click', () => {
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            todasBtn.classList.add('active');
-            categoriaAtual = 'todas';
-            receitasFiltradas = [...todasReceitas];
-            receitasExibidas = 0;
-            exibirReceitas();
-            atualizarContador();
         });
     }
+    
+    // Resetar contador de exibição
+    displayCount = 9;
+    
+    // Renderizar receitas filtradas
+    renderRecipes();
 }
 
-// Exibir receitas
-function exibirReceitas() {
-    // Calcular quantas receitas mostrar
-    const receitasParaMostrar = receitasFiltradas.slice(0, receitasExibidas + RECIPES_PER_LOAD);
+// Renderizar receitas
+function renderRecipes() {
+    // Esconder loading
+    loadingElement.style.display = 'none';
     
-    // Limpar container se for a primeira página
-    if (receitasExibidas === 0) {
+    // Verificar se há receitas
+    if (filteredRecipes.length === 0) {
+        noRecipesElement.style.display = 'block';
         recipesContainer.innerHTML = '';
-    }
-    
-    if (receitasFiltradas.length === 0) {
-        mostrarSemResultados();
+        recipesCounter.style.display = 'none';
+        loadMoreContainer.style.display = 'none';
         return;
     }
     
-    // Adicionar receitas
-    receitasParaMostrar.forEach((receita, index) => {
-        const card = criarCardReceita(receita, index);
-        recipesContainer.appendChild(card);
+    // Mostrar contador de receitas
+    recipesCount.textContent = filteredRecipes.length;
+    recipesCounter.style.display = 'block';
+    
+    // Mostrar receitas encontradas
+    noRecipesElement.style.display = 'none';
+    
+    // Determinar receitas a mostrar
+    const recipesToShow = filteredRecipes.slice(0, displayCount);
+    
+    // Limpar container
+    recipesContainer.innerHTML = '';
+    
+    // Renderizar cada receita (de baixo para cima)
+    recipesToShow.forEach(recipe => {
+        const recipeCard = createRecipeCard(recipe);
+        recipesContainer.appendChild(recipeCard);
     });
     
-    receitasExibidas = receitasParaMostrar.length;
-    
-    // Ocultar indicador de carregamento
-    carregandoMais = false;
-    autoLoadIndicator.style.display = 'none';
+    // Mostrar botão "Carregar mais" se houver mais receitas
+    if (filteredRecipes.length > displayCount) {
+        loadMoreContainer.style.display = 'block';
+    } else {
+        loadMoreContainer.style.display = 'none';
+    }
 }
 
-function criarCardReceita(receita, indice) {
+// Criar card de receita
+function createRecipeCard(recipe) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
-    card.style.animationDelay = `${(indice % 10) * 0.1}s`;
     
-    // Primeira categoria
-    const primeiraCategoria = receita.categoria.split(',')[0].trim();
+    // Truncar ingredientes para exibição
+    const ingredientsPreview = recipe.ingrediente ? 
+        (recipe.ingrediente.length > 100 ? 
+         recipe.ingrediente.substring(0, 100) + '...' : 
+         recipe.ingrediente) : 
+        'Ingredientes não disponíveis';
     
-    // Preview de ingredientes
-    let ingredientesPreview = receita.ingrediente || 'Ingredientes não informados';
-    if (ingredientesPreview.length > 100) {
-        ingredientesPreview = ingredientesPreview.substring(0, 100) + '...';
+    // Determinar ícone baseado na categoria
+    let icon = 'fa-utensils';
+    if (recipe.categoria) {
+        if (recipe.categoria.toLowerCase().includes('bebida') || 
+            recipe.categoria.toLowerCase().includes('drink')) {
+            icon = 'fa-glass-martini-alt';
+        } else if (recipe.categoria.toLowerCase().includes('sobremesa') || 
+                   recipe.categoria.toLowerCase().includes('doce')) {
+            icon = 'fa-ice-cream';
+        } else if (recipe.categoria.toLowerCase().includes('salada')) {
+            icon = 'fa-leaf';
+        } else if (recipe.categoria.toLowerCase().includes('carne')) {
+            icon = 'fa-drumstick-bite';
+        } else if (recipe.categoria.toLowerCase().includes('vegetariana') || 
+                   recipe.categoria.toLowerCase().includes('vegana')) {
+            icon = 'fa-seedling';
+        }
     }
     
-    // Verificar se URL é imagem
-    const temImagem = receita.url && (
-        receita.url.includes('.jpg') || 
-        receita.url.includes('.jpeg') || 
-        receita.url.includes('.png') ||
-        receita.url.includes('.gif') ||
-        receita.url.includes('http')
-    );
-    
     card.innerHTML = `
-        <div class="recipe-image-container">
-            ${temImagem ? 
-                `<img src="${receita.url}" alt="${receita.nome}" class="recipe-image" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'image-placeholder\\'><i class=\\'fas fa-utensils\\'></i></div>';">` :
-                `<div class="image-placeholder">
-                    <i class="fas fa-utensils"></i>
-                </div>`
-            }
-            <span class="recipe-badge">${primeiraCategoria}</span>
-            <span class="recipe-time"><i class="far fa-clock"></i> ${receita.tempo}</span>
+        <div class="recipe-image">
+            <i class="fas ${icon}"></i>
         </div>
         <div class="recipe-content">
-            <h3 class="recipe-title">${receita.nome}</h3>
-            <p class="recipe-desc">${ingredientesPreview}</p>
-            <a href="receita.html?id=${receita.id}" class="view-recipe">
-                Ver receita completa <i class="fas fa-arrow-right"></i>
-            </a>
+            <h3 class="recipe-title">${recipe.nome || 'Receita sem nome'}</h3>
+            <div class="recipe-meta">
+                <span class="recipe-category">${recipe.categoria || 'Sem categoria'}</span>
+                <span class="recipe-time">
+                    <i class="far fa-clock"></i>
+                    ${recipe.tempo || 'Não especificado'}
+                </span>
+            </div>
+            <div class="recipe-ingredients">
+                <h4>Ingredientes:</h4>
+                <p>${ingredientsPreview}</p>
+            </div>
+            <div class="recipe-actions">
+                <button class="view-recipe-btn" data-id="${recipe.id}">
+                    <i class="fas fa-book-open"></i>
+                    Ver Receita
+                </button>
+                <button class="save-recipe-btn" title="Salvar receita">
+                    <i class="far fa-bookmark"></i>
+                </button>
+            </div>
         </div>
     `;
     
-    // Clicar em todo o card abre a receita
-    card.addEventListener('click', (e) => {
-        if (!e.target.closest('.view-recipe')) {
-            window.location.href = `receita.html?id=${receita.id}`;
-        }
+    // Adicionar evento ao botão "Ver Receita"
+    const viewButton = card.querySelector('.view-recipe-btn');
+    viewButton.addEventListener('click', () => {
+        viewRecipe(recipe.id);
+    });
+    
+    // Adicionar evento ao botão "Salvar"
+    const saveButton = card.querySelector('.save-recipe-btn');
+    saveButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSaveRecipe(recipe.id, saveButton);
     });
     
     return card;
 }
 
-// Carregar mais automaticamente
-function carregarMaisAutomaticamente() {
-    if (carregandoMais || receitasExibidas >= receitasFiltradas.length) return;
+// Visualizar receita completa
+function viewRecipe(recipeId) {
+    // Salvar ID da receita no localStorage para a página de receita
+    localStorage.setItem('selectedRecipeId', recipeId);
     
-    carregandoMais = true;
-    autoLoadIndicator.style.display = 'flex';
-    
-    setTimeout(() => {
-        receitasExibidas += RECIPES_PER_LOAD;
-        exibirReceitas();
-    }, 500);
+    // Redirecionar para a página de receita
+    window.location.href = 'receita.html';
 }
 
-// Configurar scroll infinito
-function configurarScrollInfinito() {
-    let timer;
+// Alternar salvar receita
+function toggleSaveRecipe(recipeId, button) {
+    const icon = button.querySelector('i');
     
-    window.addEventListener('scroll', () => {
-        clearTimeout(timer);
+    if (icon.classList.contains('far')) {
+        // Salvar
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        button.title = 'Remover dos salvos';
         
-        timer = setTimeout(() => {
-            const scrollPosition = window.innerHeight + window.scrollY;
-            const pageHeight = document.documentElement.scrollHeight;
-            const threshold = 200;
-            
-            if (scrollPosition >= pageHeight - threshold) {
-                carregarMaisAutomaticamente();
-            }
-        }, 100);
-    });
-}
-
-// Atualizar contador
-function atualizarContador() {
-    if (recipesCount) {
-        recipesCount.textContent = receitasFiltradas.length;
+        // Salvar no localStorage
+        saveToLocalStorage(recipeId, true);
+    } else {
+        // Remover
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        button.title = 'Salvar receita';
+        
+        // Remover do localStorage
+        saveToLocalStorage(recipeId, false);
     }
 }
 
-// Funções UI
-function mostrarLoading() {
-    const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'block';
-}
-
-function esconderLoading() {
-    const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'none';
-}
-
-function mostrarErro(mensagem) {
-    recipesContainer.innerHTML = `
-        <div class="no-results">
-            <i class="fas fa-wifi-slash"></i>
-            <h3>Sem conexão</h3>
-            <p>${mensagem}</p>
-            <button onclick="carregarReceitas()" class="view-recipe" style="margin-top: 20px;">
-                <i class="fas fa-redo"></i> Tentar novamente
-            </button>
-        </div>
-    `;
-    esconderLoading();
-}
-
-function mostrarSemResultados() {
-    recipesContainer.innerHTML = `
-        <div class="no-results">
-            <i class="fas fa-search"></i>
-            <h3>Nenhuma receita encontrada</h3>
-            <p>Tente buscar por outro termo ou selecione uma categoria diferente.</p>
-        </div>
-    `;
-}
-
-// Scroll horizontal das categorias
-function configurarScrollHorizontal() {
-    if (scrollLeft && scrollRight) {
-        scrollLeft.addEventListener('click', () => {
-            categoriesScroll.scrollBy({ left: -200, behavior: 'smooth' });
-        });
-        
-        scrollRight.addEventListener('click', () => {
-            categoriesScroll.scrollBy({ left: 200, behavior: 'smooth' });
-        });
-    }
-}
-
-// Busca
-function executarBusca() {
-    const termo = searchInput.value.toLowerCase().trim();
+// Salvar/remover receita no localStorage
+function saveToLocalStorage(recipeId, save) {
+    let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
     
-    receitasFiltradas = todasReceitas.filter(receita => {
-        if (categoriaAtual !== 'todas' && !receita.categoria.toLowerCase().includes(categoriaAtual)) {
-            return false;
+    if (save) {
+        if (!savedRecipes.includes(recipeId)) {
+            savedRecipes.push(recipeId);
+        }
+    } else {
+        savedRecipes = savedRecipes.filter(id => id !== recipeId);
+    }
+    
+    localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+}
+
+// Configurar listeners de eventos
+function setupEventListeners() {
+    // Busca
+    searchInput.addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        
+        // Mostrar/ocultar botão de limpar busca
+        if (currentSearch.trim() !== '') {
+            clearSearchBtn.style.display = 'block';
+        } else {
+            clearSearchBtn.style.display = 'none';
         }
         
-        if (!termo) return true;
-        
-        return receita.nome.toLowerCase().includes(termo) ||
-               receita.ingrediente.toLowerCase().includes(termo) ||
-               receita.categoria.toLowerCase().includes(termo);
+        // Filtrar receitas
+        filterRecipes();
     });
     
-    receitasExibidas = 0;
-    exibirReceitas();
-    atualizarContador();
+    // Limpar busca
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentSearch = '';
+        clearSearchBtn.style.display = 'none';
+        filterRecipes();
+    });
+    
+    // Alternar tema
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Carregar mais receitas
+    loadMoreBtn.addEventListener('click', () => {
+        displayCount += 9;
+        renderRecipes();
+    });
 }
 
-// Detectar mudanças na conexão
-window.addEventListener('online', () => {
-    console.log('✅ Conexão restaurada');
-    // Tentar recarregar se estava com erro
-    if (recipesContainer.querySelector('.no-results i.fa-wifi-slash')) {
-        carregarReceitas();
-    }
-});
-
-window.addEventListener('offline', () => {
-    console.log('❌ Conexão perdida');
-    if (!todasReceitas.length) {
-        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
-    }
-});
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Iniciando Sabor de Casa...');
+// Inicializar tema
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
     
-    // Verificar conexão inicial
-    if (!navigator.onLine) {
-        mostrarErro('📡 Sem conexão com a internet<br><small>É preciso dados móveis ou Wi-Fi para carregar as receitas</small>');
+    // Atualizar ícone do botão
+    const icon = themeToggle.querySelector('i');
+    if (savedTheme === 'dark') {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+}
+
+// Alternar tema claro/escuro
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Atualizar ícone do botão
+    const icon = themeToggle.querySelector('i');
+    if (newTheme === 'dark') {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
     } else {
-        // Carregar receitas
-        carregarReceitas();
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
     }
+}
+
+// Mostrar erro
+function showError(message) {
+    loadingElement.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 20px;"></i>
+        <h3>Erro ao carregar receitas</h3>
+        <p>${message}</p>
+        <button id="retry-btn" style="margin-top: 20px; padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Tentar novamente
+        </button>
+    `;
     
-    // Configurar eventos
-    if (searchButton) {
-        searchButton.addEventListener('click', executarBusca);
-    }
-    
-    if (searchInput) {
-        searchInput.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') executarBusca();
-        });
-    }
-    
-    // Configurar scroll horizontal
-    configurarScrollHorizontal();
-});
+    document.getElementById('retry-btn').addEventListener('click', () => {
+        loadingElement.innerHTML = `
+            <div class="spinner"></div>
+            <p>Carregando receitas...</p>
+        `;
+        loadRecipes();
+    });
+                 }

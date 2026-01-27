@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receita Completa - Sabor de Casa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Ícone PWA -->
+    <link rel="icon" type="image/svg+xml" href="icone-panela.svg">
+    <link rel="apple-touch-icon" href="icone-panela.png">
+    <meta name="theme-color" content="#e74c3c">
+    
     <style>
         * {
             margin: 0;
@@ -22,6 +31,7 @@
             --dark-color: #34495e;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --radius: 8px;
+            --transition: all 0.3s ease;
         }
 
         body {
@@ -33,7 +43,7 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
         }
 
         .back-btn {
@@ -48,7 +58,7 @@
             border-radius: 50px;
             background-color: white;
             box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .back-btn:hover {
@@ -134,7 +144,7 @@
             background-color: var(--gray-color);
             padding: 30px;
             border-radius: var(--radius);
-            margin-top: 30px;
+            margin: 0 40px 40px;
             font-style: italic;
             text-align: center;
         }
@@ -154,6 +164,7 @@
             .recipe-content {
                 grid-template-columns: 1fr;
                 gap: 30px;
+                padding: 30px 20px;
             }
             
             .recipe-title {
@@ -161,7 +172,12 @@
             }
             
             .recipe-header {
-                padding: 30px 20px;
+                padding: 30px 20px 20px;
+            }
+            
+            .recipe-message {
+                margin: 0 20px 30px;
+                padding: 20px;
             }
         }
     </style>
@@ -187,6 +203,22 @@
             const recipeData = localStorage.getItem('currentRecipe');
             
             if (!recipeData) {
+                // Tentar obter da URL (fallback)
+                const urlParams = new URLSearchParams(window.location.search);
+                const recipeName = urlParams.get('recipe');
+                
+                if (recipeName) {
+                    // Em um cenário real, você buscaria a receita pelo nome
+                    return {
+                        name: decodeURIComponent(recipeName),
+                        category: 'Categoria não disponível',
+                        time: 'Tempo não informado',
+                        ingredients: 'Ingredientes não disponíveis',
+                        instructions: 'Modo de preparo não disponível',
+                        message: 'Esta receita foi acessada diretamente pela URL'
+                    };
+                }
+                
                 return null;
             }
             
@@ -204,6 +236,17 @@
             
             // Atualizar título da página
             document.title = `${recipe.name} - Sabor de Casa`;
+            
+            // Formatar ingredientes em lista
+            function formatIngredients(ingredientsText) {
+                const separators = /[,;]|\n/;
+                const items = ingredientsText.split(separators);
+                
+                return items
+                    .filter(item => item.trim() !== '')
+                    .map(item => `<li>${item.trim()}</li>`)
+                    .join('');
+            }
             
             container.innerHTML = `
                 <div class="recipe-detail-card">
@@ -236,18 +279,6 @@
                     ` : ''}
                 </div>
             `;
-        }
-        
-        // Função para formatar ingredientes em lista
-        function formatIngredients(ingredientsText) {
-            // Separar por vírgulas, pontos e vírgulas, ou quebras de linha
-            const separators = /[,;]|\n/;
-            const items = ingredientsText.split(separators);
-            
-            return items
-                .filter(item => item.trim() !== '')
-                .map(item => `<li>${item.trim()}</li>`)
-                .join('');
         }
         
         // Carregar a receita quando a página carregar

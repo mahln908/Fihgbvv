@@ -1,108 +1,709 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabor de Casa - Receitas Deliciosas</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary-color: #2c3e50;
+            --light-color: #f9f9f9;
+            --gray-color: #ecf0f1;
+            --dark-color: #34495e;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding-top: 160px;
+        }
+
+        /* Barra de pesquisa fixa */
+        .search-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 20px 5%;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .search-container {
+            width: 50%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--gray-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Barra de categorias fixa */
+        .categories-bar {
+            position: fixed;
+            top: 90px;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 15px 5%;
+            box-shadow: var(--shadow);
+            z-index: 999;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .categories-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .category-btn {
+            background-color: var(--gray-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+
+        /* Grid de receitas */
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .recipe-card {
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .recipe-image {
+            height: 200px;
+            width: 100%;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .recipe-time {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .recipe-content {
+            padding: 20px;
+        }
+
+        .recipe-category {
+            display: inline-block;
+            background-color: var(--gray-color);
+            color: var(--dark-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .recipe-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .recipe-ingredients {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recipe-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .recipe-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .recipe-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading e mensagens */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .loading i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* Botão carregar mais */
+        .load-more-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .load-more-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .load-more-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .footer-text {
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 180px;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 5%;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .categories-bar {
+                top: 130px;
+                padding: 10px 5%;
+            }
+            
+            .recipes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .recipes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .recipe-card {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Cabeçalho fixo -->
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-utensils"></i>
-                <h1>Sabor de Casa</h1>
-            </div>
-            
-            <!-- Barra de pesquisa fixa -->
-            <div class="search-bar">
+    <!-- Barra de pesquisa fixa -->
+    <header class="search-bar">
+        <div class="logo">
+            <i class="fas fa-utensils"></i>
+            <span>Sabor de Casa</span>
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Pesquisar receitas por nome, ingrediente ou categoria...">
+            <button class="search-btn">
                 <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Buscar receitas por nome, ingrediente ou categoria...">
-                <button id="clear-search" class="clear-btn" title="Limpar busca">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="header-actions">
-                <button id="theme-toggle" class="theme-btn" title="Alternar tema">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
+            </button>
         </div>
     </header>
-    
-    <!-- Barra de categorias com scroll horizontal -->
-    <nav class="categories-nav">
-        <div class="container">
-            <div class="categories-scroll">
-                <button class="category-btn active" data-category="todas">
-                    <i class="fas fa-th-large"></i>
-                    <span>Todas</span>
-                </button>
-                <!-- As categorias serão carregadas dinamicamente -->
-                <div id="categories-container" class="categories-list">
-                    <!-- Categorias serão inseridas aqui via JavaScript -->
-                </div>
-            </div>
+
+    <!-- Barra de categorias fixa -->
+    <nav class="categories-bar">
+        <div class="categories-container">
+            <button class="category-btn active" data-category="all">Todas</button>
+            <!-- As categorias serão carregadas dinamicamente -->
         </div>
     </nav>
-    
-    <main class="main-content">
-        <div class="container">
-            <!-- Indicador de carregamento -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Carregando receitas...</p>
+
+    <!-- Conteúdo principal -->
+    <main class="container">
+        <h1 class="page-title">Receitas Deliciosas para o Seu Dia a Dia</h1>
+        
+        <!-- Grid de receitas -->
+        <div class="recipes-grid" id="recipes-container">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Carregando receitas...
             </div>
-            
-            <!-- Contador de receitas -->
-            <div id="recipes-counter" class="recipes-counter" style="display: none;">
-                <span id="recipes-count">0</span> receitas encontradas
-            </div>
-            
-            <!-- Container de receitas (carregadas de baixo para cima) -->
-            <div id="recipes-container" class="recipes-grid">
-                <!-- As receitas serão inseridas aqui via JavaScript -->
-            </div>
-            
-            <!-- Mensagem quando não houver receitas -->
-            <div id="no-recipes" class="no-recipes" style="display: none;">
-                <i class="fas fa-meh"></i>
-                <h3>Nenhuma receita encontrada</h3>
-                <p>Tente ajustar sua busca ou filtrar por outra categoria</p>
-            </div>
-            
-            <!-- Botão para carregar mais receitas -->
-            <div id="load-more-container" class="load-more-container" style="display: none;">
-                <button id="load-more-btn" class="load-more-btn">
-                    <i class="fas fa-sync-alt"></i>
-                    Carregar mais receitas
-                </button>
-            </div>
+        </div>
+        
+        <!-- Botão carregar mais -->
+        <div class="load-more-container">
+            <button class="load-more-btn" id="load-more-btn">
+                <i class="fas fa-chevron-down"></i> Carregar mais receitas
+            </button>
         </div>
     </main>
-    
-    <!-- Rodapé -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-utensils"></i>
-                    <h3>Sabor de Casa</h3>
-                    <p>Receitas deliciosas para o seu dia a dia</p>
-                </div>
-                <div class="footer-info">
-                    <p><i class="fas fa-database"></i> Receitas carregadas do Google Sheets</p>
-                    <p><i class="fas fa-code"></i> Desenvolvido com HTML, CSS e JavaScript</p>
-                    <p class="disclaimer">Este site é apenas para fins demonstrativos.</p>
-                </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-utensils"></i>
+                Sabor de Casa
             </div>
+            <p class="footer-text">Receitas deliciosas para compartilhar com a família e amigos</p>
+            <p class="footer-text">© 2023 Sabor de Casa. Todos os direitos reservados.</p>
         </div>
     </footer>
-    
-    <script src="script.js"></script>
+
+    <script>
+        // URL da planilha do Google Sheets
+        const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc/values/Receitas%20Sabor%20de%20Casa?key=AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc`;
+        
+        // Variáveis globais
+        let allRecipes = [];
+        let filteredRecipes = [];
+        let displayedCount = 0;
+        const recipesPerPage = 6;
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        // Elementos do DOM
+        const recipesContainer = document.getElementById('recipes-container');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const searchInput = document.querySelector('.search-input');
+        const searchBtn = document.querySelector('.search-btn');
+        const categoriesContainer = document.querySelector('.categories-container');
+
+        // Função para carregar dados da planilha
+        async function loadRecipes() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.json();
+                
+                if (!data.values || data.values.length === 0) {
+                    throw new Error('Nenhuma receita encontrada na planilha');
+                }
+                
+                // Converter dados da planilha em objetos de receita
+                // A primeira linha contém os cabeçalhos
+                const headers = data.values[0];
+                const rows = data.values.slice(1);
+                
+                allRecipes = rows.map(row => {
+                    const recipe = {};
+                    headers.forEach((header, index) => {
+                        // Mapear nomes de colunas para propriedades do objeto
+                        if (header === 'nome') recipe.name = row[index] || 'Receita sem nome';
+                        else if (header === 'categoria') recipe.category = row[index] || 'Outros';
+                        else if (header === 'tempo') recipe.time = row[index] || 'Não informado';
+                        else if (header === 'ingrediente') recipe.ingredients = row[index] || 'Ingredientes não informados';
+                        else if (header === 'mododepreparo') recipe.instructions = row[index] || 'Modo de preparo não informado';
+                        else if (header === 'url') recipe.imageUrl = row[index] || '';
+                        else if (header === 'mensagem') recipe.message = row[index] || '';
+                    });
+                    
+                    // Gerar uma cor de fundo baseada no nome da receita (para quando não há imagem)
+                    recipe.bgColor = generateColorFromText(recipe.name);
+                    
+                    return recipe;
+                });
+                
+                // Inicializar receitas filtradas com todas as receitas
+                filteredRecipes = [...allRecipes];
+                
+                // Carregar categorias
+                loadCategories();
+                
+                // Exibir as primeiras receitas
+                displayRecipes();
+                
+            } catch (error) {
+                console.error('Erro ao carregar receitas:', error);
+                recipesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar receitas</h3>
+                        <p>Não foi possível carregar as receitas da planilha. Verifique a conexão ou a configuração da API.</p>
+                    </div>
+                `;
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // Função para gerar cor baseada em texto
+        function generateColorFromText(text) {
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = text.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', 
+                '#118AB2', '#EF476F', '#7B68EE', '#20B2AA'
+            ];
+            
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        // Função para carregar categorias
+        function loadCategories() {
+            // Extrair categorias únicas das receitas
+            const categoriesSet = new Set();
+            allRecipes.forEach(recipe => {
+                if (recipe.category) {
+                    categoriesSet.add(recipe.category);
+                }
+            });
+            
+            const categories = Array.from(categoriesSet);
+            
+            // Adicionar botões de categoria
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = category;
+                button.setAttribute('data-category', category.toLowerCase());
+                
+                button.addEventListener('click', () => {
+                    // Remover classe active de todos os botões
+                    document.querySelectorAll('.category-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Adicionar classe active ao botão clicado
+                    button.classList.add('active');
+                    
+                    // Filtrar receitas por categoria
+                    filterByCategory(category);
+                });
+                
+                categoriesContainer.appendChild(button);
+            });
+        }
+
+        // Função para filtrar receitas por categoria
+        function filterByCategory(category) {
+            currentCategory = category === 'all' ? 'all' : category.toLowerCase();
+            
+            // Reiniciar contagem de exibição
+            displayedCount = 0;
+            
+            // Filtrar receitas
+            if (currentCategory === 'all') {
+                filteredRecipes = [...allRecipes];
+            } else {
+                filteredRecipes = allRecipes.filter(recipe => 
+                    recipe.category && recipe.category.toLowerCase() === currentCategory
+                );
+            }
+            
+            // Aplicar filtro de pesquisa também, se houver
+            if (currentSearch) {
+                filteredRecipes = filteredRecipes.filter(recipe => 
+                    recipe.name.toLowerCase().includes(currentSearch) ||
+                    recipe.ingredients.toLowerCase().includes(currentSearch) ||
+                    recipe.category.toLowerCase().includes(currentSearch)
+                );
+            }
+            
+            // Exibir receitas filtradas
+            displayRecipes();
+        }
+
+        // Função para exibir receitas
+        function displayRecipes() {
+            // Limpar container
+            recipesContainer.innerHTML = '';
+            
+            if (filteredRecipes.length === 0) {
+                recipesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhuma receita encontrada</h3>
+                        <p>Tente alterar os filtros de pesquisa ou categoria.</p>
+                    </div>
+                `;
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+            
+            // Calcular quantas receitas mostrar
+            const nextRecipes = filteredRecipes.slice(displayedCount, displayedCount + recipesPerPage);
+            
+            // Se não houver mais receitas para mostrar, esconder o botão
+            if (displayedCount + recipesPerPage >= filteredRecipes.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+            }
+            
+            // Adicionar receitas ao container
+            nextRecipes.forEach(recipe => {
+                const recipeCard = createRecipeCard(recipe);
+                recipesContainer.appendChild(recipeCard);
+            });
+            
+            // Atualizar contagem
+            displayedCount += nextRecipes.length;
+        }
+
+        // Função para criar card de receita
+        function createRecipeCard(recipe) {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.setAttribute('data-category', recipe.category ? recipe.category.toLowerCase() : '');
+            
+            // Gerar URL da imagem (usar imagem padrão se não houver URL)
+            const imageUrl = recipe.imageUrl || '';
+            const bgColor = recipe.bgColor;
+            
+        // Limitar ingredientes para exibição
+            const shortIngredients = recipe.ingredients.length > 100 
+                ? recipe.ingredients.substring(0, 100) + '...' 
+                : recipe.ingredients;
+            
+            card.innerHTML = `
+                <div class="recipe-image" style="background-color: ${bgColor}; ${imageUrl ? `background-image: url('${imageUrl}')` : ''}">
+                    <div class="recipe-time">
+                        <i class="far fa-clock"></i> ${recipe.time}
+                    </div>
+                </div>
+                <div class="recipe-content">
+                    <div class="recipe-category">${recipe.category || 'Sem categoria'}</div>
+                    <h3 class="recipe-title">${recipe.name}</h3>
+                    <p class="recipe-ingredients">${shortIngredients}</p>
+                    <div class="recipe-footer">
+                        <a href="receitascompleta.html?recipe=${encodeURIComponent(recipe.name)}" class="recipe-link" onclick="saveRecipeToLocalStorage('${encodeURIComponent(JSON.stringify(recipe))}')">
+                            Ver receita completa <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Função para salvar receita no localStorage (para a página de detalhes)
+        function saveRecipeToLocalStorage(recipe) {
+            localStorage.setItem('currentRecipe', recipe);
+        }
+
+        // Função para pesquisar receitas
+        function searchRecipes() {
+            currentSearch = searchInput.value.trim().toLowerCase();
+            
+            // Reiniciar contagem de exibição
+            displayedCount = 0;
+            
+            // Filtrar receitas
+            if (!currentSearch) {
+                filteredRecipes = [...allRecipes];
+            } else {
+                filteredRecipes = allRecipes.filter(recipe => 
+                    recipe.name.toLowerCase().includes(currentSearch) ||
+                    recipe.ingredients.toLowerCase().includes(currentSearch) ||
+                    (recipe.category && recipe.category.toLowerCase().includes(currentSearch))
+                );
+            }
+            
+            // Aplicar filtro de categoria também, se houver
+            if (currentCategory !== 'all') {
+                filteredRecipes = filteredRecipes.filter(recipe => 
+                    recipe.category && recipe.category.toLowerCase() === currentCategory
+                );
+            }
+            
+            // Exibir receitas filtradas
+            displayRecipes();
+        }
+
+        // Inicializar eventos
+        function initEvents() {
+            // Evento do botão carregar mais
+            loadMoreBtn.addEventListener('click', displayRecipes);
+            
+            // Evento da pesquisa
+            searchBtn.addEventListener('click', searchRecipes);
+            searchInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    searchRecipes();
+                }
+            });
+            
+            // Evento para pesquisa em tempo real (com debounce)
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(searchRecipes, 500);
+            });
+        }
+
+        // Inicializar o aplicativo
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRecipes();
+            initEvents();
+        });
+    </script>
 </body>
 </html>

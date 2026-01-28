@@ -6,12 +6,15 @@
     <title>Sabor de Casa - Receitas Deliciosas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header com Barra de Pesquisa -->
     <header>
         <div class="header-container">
-            <a href="#" class="logo">
+            <a href="index.html" class="logo">
                 <i class="fas fa-utensils"></i>
                 <span>Sabor de Casa</span>
             </a>
@@ -34,80 +37,85 @@
 
     <!-- Navegação de Categorias -->
     <nav class="categories-nav">
-        <div class="categories-container">
+        <div class="scroll-indicator left" id="scroll-left">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="categories-container" id="categories-container">
             <button class="category-btn active" data-category="all">Todas</button>
             <!-- As categorias serão carregadas dinamicamente aqui -->
+        </div>
+        <div class="scroll-indicator right" id="scroll-right">
+            <i class="fas fa-chevron-right"></i>
         </div>
     </nav>
 
     <!-- Conteúdo Principal -->
     <main>
-        <h1 class="page-title">Receitas Sabor de Casa</h1>
+        <div class="main-header">
+            <h1 class="page-title">Receitas Sabor de Casa</h1>
+            <div class="results-count" id="results-count">Carregando...</div>
+        </div>
         
-        <div class="recipes-container">
+        <div class="recipes-container" id="recipes-container">
             <!-- As receitas serão carregadas dinamicamente aqui -->
             <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Carregando receitas...
+                <i class="fas fa-spinner fa-spin"></i> 
+                <span>Carregando receitas...</span>
             </div>
+        </div>
+
+        <div class="load-more-container" id="load-more-container">
+            <button class="load-more-btn" id="load-more-btn">
+                <i class="fas fa-sync-alt"></i> Carregar Mais Receitas
+            </button>
         </div>
     </main>
 
-    <!-- Modal de Receita -->
-    <div class="recipe-modal" id="recipe-modal">
+    <!-- Sobre Modal -->
+    <div class="modal" id="about-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div>
-                    <div class="modal-category"></div>
-                    <h2 class="modal-title"></h2>
-                    <div class="modal-time">
-                        <i class="far fa-clock"></i>
-                        <span class="time-text"></span>
-                    </div>
-                </div>
+                <h2><i class="fas fa-info-circle"></i> Sobre o Sabor de Casa</h2>
                 <button class="close-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
             <div class="modal-body">
-                <div class="modal-ingredients">
-                    <h3>Ingredientes</h3>
-                    <ul class="ingredients-list"></ul>
+                <div class="about-content">
+                    <div class="about-logo">
+                        <i class="fas fa-utensils"></i>
+                        <h3>Sabor de Casa</h3>
+                    </div>
+                    <p>Este site de receitas carrega dados diretamente de uma planilha do Google Sheets, permitindo que as receitas sejam atualizadas facilmente.</p>
+                    <p>Todas as receitas são carregadas dinamicamente e podem ser filtradas por categoria ou através da barra de pesquisa.</p>
+                    <p>Compartilhe suas receitas favoritas com amigos e familiares!</p>
+                    <div class="features">
+                        <h4><i class="fas fa-check-circle"></i> Funcionalidades:</h4>
+                        <ul>
+                            <li><i class="fas fa-search"></i> Busca inteligente por ingredientes e nomes</li>
+                            <li><i class="fas fa-tags"></i> Filtro por categorias com scroll horizontal</li>
+                            <li><i class="fas fa-share-alt"></i> Compartilhamento de receitas via link</li>
+                            <li><i class="far fa-heart"></i> Sistema de favoritos</li>
+                            <li><i class="fas fa-mobile-alt"></i> Design responsivo para todos os dispositivos</li>
+                        </ul>
+                    </div>
                 </div>
-                
-                <div class="modal-preparation">
-                    <h3>Modo de Preparo</h3>
-                    <div class="preparation-steps"></div>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <div class="modal-message"></div>
-                <a href="#" class="modal-url" target="_blank">
-                    <i class="fas fa-external-link-alt"></i>
-                    Ver receita original
-                </a>
             </div>
         </div>
     </div>
 
-    <!-- Sobre Modal -->
-    <div class="about-modal" id="about-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Sobre o Sabor de Casa</h2>
-                <button class="close-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Este site de receitas carrega dados diretamente de uma planilha do Google Sheets, permitindo que as receitas sejam atualizadas facilmente.</p>
-                <p>Todas as receitas são carregadas dinamicamente e podem ser filtradas por categoria ou através da barra de pesquisa.</p>
-                <p>Desenvolvido com ❤️ para amantes da culinária caseira.</p>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Sabor de Casa. Todos os direitos reservados.</p>
+            <p>Desenvolvido com <i class="fas fa-heart"></i> para amantes da culinária caseira</p>
+            <div class="social-links">
+                <a href="#" title="Compartilhar no Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" title="Compartilhar no Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" title="Compartilhar no WhatsApp"><i class="fab fa-whatsapp"></i></a>
             </div>
         </div>
-    </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
-</html>
+    </html>

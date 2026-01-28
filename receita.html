@@ -1,28 +1,254 @@
+<!-- receita.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Receita</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Receita - Sabor de Casa</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .recipe-detail-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .recipe-detail-header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 20px;
+        }
+        
+        .recipe-detail-title {
+            font-size: 2.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .recipe-detail-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .recipe-detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-color);
+        }
+        
+        .recipe-detail-section {
+            margin-bottom: 30px;
+        }
+        
+        .recipe-detail-section h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .recipe-detail-ingredients,
+        .recipe-detail-instructions {
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        
+        .recipe-detail-message {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+            margin-top: 30px;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: var(--dark-color);
+        }
+        
+        @media (max-width: 768px) {
+            .recipe-detail-container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .recipe-detail-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Barra de pesquisa fixa no topo -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Sabor de Casa</h1>
+            </div>
+            <div class="search-container">
+                <a href="index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Voltar para Receitas
+                </a>
+            </div>
+        </div>
+    </header>
 
-<div class="card" style="margin:20px;">
-  <h2 id="nome"></h2>
-  <p><strong>Tempo:</strong> <span id="tempo"></span></p>
-  <p><strong>Ingredientes:</strong></p>
-  <p id="ingredientes"></p>
-  <p><strong>Modo de preparo:</strong></p>
-  <p id="modo"></p>
-</div>
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div class="container">
+            <div id="recipe-detail" class="recipe-detail-container">
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Carregando receita...</p>
+                </div>
+                
+                <div id="recipe-content" class="hidden">
+                    <!-- Conteúdo da receita será carregado aqui -->
+                </div>
+                
+                <div id="recipe-not-found" class="no-recipes hidden">
+                    <i class="fas fa-utensils"></i>
+                    <h3>Receita não encontrada</h3>
+                    <p>A receita que você está procurando não existe ou foi removida.</p>
+                    <a href="index.html" class="recipe-link" style="margin-top: 15px; display: inline-block;">
+                        <i class="fas fa-arrow-left"></i> Voltar para a lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
 
-<script>
-const r = JSON.parse(localStorage.getItem("receita"));
-document.getElementById("nome").innerText = r.nome;
-document.getElementById("tempo").innerText = r.tempo;
-document.getElementById("ingredientes").innerText = r.ingrediente;
-document.getElementById("modo").innerText = r.modo;
-</script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const recipeContent = document.getElementById('recipe-content');
+            const loadingElement = document.getElementById('loading');
+            const notFoundElement = document.getElementById('recipe-not-found');
+            
+            // Obter ID da receita da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipeId = urlParams.get('id');
+            
+            // Se não houver ID, mostrar erro
+            if (!recipeId) {
+                showNotFound();
+                return;
+            }
+            
+            // Tentar carregar a receita
+            loadRecipe(recipeId);
+            
+            function loadRecipe(id) {
+                // Em uma implementação real, buscaria os dados da API
+                // Por enquanto, usaremos dados de exemplo ou localStorage
+                
+                // Verificar se há dados no localStorage
+                const recipesData = localStorage.getItem('saborDeCasaRecipes');
+                
+                if (recipesData) {
+                    const recipes = JSON.parse(recipesData);
+                    const recipe = recipes.find(r => r.id === id);
+                    
+                    if (recipe) {
+                        displayRecipe(recipe);
+                        return;
+                    }
+                }
+                
+                // Se não encontrar, usar dados de exemplo
+                const sampleRecipes = [
+                    {
+                        id: '1',
+                        name: 'Bolo de Chocolate',
+                        category: 'Sobremesa',
+                        time: '60 min',
+                        ingredients: '• 2 xícaras de farinha de trigo\n• 1 xícara de açúcar\n• 1 xícara de chocolate em pó\n• 3 ovos\n• 1 xícara de leite\n• 1/2 xícara de óleo\n• 1 colher de sopa de fermento em pó',
+                        instructions: '1. Pré-aqueça o forno a 180°C.\n2. Em uma tigela, misture a farinha, o açúcar e o chocolate em pó.\n3. Adicione os ovos, o leite e o óleo, misturando bem.\n4. Por último, adicione o fermento e misture delicadamente.\n5. Despeje a massa em uma forma untada e enfarinhada.\n6. Asse por aproximadamente 40 minutos ou até que um palito inserido no centro saia limpo.\n7. Deixe esfriar antes de desenformar.',
+                        url: '#',
+                        message: 'Este bolo é perfeito para festas de aniversário e reuniões familiares. Pode ser servido com calda de chocolate ou sorvete de creme.'
+                    },
+                    {
+                        id: '2',
+                        name: 'Lasanha à Bolonhesa',
+                        category: 'Prato Principal',
+                        time: '90 min',
+                        ingredients: '• 500g de massa para lasanha\n• 500g de carne moída\n• 1 cebola picada\n• 2 dentes de alho picados\n• 800g de molho de tomate\n• 300g de queijo mussarela fatiado\n• 200g de presunto fatiado\n• Queijo parmesão ralado a gosto\n• Sal e pimenta a gosto\n• Azeite para refogar',
+                        instructions: '1. Refogue a cebola e o alho no azeite até dourarem.\n2. Adicione a carne moída e cozinhe até dourar.\n3. Acrescente o molho de tomate, sal e pimenta. Cozinhe por 15 minutos.\n4. Em uma forma, faça camadas: molho, massa, presunto, mussarela.\n5. Repita as camadas até terminar os ingredientes, finalizando com molho e queijo parmesão.\n6. Asse em forno pré-aquecido a 180°C por aproximadamente 40 minutos ou até dourar.',
+                        url: '#',
+                        message: 'Uma receita clássica que agrada a todos. Ideal para almoços de domingo em família.'
+                    }
+                ];
+                
+                const recipe = sampleRecipes.find(r => r.id === id);
+                
+                if (recipe) {
+                    displayRecipe(recipe);
+                } else {
+                    showNotFound();
+                }
+            }
+            
+            function displayRecipe(recipe) {
+                // Esconder loading
+                loadingElement.classList.add('hidden');
+                
+                // Construir conteúdo da receita
+                recipeContent.innerHTML = `
+                    <div class="recipe-detail-header">
+                        <h1 class="recipe-detail-title">${recipe.name}</h1>
+                        <div class="recipe-detail-meta">
+                            ${recipe.category ? `<div class="recipe-detail-meta-item"><i class="fas fa-tag"></i> ${recipe.category}</div>` : ''}
+                            ${recipe.time ? `<div class="recipe-detail-meta-item"><i class="far fa-clock"></i> ${recipe.time}</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-detail-section">
+                        <h3><i class="fas fa-shopping-basket"></i> Ingredientes</h3>
+                        <div class="recipe-detail-ingredients">${recipe.ingredients}</div>
+                    </div>
+                    
+                    <div class="recipe-detail-section">
+                        <h3><i class="fas fa-list-ol"></i> Modo de Preparo</h3>
+                        <div class="recipe-detail-instructions">${recipe.instructions}</div>
+                    </div>
+                    
+                    ${recipe.message ? `
+                    <div class="recipe-detail-message">
+                        <h3><i class="far fa-comment"></i> Mensagem</h3>
+                        <p>${recipe.message}</p>
+                    </div>
+                    ` : ''}
+                `;
+                
+                // Mostrar conteúdo
+                recipeContent.classList.remove('hidden');
+            }
+            
+            function showNotFound() {
+                loadingElement.classList.add('hidden');
+                notFoundElement.classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

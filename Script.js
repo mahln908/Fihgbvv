@@ -1,6 +1,4 @@
-// script.js
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos DOM
     const recipesContainer = document.getElementById('recipes-container');
     const loadingElement = document.getElementById('loading');
     const noRecipesElement = document.getElementById('no-recipes');
@@ -9,146 +7,217 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoriesContainer = document.querySelector('.categories-scroll');
     const backToTopButton = document.getElementById('back-to-top');
     
-    // Variáveis globais
     let allRecipes = [];
-    let categories = [];
+    let categories = ['todos'];
     let filteredRecipes = [];
     let currentCategory = 'todos';
     let currentSearchTerm = '';
     
-    // URL da API do Google Sheets
-    const spreadsheetId = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
-    const sheetName = 'Receitas Sabor de Casa';
-    const apiKey = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}?key=${apiKey}`;
+    const SPREADSHEET_ID = '14dMXRPrTP6SCldqhprh2wulLtZJZSL3XQpawWISATVc';
+    const API_KEY = 'AIzaSyBqhpdzVXugN1GgkRUUHJ4Yo5JvjvY_wBc';
     
-    // Inicializar
     init();
     
-    // Função de inicialização
     async function init() {
         try {
-            await loadRecipes();
+            await loadRecipesFromGoogleSheets();
             setupEventListeners();
         } catch (error) {
             console.error('Erro ao inicializar:', error);
-            showError('Erro ao carregar as receitas. Por favor, tente novamente mais tarde.');
+            showError('Erro ao carregar receitas. Recarregue a página.');
         }
     }
     
-    // Carregar receitas da API
-    async function loadRecipes() {
+    async function loadRecipesFromGoogleSheets() {
         try {
+            // URL correta para a API do Google Sheets
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Receitas%20Sabor%20de%20Casa?key=${API_KEY}`;
+            
+            console.log('Carregando dados da planilha...');
+            
             const response = await fetch(url);
+            
             if (!response.ok) {
-                throw new Error('Erro na resposta da API');
+                throw new Error(`Erro HTTP: ${response.status}`);
             }
             
             const data = await response.json();
             
-            // Converter os dados da planilha em objetos de receita
-            allRecipes = transformSheetData(data.values);
+            if (!data.values || data.values.length === 0) {
+                throw new Error('Planilha vazia ou não encontrada');
+            }
             
-            // Extrair categorias únicas
-            extractCategories(allRecipes);
+            allRecipes = parseSheetData(data.values);
             
-            // Renderizar categorias
+            if (allRecipes.length === 0) {
+                throw new Error('Nenhuma receita encontrada na planilha');
+            }
+            
+            console.log(`Carregadas ${allRecipes.length} receitas da planilha`);
+            
+            extractCategoriesFromRecipes();
             renderCategories();
             
-            // Mostrar todas as receitas inicialmente
             filteredRecipes = [...allRecipes];
             renderRecipes();
             
-            // Esconder loading
             loadingElement.classList.add('hidden');
             
         } catch (error) {
-            console.error('Erro ao carregar receitas:', error);
-            showError('Não foi possível carregar as receitas. Verifique sua conexão ou tente novamente mais tarde.');
-            
-            // Em caso de erro, usar dados de exemplo
-            useSampleData();
+            console.error('Erro ao carregar da planilha:', error);
+            loadingElement.innerHTML = `
+                <div style="color: #e74c3c; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Erro ao carregar receitas</h3>
+                    <p>${error.message}</p>
+                    <p>Verifique se a planilha está pública e se o nome está correto.</p>
+                    <button onclick="location.reload()" style="
+                        margin-top: 15px;
+                        padding: 10px 20px;
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    ">
+                        Tentar Novamente
+                    </button>
+                </div>
+            `;
         }
     }
     
-    // Transformar dados da planilha em objetos de receita
-    function transformSheetData(sheetData) {
+    function parseSheetData(sheetData) {
+        const recipes = [];
+        
+        // Verifica se há dados
         if (!sheetData || sheetData.length < 2) {
-            return [];
+            return recipes;
         }
         
-        const headers = sheetData[0];
-        const rows = sheetData.slice(1);
+        // Obtém os cabeçalhos da primeira linha
+        const headers = sheetData[0].map(header => 
+            header.toLowerCase().trim().replace(/\s+/g, '')
+        );
         
-        const recipes = rows.map(row => {
-            const recipe = {};
+        // Processa cada linha de dados
+        for (let i = 1; i < sheetData.length; i++) {
+            const row = sheetData[i];
+            const recipe = {
+                id: `recipe-${i}`
+            };
             
-            headers.forEach((header, index) => {
-                const value = row[index] || '';
+            // Mapeia cada coluna para a propriedade correspondente
+            for (let j = 0; j < headers.length; j++) {
+                const value = row[j] ? row[j].trim() : '';
+                const header = headers[j];
                 
-                // Normalizar nomes das propriedades
-                const propertyName = header.toLowerCase().replace(/\s/g, '');
-                
-                // Atribuir valores
-                if (propertyName === 'nome') {
-                    recipe.name = value;
-                } else if (propertyName === 'categoria') {
-                    recipe.category = value;
-                } else if (propertyName === 'tempo') {
-                    recipe.time = value;
-                } else if (propertyName === 'ingrediente') {
-                    recipe.ingredients = value;
-                } else if (propertyName === 'mododepreparo') {
-                    recipe.instructions = value;
-                } else if (propertyName === 'url') {
-                    recipe.url = value;
-                } else if (propertyName === 'mensagem') {
-                    recipe.message = value;
+                switch(header) {
+                    case 'nome':
+                        recipe.name = value;
+                        break;
+                    case 'categoria':
+                        recipe.category = value;
+                        break;
+                    case 'tempo':
+                        recipe.time = value;
+                        break;
+                    case 'ingrediente':
+                        recipe.ingredients = value;
+                        break;
+                    case 'mododepreparo':
+                        recipe.instructions = value;
+                        break;
+                    case 'url':
+                        // Processa URL da imagem
+                        if (value && value.includes('drive.google.com')) {
+                            // Converte link do Google Drive para link direto
+                            const match = value.match(/\/d\/([^\/]+)/);
+                            if (match) {
+                                recipe.imageUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                            } else {
+                                recipe.imageUrl = value;
+                            }
+                        } else if (value) {
+                            recipe.imageUrl = value;
+                        }
+                        break;
+                    case 'mensagem':
+                        recipe.message = value;
+                        break;
                 }
-            });
+            }
             
-            // Adicionar um ID único
-            recipe.id = Math.random().toString(36).substr(2, 9);
-            
-            return recipe;
-        });
+            // Só adiciona se tiver nome
+            if (recipe.name && recipe.name.trim() !== '') {
+                // Garante que todas as propriedades existam
+                recipe.category = recipe.category || 'Sem categoria';
+                recipe.time = recipe.time || 'Não informado';
+                recipe.ingredients = recipe.ingredients || 'Ingredientes não informados';
+                recipe.instructions = recipe.instructions || 'Modo de preparo não informado';
+                recipe.message = recipe.message || '';
+                
+                // Imagem padrão se não tiver
+                if (!recipe.imageUrl) {
+                    recipe.imageUrl = getDefaultImage(recipe.category);
+                }
+                
+                recipes.push(recipe);
+            }
+        }
         
-        return recipes.filter(recipe => recipe.name); // Filtrar receitas sem nome
+        return recipes;
     }
     
-    // Extrair categorias únicas das receitas
-    function extractCategories(recipes) {
-        const categorySet = new Set();
+    function getDefaultImage(category) {
+        const defaultImages = {
+            'Sobremesa': 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=800&h=600&fit=crop',
+            'Doce': 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=800&h=600&fit=crop',
+            'Prato Principal': 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=600&fit=crop',
+            'Salada': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=600&fit=crop',
+            'Aperitivo': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=600&fit=crop',
+            'Bebida': 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&h=600&fit=crop',
+            'Café da Manhã': 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=800&h=600&fit=crop'
+        };
         
-        recipes.forEach(recipe => {
-            if (recipe.category) {
-                categorySet.add(recipe.category);
+        return defaultImages[category] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=600&fit=crop';
+    }
+    
+    function extractCategoriesFromRecipes() {
+        const categorySet = new Set(['todos']);
+        
+        allRecipes.forEach(recipe => {
+            if (recipe.category && recipe.category.trim() !== '') {
+                categorySet.add(recipe.category.trim());
             }
         });
         
-        categories = Array.from(categorySet).sort();
+        categories = Array.from(categorySet);
     }
     
-    // Renderizar botões de categorias
     function renderCategories() {
-        // Limpar categorias existentes (exceto "Todos")
-        const existingButtons = categoriesContainer.querySelectorAll('.category-btn:not([data-category="todos"])');
-        existingButtons.forEach(btn => btn.remove());
-        
-        // Adicionar categorias
-        categories.forEach(category => {
-            const button = document.createElement('button');
-            button.className = 'category-btn';
-            button.dataset.category = category;
-            button.textContent = category;
-            
-            categoriesContainer.appendChild(button);
+        // Remove todas as categorias exceto "todos"
+        const currentButtons = categoriesContainer.querySelectorAll('.category-btn');
+        currentButtons.forEach(btn => {
+            if (btn.dataset.category !== 'todos') {
+                btn.remove();
+            }
         });
+        
+        // Adiciona novas categorias
+        categories
+            .filter(cat => cat !== 'todos')
+            .sort()
+            .forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.dataset.category = category;
+                button.textContent = category;
+                categoriesContainer.appendChild(button);
+            });
     }
     
-    // Renderizar receitas
     function renderRecipes() {
-        // Limpar container
         recipesContainer.innerHTML = '';
         
         if (filteredRecipes.length === 0) {
@@ -158,51 +227,41 @@ document.addEventListener('DOMContentLoaded', function() {
         
         noRecipesElement.classList.add('hidden');
         
-        // Adicionar receitas com animação de baixo para cima
         filteredRecipes.forEach((recipe, index) => {
-            const recipeCard = createRecipeCard(recipe);
-            
-            // Adicionar atraso para animação sequencial
-            recipeCard.style.animationDelay = `${index * 0.05}s`;
-            
+            const recipeCard = createRecipeCard(recipe, index);
             recipesContainer.appendChild(recipeCard);
         });
     }
     
-    // Criar card de receita
-    function createRecipeCard(recipe) {
+    function createRecipeCard(recipe, index) {
         const card = document.createElement('div');
         card.className = 'recipe-card';
+        card.style.animationDelay = `${index * 0.05}s`;
         
-        // Cor de fundo baseada na categoria (para exemplo, já que não temos imagens)
-        const colorMap = {
-            'Sobremesa': '#FFD6E7',
-            'Prato Principal': '#C1E1C1',
-            'Aperitivo': '#FFECB3',
-            'Bebida': '#B3E5FC',
-            'Café da Manhã': '#FFCCBC',
-            'Salada': '#C8E6C9',
-            'Molho': '#FFE0B2'
-        };
-        
-        const bgColor = colorMap[recipe.category] || '#F5F5F5';
-        
-        // Truncar ingredientes para exibição
-        const truncatedIngredients = recipe.ingredients 
-            ? (recipe.ingredients.length > 120 ? recipe.ingredients.substring(0, 120) + '...' : recipe.ingredients)
-            : 'Ingredientes não disponíveis';
+        // Prepara ingredientes para exibição
+        const ingredientsPreview = recipe.ingredients.length > 100 
+            ? recipe.ingredients.substring(0, 100) + '...' 
+            : recipe.ingredients;
         
         card.innerHTML = `
-            <div class="recipe-image" style="background-color: ${bgColor};">
-                ${recipe.time ? `<div class="recipe-time"><i class="far fa-clock"></i> ${recipe.time}</div>` : ''}
+            <div class="recipe-image" style="background-image: url('${recipe.imageUrl}')">
+                <div class="recipe-time">
+                    <i class="far fa-clock"></i> ${recipe.time}
+                </div>
             </div>
             <div class="recipe-content">
-                ${recipe.category ? `<span class="recipe-category">${recipe.category}</span>` : ''}
-                <h3 class="recipe-title">${recipe.name || 'Receita sem nome'}</h3>
-                <p class="recipe-ingredients">${truncatedIngredients}</p>
+                <span class="recipe-category">${recipe.category}</span>
+                <h3 class="recipe-title">${recipe.name}</h3>
+                <p class="recipe-ingredients">${ingredientsPreview}</p>
                 <div class="recipe-footer">
-                    ${recipe.url ? `<a href="receita.html?id=${recipe.id}" class="recipe-link" target="_blank"><i class="fas fa-book-open"></i> Ver Receita</a>` : '<span class="recipe-link disabled">Detalhes Indisponíveis</span>'}
-                    ${recipe.message ? `<span class="recipe-message" title="${recipe.message}"><i class="far fa-comment"></i> ${recipe.message}</span>` : ''}
+                    <a href="receita.html?id=${recipe.id}" class="recipe-link" onclick="saveRecipeState('${recipe.id}')">
+                        <i class="fas fa-book-open"></i> Ver Receita
+                    </a>
+                    ${recipe.message && recipe.message.length > 0 
+                        ? `<span class="recipe-message" title="${recipe.message}">
+                            <i class="far fa-comment"></i> Nota
+                          </span>`
+                        : ''}
                 </div>
             </div>
         `;
@@ -210,155 +269,83 @@ document.addEventListener('DOMContentLoaded', function() {
         return card;
     }
     
-    // Filtrar receitas por categoria e termo de pesquisa
     function filterRecipes() {
         filteredRecipes = allRecipes.filter(recipe => {
-            // Filtrar por categoria
             const categoryMatch = currentCategory === 'todos' || recipe.category === currentCategory;
             
-            // Filtrar por termo de pesquisa
-            const searchMatch = !currentSearchTerm || 
-                (recipe.name && recipe.name.toLowerCase().includes(currentSearchTerm)) ||
-                (recipe.category && recipe.category.toLowerCase().includes(currentSearchTerm)) ||
-                (recipe.ingredients && recipe.ingredients.toLowerCase().includes(currentSearchTerm));
+            if (!currentSearchTerm) return categoryMatch;
             
-            return categoryMatch && searchMatch;
+            const searchTerm = currentSearchTerm.toLowerCase();
+            const nameMatch = recipe.name.toLowerCase().includes(searchTerm);
+            const categoryMatchSearch = recipe.category.toLowerCase().includes(searchTerm);
+            const ingredientsMatch = recipe.ingredients.toLowerCase().includes(searchTerm);
+            
+            return categoryMatch && (nameMatch || categoryMatchSearch || ingredientsMatch);
         });
         
         renderRecipes();
     }
     
-    // Configurar event listeners
     function setupEventListeners() {
-        // Pesquisa
         searchButton.addEventListener('click', handleSearch);
-        searchInput.addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                handleSearch();
-            }
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') handleSearch();
         });
         
-        // Categorias
-        categoriesContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('category-btn')) {
-                // Remover classe active de todos os botões
+        categoriesContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
                 document.querySelectorAll('.category-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 
-                // Adicionar classe active ao botão clicado
-                event.target.classList.add('active');
-                
-                // Atualizar categoria atual e filtrar receitas
-                currentCategory = event.target.dataset.category;
+                e.target.classList.add('active');
+                currentCategory = e.target.dataset.category;
                 filterRecipes();
             }
         });
         
-        // Botão voltar ao topo
-        backToTopButton.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
         
-        // Mostrar/ocultar botão voltar ao topo
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 300) {
-                backToTopButton.classList.remove('hidden');
-            } else {
-                backToTopButton.classList.add('hidden');
+        window.addEventListener('scroll', () => {
+            backToTopButton.classList.toggle('hidden', window.scrollY < 300);
+        });
+        
+        // Gerenciar histórico do navegador
+        window.addEventListener('popstate', () => {
+            if (!window.location.pathname.includes('receita.html')) {
+                filterRecipes();
             }
         });
     }
     
-    // Manipular pesquisa
     function handleSearch() {
         currentSearchTerm = searchInput.value.trim().toLowerCase();
         filterRecipes();
     }
     
-    // Mostrar erro
     function showError(message) {
         loadingElement.innerHTML = `
-            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 15px;"></i>
-            <h3>Ops! Algo deu errado</h3>
-            <p>${message}</p>
+            <div style="color: #e74c3c;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Erro</h3>
+                <p>${message}</p>
+            </div>
         `;
     }
     
-    // Usar dados de exemplo se a API falhar
-    function useSampleData() {
-        allRecipes = [
-            {
-                id: '1',
-                name: 'Bolo de Chocolate',
-                category: 'Sobremesa',
-                time: '60 min',
-                ingredients: 'Farinha, açúcar, chocolate em pó, ovos, leite, óleo, fermento',
-                instructions: 'Misture todos os ingredientes e asse por 40 minutos',
-                url: '#',
-                message: 'Perfeito para festas'
-            },
-            {
-                id: '2',
-                name: 'Lasanha à Bolonhesa',
-                category: 'Prato Principal',
-                time: '90 min',
-                ingredients: 'Massa para lasanha, carne moída, molho de tomate, queijo mussarela, presunto',
-                instructions: 'Monte em camadas e asse até dourar',
-                url: '#',
-                message: 'Família vai adorar'
-            },
-            {
-                id: '3',
-                name: 'Salada Caesar',
-                category: 'Salada',
-                time: '20 min',
-                ingredients: 'Alface, croutons, queijo parmesão, molho Caesar, peito de frango',
-                instructions: 'Misture todos os ingredientes e sirva',
-                url: '#',
-                message: 'Refrescante e saudável'
-            },
-            {
-                id: '4',
-                name: 'Smoothie de Frutas',
-                category: 'Bebida',
-                time: '10 min',
-                ingredients: 'Banana, morango, iogurte, mel, gelo',
-                instructions: 'Bata todos os ingredientes no liquidificador',
-                url: '#',
-                message: 'Energia para o dia'
-            },
-            {
-                id: '5',
-                name: 'Pão de Queijo',
-                category: 'Aperitivo',
-                time: '40 min',
-                ingredients: 'Polvilho azedo, queijo minas, ovos, leite, óleo, sal',
-                instructions: 'Misture, modele e asse até dourar',
-                url: '#',
-                message: 'Típico mineiro'
-            },
-            {
-                id: '6',
-                name: 'Omelete de Queijo',
-                category: 'Café da Manhã',
-                time: '15 min',
-                ingredients: 'Ovos, queijo, tomate, cebola, sal, pimenta',
-                instructions: 'Bata os ovos, adicione os ingredientes e frite',
-                url: '#',
-                message: 'Rápido e nutritivo'
-            }
-        ];
-        
-        extractCategories(allRecipes);
-        renderCategories();
-        
-        filteredRecipes = [...allRecipes];
-        renderRecipes();
-        
-        loadingElement.classList.add('hidden');
-    }
+    // Função global para salvar estado da receita
+    window.saveRecipeState = function(recipeId) {
+        const recipe = allRecipes.find(r => r.id === recipeId);
+        if (recipe) {
+            sessionStorage.setItem('currentRecipe', JSON.stringify(recipe));
+        }
+    };
+    
+    // Carrega receita do sessionStorage se estiver disponível
+    window.getRecipeFromStorage = function() {
+        const saved = sessionStorage.getItem('currentRecipe');
+        return saved ? JSON.parse(saved) : null;
+    };
 });

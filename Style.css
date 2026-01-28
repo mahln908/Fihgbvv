@@ -1,4 +1,3 @@
-/* style.css */
 :root {
     --primary-color: #e74c3c;
     --primary-dark: #c0392b;
@@ -22,7 +21,7 @@ body {
     line-height: 1.6;
     color: var(--dark-color);
     background-color: #f9f9f9;
-    padding-top: 140px; /* Espaço para os elementos fixos */
+    padding-top: 140px;
 }
 
 .container {
@@ -32,7 +31,6 @@ body {
     padding: 0 20px;
 }
 
-/* Header fixo */
 .header {
     position: fixed;
     top: 0;
@@ -102,10 +100,9 @@ body {
     background-color: var(--primary-dark);
 }
 
-/* Navegação de categorias fixa */
 .categories-nav {
     position: fixed;
-    top: 70px; /* Ajuste conforme altura do header */
+    top: 70px;
     left: 0;
     width: 100%;
     background-color: var(--secondary-color);
@@ -151,12 +148,10 @@ body {
     font-weight: 600;
 }
 
-/* Conteúdo principal */
 .main-content {
     padding: 20px 0 40px;
 }
 
-/* Loading */
 .loading {
     text-align: center;
     padding: 40px 0;
@@ -177,7 +172,6 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Container de receitas */
 .recipes-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -299,11 +293,11 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Mensagem quando não há receitas */
 .no-recipes {
     text-align: center;
     padding: 60px 20px;
     color: var(--gray-color);
+    grid-column: 1 / -1;
 }
 
 .no-recipes i {
@@ -321,7 +315,6 @@ body {
     display: none !important;
 }
 
-/* Botão voltar ao topo */
 .back-to-top {
     position: fixed;
     bottom: 30px;
@@ -344,10 +337,9 @@ body {
     transform: translateY(-3px);
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     body {
-        padding-top: 160px; /* Mais espaço para os elementos fixos em mobile */
+        padding-top: 160px;
     }
     
     .header .container {
@@ -360,7 +352,7 @@ body {
     }
     
     .categories-nav {
-        top: 120px; /* Ajuste conforme altura do header em mobile */
+        top: 120px;
     }
     
     .recipes-container {
@@ -372,8 +364,4 @@ body {
     .recipes-container {
         grid-template-columns: 1fr;
     }
-    
-    .logo h1 {
-        font-size: 1.3rem;
-    }
-                       }
+        }

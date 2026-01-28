@@ -1,21 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Receitas Sabor de Casa</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receitas Sabor de Casa</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Barra de pesquisa fixa no topo -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Sabor de Casa</h1>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Pesquisar receitas...">
+                <button id="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
-<header class="topo">
-  <h1>Sabor de Casa</h1>
-  <input type="text" id="search" placeholder="Buscar receita...">
-</header>
+    <!-- Navegação de categorias horizontal fixa -->
+    <nav class="categories-nav">
+        <div class="container">
+            <div class="categories-scroll">
+                <button class="category-btn active" data-category="todos">Todas</button>
+                <!-- Categorias serão carregadas dinamicamente via JavaScript -->
+            </div>
+        </div>
+    </nav>
 
-<nav class="categorias" id="categorias"></nav>
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Mensagem de carregamento -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Carregando receitas...</p>
+            </div>
 
-<main id="lista-receitas" class="receitas"></main>
+            <!-- Container das receitas -->
+            <div id="recipes-container" class="recipes-container">
+                <!-- As receitas serão carregadas aqui via JavaScript -->
+            </div>
 
-<script src="js/app.js"></script>
+            <!-- Mensagem quando não há receitas -->
+            <div id="no-recipes" class="no-recipes hidden">
+                <i class="fas fa-utensils"></i>
+                <h3>Nenhuma receita encontrada</h3>
+                <p>Tente ajustar sua pesquisa ou filtro.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Botão para voltar ao topo -->
+    <button id="back-to-top" class="back-to-top hidden">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="script.js"></script>
 </body>
 </html>

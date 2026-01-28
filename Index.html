@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Barra de pesquisa fixa no topo -->
     <header class="header">
         <div class="container">
             <div class="logo">
@@ -24,31 +23,23 @@
         </div>
     </header>
 
-    <!-- Navegação de categorias horizontal fixa -->
     <nav class="categories-nav">
         <div class="container">
             <div class="categories-scroll">
                 <button class="category-btn active" data-category="todos">Todas</button>
-                <!-- Categorias serão carregadas dinamicamente via JavaScript -->
             </div>
         </div>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main class="main-content">
         <div class="container">
-            <!-- Mensagem de carregamento -->
             <div id="loading" class="loading">
                 <div class="spinner"></div>
                 <p>Carregando receitas...</p>
             </div>
 
-            <!-- Container das receitas -->
-            <div id="recipes-container" class="recipes-container">
-                <!-- As receitas serão carregadas aqui via JavaScript -->
-            </div>
+            <div id="recipes-container" class="recipes-container"></div>
 
-            <!-- Mensagem quando não há receitas -->
             <div id="no-recipes" class="no-recipes hidden">
                 <i class="fas fa-utensils"></i>
                 <h3>Nenhuma receita encontrada</h3>
@@ -57,7 +48,6 @@
         </div>
     </main>
 
-    <!-- Botão para voltar ao topo -->
     <button id="back-to-top" class="back-to-top hidden">
         <i class="fas fa-arrow-up"></i>
     </button>

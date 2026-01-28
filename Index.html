@@ -1,112 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabor de Casa - Receitas Profissionais</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Receitas Sabor de Casa</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Header Fixo -->
-    <header class="fixed-header">
-        <div class="header-container">
-            <div class="logo">
-                <i class="fas fa-utensils"></i>
-                <h1>Sabor de Casa</h1>
-            </div>
-            
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar receitas...">
-                    <button id="clearSearch" class="clear-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="header-actions">
-                <button id="toggleFavorites" class="btn-icon" title="Ver favoritos">
-                    <i class="far fa-heart"></i>
-                </button>
-                <button id="refreshRecipes" class="btn-icon" title="Atualizar receitas">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
-        </div>
-    </header>
 
-    <!-- Categorias Fixas com Scroll Horizontal -->
-    <nav class="fixed-categories">
-        <div class="categories-scroll-container">
-            <button class="category-btn active" data-category="all">
-                <i class="fas fa-th-list"></i>
-                <span>Todas</span>
-            </button>
-            <!-- Categorias serão carregadas aqui -->
-        </div>
-        <div class="scroll-controls">
-            <button class="scroll-btn scroll-left">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="scroll-btn scroll-right">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </nav>
+<header class="topo">
+  <h1>Sabor de Casa</h1>
+  <input type="text" id="search" placeholder="Buscar receita...">
+</header>
 
-    <!-- Container Principal -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Receitas serão carregadas aqui de BAIXO para CIMA -->
-            <div id="recipesContainer" class="recipes-grid">
-                <div class="loading-state">
-                    <i class="fas fa-spinner fa-spin fa-2x"></i>
-                    <p>Carregando receitas deliciosas...</p>
-                </div>
-            </div>
-            
-            <!-- Indicador de Carregamento Automático -->
-            <div id="loadingIndicator" class="loading-indicator">
-                <div class="loader"></div>
-                <p>Carregando mais receitas...</p>
-            </div>
-            
-            <!-- Sem resultados -->
-            <div id="noResults" class="no-results hidden">
-                <i class="fas fa-search fa-3x"></i>
-                <h3>Nenhuma receita encontrada</h3>
-                <p>Tente outra busca ou selecione uma categoria diferente</p>
-                <button id="clearFilters" class="btn-primary">
-                    <i class="fas fa-filter"></i>
-                    Limpar Filtros
-                </button>
-            </div>
-        </div>
-    </main>
+<nav class="categorias" id="categorias"></nav>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Sabor de Casa</h3>
-                <p>Receitas carregadas diretamente do Google Sheets</p>
-            </div>
-            <div class="footer-section">
-                <p>Total de receitas: <span id="totalRecipes">0</span></p>
-                <p>Receitas carregadas: <span id="loadedRecipes">0</span></p>
-            </div>
-            <div class="footer-section">
-                <p>&copy; 2024 Sabor de Casa</p>
-                <p>Desenvolvido com <i class="fas fa-heart"></i></p>
-            </div>
-        </div>
-    </footer>
+<main id="lista-receitas" class="receitas"></main>
 
-    <script src="script.js"></script>
+<script src="js/app.js"></script>
 </body>
-                                        </html>
+</html>

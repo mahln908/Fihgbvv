@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (allRecipes.length === 0) throw new Error('Sem receitas');
             
-            extractCategories();
+            extractUniqueCategories(); // FUNÇÃO CORRIGIDA
             renderCategories();
             
             localStorage.setItem('saborDeCasaRecipes', JSON.stringify(allRecipes));
@@ -103,31 +103,44 @@ document.addEventListener('DOMContentLoaded', function() {
         return url;
     }
     
-    function extractCategories() {
+    // FUNÇÃO CORRIGIDA - CATEGORIAS SEM REPETIR
+    function extractUniqueCategories() {
         categories.clear();
         categories.add('todos');
         
+        // Usar Set para garantir unicidade
+        const uniqueCategories = new Set();
+        
         allRecipes.forEach(recipe => {
-            if (recipe.category) {
-                categories.add(recipe.category);
+            if (recipe.category && recipe.category.trim() !== '') {
+                uniqueCategories.add(recipe.category.trim());
             }
         });
+        
+        // Converter Set para array e adicionar ao categories
+        uniqueCategories.forEach(category => {
+            categories.add(category);
+        });
+        
+        console.log('Categorias únicas:', Array.from(categories));
     }
     
     function renderCategories() {
         const existingButtons = categoriesContainer.querySelectorAll('.category-btn:not([data-category="todos"])');
         existingButtons.forEach(btn => btn.remove());
         
-        Array.from(categories)
+        // Ordenar categorias alfabeticamente (exceto 'todos')
+        const sortedCategories = Array.from(categories)
             .filter(cat => cat !== 'todos')
-            .sort()
-            .forEach(category => {
-                const button = document.createElement('button');
-                button.className = 'category-btn';
-                button.dataset.category = category;
-                button.textContent = category;
-                categoriesContainer.appendChild(button);
-            });
+            .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        
+        sortedCategories.forEach(category => {
+            const button = document.createElement('button');
+            button.className = 'category-btn';
+            button.dataset.category = category;
+            button.textContent = category;
+            categoriesContainer.appendChild(button);
+        });
     }
     
     function renderRecipes() {
@@ -150,8 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function createRecipeCard(recipe) {
         const card = document.createElement('div');
         card.className = 'recipe-card';
-        
-        // Card inteiro é clicável
         card.onclick = () => openRecipe(recipe.id);
         
         card.innerHTML = `

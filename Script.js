@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         await loadRecipes();
         setupEventListeners();
+        setupSocialBar();
     }
     
     async function loadRecipes() {
@@ -38,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (allRecipes.length === 0) throw new Error('Sem receitas');
             
-            extractUniqueCategories(); // FUNÇÃO CORRIGIDA
+            extractUniqueCategories();
             renderCategories();
             
             localStorage.setItem('saborDeCasaRecipes', JSON.stringify(allRecipes));
@@ -103,12 +104,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return url;
     }
     
-    // FUNÇÃO CORRIGIDA - CATEGORIAS SEM REPETIR
     function extractUniqueCategories() {
         categories.clear();
         categories.add('todos');
         
-        // Usar Set para garantir unicidade
         const uniqueCategories = new Set();
         
         allRecipes.forEach(recipe => {
@@ -117,19 +116,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Converter Set para array e adicionar ao categories
         uniqueCategories.forEach(category => {
             categories.add(category);
         });
-        
-        console.log('Categorias únicas:', Array.from(categories));
     }
     
     function renderCategories() {
         const existingButtons = categoriesContainer.querySelectorAll('.category-btn:not([data-category="todos"])');
         existingButtons.forEach(btn => btn.remove());
         
-        // Ordenar categorias alfabeticamente (exceto 'todos')
         const sortedCategories = Array.from(categories)
             .filter(cat => cat !== 'todos')
             .sort((a, b) => a.localeCompare(b, 'pt-BR'));
@@ -237,6 +232,52 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('scroll', () => {
             backToTopButton.classList.toggle('hidden', window.scrollY < 300);
         });
+    }
+    
+    function setupSocialBar() {
+        document.querySelector('.social-facebook').addEventListener('click', function(e) {
+            e.preventDefault();
+            shareOnFacebook();
+        });
+        
+        document.querySelector('.social-instagram').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open('https://instagram.com', '_blank');
+        });
+        
+        document.querySelector('.social-whatsapp').addEventListener('click', function(e) {
+            e.preventDefault();
+            shareOnWhatsApp();
+        });
+        
+        document.querySelector('.social-share').addEventListener('click', function(e) {
+            e.preventDefault();
+            sharePage();
+        });
+    }
+    
+    function shareOnFacebook() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank');
+    }
+    
+    function shareOnWhatsApp() {
+        const text = encodeURIComponent(`Confira as receitas deliciosas do Sabor de Casa: ${window.location.href}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+    
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                text: 'Confira as receitas deliciosas do Sabor de Casa!',
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copiado para a área de transferência!');
+        }
     }
     
     window.resetFilters = function() {

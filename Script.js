@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         await loadRecipes();
         setupEventListeners();
-        setupSocialBar();
     }
     
     async function loadRecipes() {
@@ -231,24 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         window.addEventListener('scroll', () => {
             backToTopButton.classList.toggle('hidden', window.scrollY < 300);
-        });
-    }
-    
-    function setupSocialBar() {
-        document.querySelector('.social-facebook').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open('https://facebook.com', '_blank');
-        });
-        
-        document.querySelector('.social-instagram').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open('https://instagram.com', '_blank');
-        });
-        
-        document.querySelector('.social-whatsapp').addEventListener('click', function(e) {
-            e.preventDefault();
-            const text = encodeURIComponent(`Confira as receitas deliciosas do Sabor de Casa: ${window.location.href}`);
-            window.open(`https://wa.me/?text=${text}`, '_blank');
         });
     }
     

@@ -29,11 +29,10 @@
             position: relative;
         }
         
-        /* NOME DA RECEITA EMBAIXO DA FOTO */
         .recipe-title-container {
             background: rgba(0,0,0,0.7);
             padding: 20px;
-            margin-top: -5px; /* Para ficar colado na imagem */
+            margin-top: -5px;
         }
         
         .recipe-title {
@@ -85,7 +84,7 @@
             margin-bottom: 25px;
         }
         
-        /* MENSAGEM NO LUGAR DO BOTÃO VOLTAR */
+        /* MENSAGEM NO LUGAR DO BOTÃO LARANJA */
         .recipe-message-box {
             background: #2c3e50;
             color: white;
@@ -103,7 +102,18 @@
             gap: 8px;
         }
         
-        /* BOTÃO VOLTAR FIXO NO TOPO */
+        /* SEGUNDA MENSAGEM (no lugar do botão laranja) */
+        .recipe-second-message-box {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-style: italic;
+        }
+        
         .back-button-top {
             background: #2c3e50;
             color: white;
@@ -142,10 +152,28 @@
         }
         
         .recipe-footer {
-            margin-top: 40px;
+            margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eaeaea;
             text-align: center;
+        }
+        
+        .back-button-footer {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .back-button-footer:hover {
+            background: #34495e;
         }
     </style>
 </head>
@@ -278,7 +306,7 @@
                             </div>
                             ` : ''}
                             
-                            <!-- MENSAGEM DA PLANILHA NO LUGAR DO BOTÃO VOLTAR -->
+                            <!-- PRIMEIRA MENSAGEM DA COLUNA G -->
                             ${recipe.message ? `
                             <div class="recipe-message-box">
                                 <h3 class="message-title"><i class="fas fa-lightbulb"></i> Dica Especial</h3>
@@ -286,8 +314,19 @@
                             </div>
                             ` : ''}
                             
+                            <!-- SEGUNDA MENSAGEM (no lugar do botão laranja) -->
+                            ${recipe.message ? `
+                            <div class="recipe-second-message-box">
+                                <p><strong>${formatText(recipe.message)}</strong></p>
+                            </div>
+                            ` : `
+                            <div class="recipe-second-message-box">
+                                <p><strong>Receita especial da família! 🍽️</strong></p>
+                            </div>
+                            `}
+                            
                             <div class="recipe-footer">
-                                <button onclick="goBack()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                                <button onclick="goBack()" class="back-button-footer">
                                     <i class="fas fa-arrow-left"></i> Voltar para Receitas
                                 </button>
                             </div>

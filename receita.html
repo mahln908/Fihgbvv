@@ -84,7 +84,6 @@
             margin-bottom: 25px;
         }
         
-        /* PRIMEIRA MENSAGEM - Dica Especial */
         .recipe-message-box {
             background: #2c3e50;
             color: white;
@@ -102,7 +101,6 @@
             gap: 8px;
         }
         
-        /* SEGUNDA MENSAGEM - Lugar do botão laranja */
         .recipe-second-message-box {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
@@ -230,7 +228,6 @@
             
             async function loadRecipe(id) {
                 try {
-                    // Buscar receita do localStorage ou da planilha
                     let recipe = await getRecipeById(id);
                     
                     if (recipe) {
@@ -247,7 +244,6 @@
             
             async function getRecipeById(recipeId) {
                 try {
-                    // 1. Tentar do localStorage (cache)
                     const savedRecipe = localStorage.getItem('currentRecipe');
                     if (savedRecipe) {
                         const recipe = JSON.parse(savedRecipe);
@@ -256,7 +252,6 @@
                         }
                     }
                     
-                    // 2. Tentar da lista completa no localStorage
                     const allRecipesJson = localStorage.getItem('saborDeCasaRecipes');
                     if (allRecipesJson) {
                         const allRecipes = JSON.parse(allRecipesJson);
@@ -266,7 +261,6 @@
                         }
                     }
                     
-                    // 3. Se não encontrar, buscar diretamente da planilha
                     const recipeFromSheet = await getRecipeFromGoogleSheets(recipeId);
                     return recipeFromSheet;
                     
@@ -291,7 +285,6 @@
                         throw new Error('Planilha vazia');
                     }
                     
-                    // Buscar a receita específica pelo ID
                     const headers = data.values[0];
                     const rows = data.values.slice(1);
                     
@@ -299,16 +292,9 @@
                         const row = rows[i];
                         if (!row || row.length === 0) continue;
                         
-                        // Gerar o mesmo ID que foi gerado na página principal
                         const generatedId = `recipe-${i + 1}`;
                         
-                        // Verificar se é a receita procurada
                         if (generatedId === recipeId) {
-                            // Criar objeto receita com as colunas da SUA planilha:
-                            // Coluna A: nome (0), B: categoria (1), C: tempo (2), 
-                            // D: ingrediente (3), E: mododepreparo (4), 
-                            // F: url (5), G: mensagem (6)
-                            
                             const recipe = {
                                 id: generatedId,
                                 name: row[0]?.trim() || '',
@@ -317,7 +303,7 @@
                                 ingredients: row[3]?.trim() || '',
                                 instructions: row[4]?.trim() || '',
                                 imageUrl: processImageUrl(row[5]),
-                                message: row[6]?.trim() || ''  // COLUNA G - MENSAGEM
+                                message: row[6]?.trim() || ''
                             };
                             
                             return recipe;
@@ -392,7 +378,6 @@
                             </div>
                             ` : ''}
                             
-                            <!-- PRIMEIRA MENSAGEM DA COLUNA G -->
                             ${recipe.message ? `
                             <div class="recipe-message-box">
                                 <h3 class="message-title"><i class="fas fa-lightbulb"></i> Dica Especial</h3>
@@ -400,7 +385,6 @@
                             </div>
                             ` : ''}
                             
-                            <!-- SEGUNDA MENSAGEM (no lugar do botão laranja) - TAMBÉM DA COLUNA G -->
                             ${recipe.message ? `
                             <div class="recipe-second-message-box">
                                 <p><strong>${formatText(recipe.message)}</strong></p>

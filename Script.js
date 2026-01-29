@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupSocialBar() {
         document.querySelector('.social-facebook').addEventListener('click', function(e) {
             e.preventDefault();
-            shareOnFacebook();
+            window.open('https://facebook.com', '_blank');
         });
         
         document.querySelector('.social-instagram').addEventListener('click', function(e) {
@@ -247,37 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.querySelector('.social-whatsapp').addEventListener('click', function(e) {
             e.preventDefault();
-            shareOnWhatsApp();
+            const text = encodeURIComponent(`Confira as receitas deliciosas do Sabor de Casa: ${window.location.href}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
         });
-        
-        document.querySelector('.social-share').addEventListener('click', function(e) {
-            e.preventDefault();
-            sharePage();
-        });
-    }
-    
-    function shareOnFacebook() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent(document.title);
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank');
-    }
-    
-    function shareOnWhatsApp() {
-        const text = encodeURIComponent(`Confira as receitas deliciosas do Sabor de Casa: ${window.location.href}`);
-        window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-    
-    function sharePage() {
-        if (navigator.share) {
-            navigator.share({
-                title: document.title,
-                text: 'Confira as receitas deliciosas do Sabor de Casa!',
-                url: window.location.href
-            });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            alert('Link copiado para a área de transferência!');
-        }
     }
     
     window.resetFilters = function() {

@@ -66,7 +66,6 @@ body {
 .social-facebook { background: #3b5998; }
 .social-instagram { background: #E1306C; }
 .social-whatsapp { background: #25D366; }
-.social-share { background: #e74c3c; }
 
 /* Header */
 .header {
@@ -438,4 +437,4 @@ body {
         height: 30px;
         font-size: 14px;
     }
-}
+    }

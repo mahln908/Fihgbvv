@@ -27,26 +27,26 @@
             background-size: cover;
             background-position: center;
             position: relative;
-            display: flex;
-            align-items: flex-end;
         }
         
-        .recipe-hero-overlay {
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            width: 100%;
+        /* NOME DA RECEITA EMBAIXO DA FOTO */
+        .recipe-title-container {
+            background: rgba(0,0,0,0.7);
             padding: 20px;
-            color: white;
+            margin-top: -5px; /* Para ficar colado na imagem */
         }
         
         .recipe-title {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            color: white;
+            margin: 0;
         }
         
         .recipe-meta {
             display: flex;
             gap: 15px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
@@ -55,6 +55,7 @@
             align-items: center;
             gap: 5px;
             background: rgba(255,255,255,0.2);
+            color: white;
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.9rem;
@@ -84,12 +85,14 @@
             margin-bottom: 25px;
         }
         
+        /* MENSAGEM NO LUGAR DO BOTÃO VOLTAR */
         .recipe-message-box {
-            background: #e74c3c;
+            background: #2c3e50;
             color: white;
             padding: 20px;
             border-radius: 8px;
             margin-top: 30px;
+            border-left: 4px solid #e74c3c;
         }
         
         .message-title {
@@ -100,16 +103,8 @@
             gap: 8px;
         }
         
-        .recipe-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-top: 1px solid #eaeaea;
-        }
-        
-        .back-button {
+        /* BOTÃO VOLTAR FIXO NO TOPO */
+        .back-button-top {
             background: #2c3e50;
             color: white;
             border: none;
@@ -120,9 +115,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
         }
         
-        .back-button:hover {
+        .back-button-top:hover {
             background: #34495e;
         }
         
@@ -141,6 +140,13 @@
             color: #bdc3c7;
             margin-bottom: 20px;
         }
+        
+        .recipe-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="recipe-page">
@@ -150,9 +156,6 @@
                 <i class="fas fa-utensils"></i>
                 <h1>Sabor de Casa</h1>
             </div>
-            <button onclick="goBack()" class="back-button">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </button>
         </div>
     </header>
 
@@ -168,7 +171,7 @@
             <div id="recipe-not-found" class="recipe-not-found" style="display: none;">
                 <i class="fas fa-utensils"></i>
                 <h3>Receita não encontrada</h3>
-                <button onclick="goBack()" class="back-button" style="margin-top: 20px;">
+                <button onclick="goBack()" style="margin-top: 20px; padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </button>
             </div>
@@ -201,13 +204,11 @@
                 try {
                     let recipe = null;
                     
-                    // Tentar do localStorage
                     const saved = localStorage.getItem('currentRecipe');
                     if (saved) {
                         recipe = JSON.parse(saved);
                     }
                     
-                    // Se não encontrar, tentar da lista completa
                     if (!recipe) {
                         const allRecipes = localStorage.getItem('saborDeCasaRecipes');
                         if (allRecipes) {
@@ -239,22 +240,26 @@
                 recipeDetail.innerHTML = `
                     <div class="recipe-detail-container">
                         <div class="recipe-hero" style="background-image: url('${recipe.imageUrl}')">
-                            <div class="recipe-hero-overlay">
-                                <h1 class="recipe-title">${recipe.name}</h1>
-                                <div class="recipe-meta">
-                                    ${recipe.category ? `
-                                    <div class="meta-item">
-                                        <i class="fas fa-tag"></i>
-                                        <span>${recipe.category}</span>
-                                    </div>
-                                    ` : ''}
-                                    ${recipe.time ? `
-                                    <div class="meta-item">
-                                        <i class="far fa-clock"></i>
-                                        <span>${recipe.time}</span>
-                                    </div>
-                                    ` : ''}
+                            <button onclick="goBack()" class="back-button-top">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </button>
+                        </div>
+                        
+                        <div class="recipe-title-container">
+                            <h1 class="recipe-title">${recipe.name}</h1>
+                            <div class="recipe-meta">
+                                ${recipe.category ? `
+                                <div class="meta-item">
+                                    <i class="fas fa-tag"></i>
+                                    <span>${recipe.category}</span>
                                 </div>
+                                ` : ''}
+                                ${recipe.time ? `
+                                <div class="meta-item">
+                                    <i class="far fa-clock"></i>
+                                    <span>${recipe.time}</span>
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                         
@@ -273,6 +278,7 @@
                             </div>
                             ` : ''}
                             
+                            <!-- MENSAGEM DA PLANILHA NO LUGAR DO BOTÃO VOLTAR -->
                             ${recipe.message ? `
                             <div class="recipe-message-box">
                                 <h3 class="message-title"><i class="fas fa-lightbulb"></i> Dica Especial</h3>
@@ -280,8 +286,8 @@
                             </div>
                             ` : ''}
                             
-                            <div class="recipe-actions">
-                                <button onclick="goBack()" class="back-button">
+                            <div class="recipe-footer">
+                                <button onclick="goBack()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
                                     <i class="fas fa-arrow-left"></i> Voltar para Receitas
                                 </button>
                             </div>

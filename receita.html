@@ -20,7 +20,13 @@
             background: white;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .recipe-hero {
@@ -89,7 +95,8 @@
             margin-bottom: 30px;
         }
         
-        .recipe-message-container {
+        /* MENSAGEM DA PLANILHA - EMBAIXO DA RECEITA */
+        .recipe-message-box {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             padding: 30px;
@@ -97,24 +104,36 @@
             margin-top: 40px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        .recipe-message-container::before {
-            content: '"';
+        .recipe-message-box::before {
+            content: '';
             position: absolute;
-            top: -20px;
-            left: 20px;
-            font-size: 100px;
-            color: rgba(255,255,255,0.1);
-            font-family: serif;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
         }
         
         .message-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .message-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+            font-style: italic;
         }
         
         .recipe-actions {
@@ -139,11 +158,13 @@
             gap: 10px;
             font-weight: 500;
             transition: all 0.3s;
+            text-decoration: none;
         }
         
         .back-button:hover {
             background: #34495e;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .action-buttons {
@@ -164,6 +185,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            text-decoration: none;
         }
         
         .action-btn:hover {
@@ -179,6 +201,8 @@
         .recipe-not-found {
             text-align: center;
             padding: 100px 20px;
+            max-width: 600px;
+            margin: 0 auto;
         }
         
         .recipe-not-found i {
@@ -204,6 +228,11 @@
                 padding: 25px;
             }
             
+            .recipe-message-box {
+                padding: 25px;
+                margin-top: 30px;
+            }
+            
             .recipe-actions {
                 padding: 20px;
                 flex-direction: column;
@@ -213,6 +242,28 @@
             .back-button {
                 width: 100%;
                 justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .recipe-hero {
+                height: 250px;
+            }
+            
+            .recipe-title {
+                font-size: 1.6rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .recipe-content {
+                padding: 20px;
+            }
+            
+            .recipe-message-box {
+                padding: 20px;
             }
         }
     </style>
@@ -253,7 +304,7 @@
             <div id="recipe-not-found" class="recipe-not-found" style="display: none;">
                 <i class="fas fa-utensils"></i>
                 <h3>Receita não encontrada</h3>
-                <p>A receita que você procura não está disponível.</p>
+                <p>A receita que você procura não está disponível no momento.</p>
                 <button onclick="goBack()" class="back-button" style="margin-top: 20px;">
                     <i class="fas fa-arrow-left"></i> Voltar para Receitas
                 </button>
@@ -282,10 +333,15 @@
                 try {
                     console.log('🔍 Buscando receita:', id);
                     
-                    // 1. Tentar do localStorage (cache)
-                    let recipe = getRecipeFromLocalStorage(id);
+                    // 1. Tentar do sessionStorage (da navegação)
+                    let recipe = getRecipeFromSessionStorage();
                     
-                    // 2. Se não encontrar, tentar da planilha
+                    // 2. Se não encontrar, tentar do localStorage
+                    if (!recipe) {
+                        recipe = getRecipeFromLocalStorage(id);
+                    }
+                    
+                    // 3. Se ainda não encontrar, tentar da planilha
                     if (!recipe) {
                         recipe = await getRecipeFromSheet(id);
                     }
@@ -297,38 +353,42 @@
                     }
                     
                 } catch (error) {
-                    console.error('Erro:', error);
+                    console.error('Erro ao carregar receita:', error);
                     showNotFound();
+                }
+            }
+            
+            // Buscar receita do sessionStorage
+            function getRecipeFromSessionStorage() {
+                try {
+                    const saved = sessionStorage.getItem('currentRecipe');
+                    if (saved) {
+                        const recipe = JSON.parse(saved);
+                        console.log('📦 Receita encontrada no sessionStorage:', recipe.name);
+                        return recipe;
+                    }
+                    return null;
+                } catch (error) {
+                    console.error('Erro ao ler sessionStorage:', error);
+                    return null;
                 }
             }
             
             // Buscar receita do localStorage
             function getRecipeFromLocalStorage(recipeId) {
                 try {
-                    // Tentar da sessão atual primeiro
-                    const currentRecipe = sessionStorage.getItem('currentRecipe');
-                    if (currentRecipe) {
-                        const recipe = JSON.parse(currentRecipe);
-                        if (recipe.id === recipeId) {
-                            return recipe;
-                        }
-                    }
-                    
-                    // Tentar do cache geral
-                    const allRecipes = localStorage.getItem('saborDeCasaRecipes');
-                    if (allRecipes) {
-                        const recipes = JSON.parse(allRecipes);
-                        const recipe = recipes.find(r => r.id === recipeId);
+                    const allRecipesJson = localStorage.getItem('saborDeCasaRecipes');
+                    if (allRecipesJson) {
+                        const allRecipes = JSON.parse(allRecipesJson);
+                        const recipe = allRecipes.find(r => r.id === recipeId);
                         if (recipe) {
-                            // Salvar na sessão para navegação
-                            sessionStorage.setItem('currentRecipe', JSON.stringify(recipe));
+                            console.log('💾 Receita encontrada no localStorage:', recipe.name);
                             return recipe;
                         }
                     }
-                    
                     return null;
                 } catch (error) {
-                    console.error('Erro no localStorage:', error);
+                    console.error('Erro ao ler localStorage:', error);
                     return null;
                 }
             }
@@ -349,7 +409,7 @@
                         throw new Error('Planilha vazia');
                     }
                     
-                    // Processar receitas
+                    // Processar todas as receitas
                     const headers = data.values[0];
                     let foundRecipe = null;
                     
@@ -357,11 +417,12 @@
                         const row = data.values[i];
                         if (!row || row.length === 0) continue;
                         
-                        const idFromRow = `recipe-${i}-${Date.now()}`;
+                        // Gerar ID compatível
+                        const generatedId = `recipe-${i}-${Date.now()}`;
                         
                         // Criar objeto receita
                         const recipe = {
-                            id: idFromRow,
+                            id: generatedId,
                             name: row[0]?.trim() || '',
                             category: row[1]?.trim() || '',
                             time: row[2]?.trim() || '',
@@ -371,9 +432,11 @@
                             message: row[6]?.trim() || ''
                         };
                         
-                        // Verificar se é a receita procurada
-                        if (idFromRow === recipeId || recipe.name.includes(recipeId)) {
+                        // Verificar se é a receita procurada (por ID ou nome)
+                        if (generatedId === recipeId || recipe.id === recipeId || 
+                            recipe.name.toLowerCase().includes(recipeId.toLowerCase())) {
                             foundRecipe = recipe;
+                            console.log('📄 Receita encontrada na planilha:', recipe.name);
                             break;
                         }
                     }
@@ -388,11 +451,19 @@
             
             // Processar URL da imagem
             function processImageUrl(url) {
-                if (!url) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=600&fit=crop';
+                if (!url || url.trim() === '') {
+                    return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=600&fit=crop&crop=center';
+                }
+                
+                url = url.trim();
                 
                 if (url.includes('drive.google.com')) {
-                    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                    if (match) {
+                    let match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                    if (!match) {
+                        match = url.match(/id=([a-zA-Z0-9-_]+)/);
+                    }
+                    
+                    if (match && match[1]) {
                         return `https://drive.google.com/uc?export=view&id=${match[1]}`;
                     }
                 }
@@ -407,7 +478,10 @@
                 
                 // Formatar texto com quebras de linha
                 const formatText = (text) => {
-                    return text ? text.replace(/\n/g, '<br>') : '';
+                    if (!text) return '';
+                    return text
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*/g, '•');
                 };
                 
                 recipeDetail.innerHTML = `
@@ -422,7 +496,7 @@
                                         <span>${recipe.category}</span>
                                     </div>
                                     ` : ''}
-                                    ${recipe.time ? `
+                                    ${recipe.time && recipe.time !== 'Não especificado' ? `
                                     <div class="meta-item">
                                         <i class="far fa-clock"></i>
                                         <span>${recipe.time}</span>
@@ -433,20 +507,26 @@
                         </div>
                         
                         <div class="recipe-content">
+                            ${recipe.ingredients ? `
                             <div class="section">
                                 <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Ingredientes</h2>
                                 <div class="section-content">${formatText(recipe.ingredients)}</div>
                             </div>
+                            ` : ''}
                             
+                            ${recipe.instructions ? `
                             <div class="section">
                                 <h2 class="section-title"><i class="fas fa-list-ol"></i> Modo de Preparo</h2>
                                 <div class="section-content">${formatText(recipe.instructions)}</div>
                             </div>
-                            
-                            ${recipe.message ? `
-                            <div class="recipe-message-container">
-                                <h3 class="message-title"><i class="fas fa-lightbulb"></i> Dica Especial</h3>
-                                <div>${formatText(recipe.message)}</div>
+                            ` : ''}
+                              <!-- MENSAGEM DA PLANILHA - EMBAIXO DA RECEITA -->
+                            ${recipe.message && recipe.message.trim() !== '' ? `
+                            <div class="recipe-message-box">
+                                <h3 class="message-title">
+                                    <i class="fas fa-lightbulb"></i> Dica Especial
+                                </h3>
+                                <div class="message-content">${formatText(recipe.message)}</div>
                             </div>
                             ` : ''}
                             
@@ -458,8 +538,8 @@
                                     <button onclick="shareRecipe()" class="action-btn" title="Compartilhar">
                                         <i class="fas fa-share-alt"></i>
                                     </button>
-                                    <a href="https://wa.me/?text=Confira esta receita: ${encodeURIComponent(window.location.href)}" 
-                                       target="_blank" class="action-btn" title="WhatsApp">
+                                    <a href="https://wa.me/?text=Confira esta receita do Sabor de Casa: ${encodeURIComponent(window.location.href)}" 
+                                       target="_blank" class="action-btn" title="Compartilhar no WhatsApp">
                                         <i class="fab fa-whatsapp"></i>
                                     </a>
                                 </div>
@@ -476,7 +556,7 @@
             }
         });
         
-        // Funções globais
+        // Função para voltar
         function goBack() {
             if (window.history.length > 1) {
                 window.history.back();
@@ -485,24 +565,35 @@
             }
         }
         
+        // Função para compartilhar
         function shareRecipe() {
             if (navigator.share) {
                 navigator.share({
                     title: document.title,
-                    text: 'Confira esta receita do Sabor de Casa!',
+                    text: 'Confira esta receita incrível do Sabor de Casa!',
                     url: window.location.href
                 });
             } else {
                 navigator.clipboard.writeText(window.location.href)
-                    .then(() => alert('Link copiado!'))
-                    .catch(() => alert('Erro ao copiar'));
+                    .then(() => {
+                        alert('Link copiado para a área de transferência!');
+                    })
+                    .catch(() => {
+                        alert('Erro ao copiar o link.');
+                    });
             }
         }
         
         // Gerenciar botão voltar do navegador/celular
-        window.addEventListener('popstate', function() {
+        window.addEventListener('popstate', function(event) {
             goBack();
         });
+        
+        // Forçar recarregamento se vier de outra página
+        if (performance.navigation.type === 2) {
+            // Navegação pelo botão voltar
+            window.location.reload();
+        }
     </script>
 </body>
 </html>

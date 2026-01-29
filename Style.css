@@ -24,7 +24,8 @@ body {
     line-height: 1.6;
     color: var(--dark-color);
     background-color: var(--light-color);
-    padding-top: 140px;
+    /* AUMENTEI O PADDING PARA A PRIMEIRA RECEITA FICAR MAIS PARA BAIIXO */
+    padding-top: 150px;
 }
 
 .container {
@@ -104,7 +105,7 @@ body {
     background: var(--primary-dark);
 }
 
-/* CATEGORIAS FIXAS - CORRIGIDO */
+/* CATEGORIAS FIXAS - MAIS ESPAÇO PARA PRIMEIRA RECEITA */
 .categories-nav {
     position: fixed;
     top: 70px;
@@ -155,10 +156,11 @@ body {
     font-weight: 600;
 }
 
-/* CONTEÚDO PRINCIPAL */
+/* CONTEÚDO PRINCIPAL - ESPAÇAMENTO CORRIGIDO */
 .main-content {
-    padding: 30px 0 50px;
-    min-height: calc(100vh - 140px);
+    /* AUMENTEI O PADDING TOP PARA A PRIMEIRA RECEITA FICAR MAIS BAIXO */
+    padding: 40px 0 50px;
+    min-height: calc(100vh - 150px);
 }
 
 /* LOADING */
@@ -186,7 +188,7 @@ body {
 .recipes-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+    gap: 30px; /* AUMENTEI O GAP PARA MAIS ESPAÇO */
     opacity: 0;
     transform: translateY(20px);
     animation: fadeInUp 0.5s ease forwards;
@@ -303,10 +305,6 @@ body {
     transform: translateY(-2px);
 }
 
-.recipe-link i {
-    font-size: 0.9rem;
-}
-
 /* SEM RECEITAS */
 .no-recipes {
     text-align: center;
@@ -378,7 +376,7 @@ body {
 /* RESPONSIVIDADE */
 @media (max-width: 768px) {
     body {
-        padding-top: 130px;
+        padding-top: 140px; /* Ajuste para mobile */
     }
     
     .header .container {
@@ -395,19 +393,19 @@ body {
         padding: 10px 0;
     }
     
-    .categories-scroll {
-        padding: 0 10px;
-    }
-    
     .recipes-container {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
+        gap: 25px;
+    }
+    
+    .main-content {
+        padding: 35px 0 45px;
     }
 }
 
 @media (max-width: 576px) {
     body {
-        padding-top: 150px;
+        padding-top: 160px;
     }
     
     .categories-nav {
@@ -416,9 +414,14 @@ body {
     
     .recipes-container {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
     
     .recipe-image {
         height: 180px;
     }
-                                  }
+    
+    .main-content {
+        padding: 30px 0 40px;
+    }
+                    }

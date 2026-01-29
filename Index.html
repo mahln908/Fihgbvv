@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabor de Casa - Receitas</title>
+    <title>Sabor de Casa</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -16,9 +16,7 @@
             </div>
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Pesquisar receitas...">
-                <button id="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
+                <button id="search-button"><i class="fas fa-search"></i></button>
             </div>
         </div>
     </header>
@@ -35,7 +33,7 @@
         <div class="container">
             <div id="loading" class="loading">
                 <div class="spinner"></div>
-                <p>Carregando suas receitas...</p>
+                <p>Carregando receitas...</p>
             </div>
 
             <div id="recipes-container" class="recipes-container"></div>
@@ -43,15 +41,18 @@
             <div id="no-recipes" class="no-recipes hidden">
                 <i class="fas fa-utensils"></i>
                 <h3>Nenhuma receita encontrada</h3>
-                <p>Tente outra pesquisa ou selecione uma categoria diferente.</p>
                 <button onclick="resetFilters()" class="reset-btn">Mostrar todas</button>
             </div>
         </div>
     </main>
 
-    <button id="back-to-top" class="back-to-top hidden">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Sabor de Casa. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <button id="back-to-top" class="back-to-top hidden"><i class="fas fa-arrow-up"></i></button>
 
     <script src="script.js"></script>
 </body>

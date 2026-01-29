@@ -84,6 +84,15 @@
             margin-bottom: 25px;
         }
         
+        .native-banner-container {
+            margin: 25px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #eaeaea;
+        }
+        
         .recipe-message-box {
             background: #2c3e50;
             color: white;
@@ -111,6 +120,56 @@
             text-align: center;
             font-style: italic;
         }
+        
+        .share-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+            border-top: 3px solid #e74c3c;
+        }
+        
+        .share-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .share-facebook { background: #3b5998; }
+        .share-whatsapp { background: #25D366; }
+        .share-copy { background: #6c757d; }
         
         .back-button-top {
             background: #2c3e50;
@@ -209,6 +268,8 @@
             <p>&copy; 2024 Sabor de Casa. Todos os direitos reservados.</p>
         </div>
     </footer>
+
+    <script async="async" data-cfasync="false" src="https://pl28308062.effectivegatecpm.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -371,6 +432,10 @@
                             </div>
                             ` : ''}
                             
+                            <div class="native-banner-container">
+                                <div id="container-258fffa4c883aff5e73fe2bbd027d0d2"></div>
+                            </div>
+                            
                             ${recipe.instructions ? `
                             <div class="section">
                                 <h2 class="section-title"><i class="fas fa-list-ol"></i> Modo de Preparo</h2>
@@ -391,6 +456,23 @@
                             </div>
                             ` : ''}
                             
+                            <div class="share-section">
+                                <h3 class="share-title">
+                                    <i class="fas fa-share-alt"></i> Compartilhar esta Receita
+                                </h3>
+                                <div class="share-buttons">
+                                    <button onclick="shareOnFacebook()" class="share-btn share-facebook" title="Compartilhar no Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </button>
+                                    <button onclick="shareOnWhatsApp()" class="share-btn share-whatsapp" title="Compartilhar no WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                    <button onclick="copyLink()" class="share-btn share-copy" title="Copiar link">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <div class="recipe-footer">
                                 <button onclick="goBack()" class="back-button-footer">
                                     <i class="fas fa-arrow-left"></i> Voltar para Receitas
@@ -409,6 +491,27 @@
         
         function goBack() {
             window.history.back();
+        }
+        
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank');
+        }
+        
+        function shareOnWhatsApp() {
+            const text = encodeURIComponent(`Confira esta receita do Sabor de Casa: ${window.location.href}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+        
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    alert('Link copiado para a área de transferência!');
+                })
+                .catch(() => {
+                    alert('Erro ao copiar o link.');
+                });
         }
     </script>
 </body>

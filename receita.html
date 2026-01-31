@@ -93,33 +93,9 @@
             border: 1px solid #eaeaea;
         }
         
-        .recipe-message-box {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            border-left: 4px solid #e74c3c;
-        }
+        /* REMOVIDO: recipe-message-box (primeira mensagem) */
         
-        .message-title {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .recipe-second-message-box {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-style: italic;
-        }
+        /* REMOVIDO: recipe-second-message-box (segunda mensagem) */
         
         .share-section {
             background: #f8f9fa;
@@ -444,18 +420,9 @@
                             </div>
                             ` : ''}
                             
-                            ${recipe.message ? `
-                            <div class="recipe-message-box">
-                                <h3 class="message-title"><i class="fas fa-lightbulb"></i> Dica Especial</h3>
-                                <div>${formatText(recipe.message)}</div>
-                            </div>
-                            ` : ''}
+                            <!-- REMOVIDO: Primeira mensagem -->
                             
-                            ${recipe.message ? `
-                            <div class="recipe-second-message-box">
-                                <p><strong>${formatText(recipe.message)}</strong></p>
-                            </div>
-                            ` : ''}
+                            <!-- REMOVIDO: Segunda mensagem -->
                             
                             <div class="share-section">
                                 <h3 class="share-title">

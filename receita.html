@@ -93,10 +93,6 @@
             border: 1px solid #eaeaea;
         }
         
-        /* REMOVIDO: recipe-message-box (primeira mensagem) */
-        
-        /* REMOVIDO: recipe-second-message-box (segunda mensagem) */
-        
         .share-section {
             background: #f8f9fa;
             padding: 25px;
@@ -420,10 +416,6 @@
                             </div>
                             ` : ''}
                             
-                            <!-- REMOVIDO: Primeira mensagem -->
-                            
-                            <!-- REMOVIDO: Segunda mensagem -->
-                            
                             <div class="share-section">
                                 <h3 class="share-title">
                                     <i class="fas fa-share-alt"></i> Compartilhar esta Receita
@@ -458,7 +450,8 @@
         });
         
         function goBack() {
-            window.history.back();
+            // Redireciona para o site sabor de casa.blog.br
+            window.location.href = 'https://sabordecasa.blog.br';
         }
         
         function shareOnFacebook() {

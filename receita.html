@@ -60,18 +60,17 @@
             font-size: 0.9rem;
         }
         
-        .recipe-content {
-            padding: 30px;
+        .ad-container {
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            text-align: center;
+            border-bottom: 1px solid #eaeaea;
+            border-top: 1px solid #eaeaea;
         }
         
-        /* ANÚNCIO ADSTERRA - ENTRE IMAGEM E RECEITA */
-        .adsterra-container {
-            margin: 20px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #eaeaea;
+        .recipe-content {
+            padding: 30px;
         }
         
         .section-title {
@@ -317,7 +316,6 @@
                         throw new Error('Planilha vazia');
                     }
                     
-                    const headers = data.values[0];
                     const rows = data.values.slice(1);
                     
                     for (let i = 0; i < rows.length; i++) {
@@ -395,11 +393,7 @@
                             </div>
                         </div>
                         
-                        <!-- ANÚNCIO ADSTERRA - ENTRE IMAGEM E RECEITA -->
-                        <div class="adsterra-container">
-                            <script async="async" data-cfasync="false" src="https://pl28308062.profitablecpmratenetwork.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js"></script>
-                            <div id="container-258fffa4c883aff5e73fe2bbd027d0d2"></div>
-                        </div>
+                        <div class="ad-container" id="adsterra-container"></div>
                         
                         <div class="recipe-content">
                             ${recipe.ingredients ? `
@@ -442,12 +436,28 @@
                     </div>
                 `;
                 
-                // Carregar o script do Adsterra dinamicamente
-                const adsterraScript = document.createElement('script');
-                adsterraScript.src = 'https://pl28308062.profitablecpmratenetwork.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js';
-                adsterraScript.async = true;
-                adsterraScript.setAttribute('data-cfasync', 'false');
-                document.body.appendChild(adsterraScript);
+                // Carregar anúncio Adsterra
+                loadAdsterra();
+            }
+            
+            function loadAdsterra() {
+                // Criar o script do Adsterra
+                const script = document.createElement('script');
+                script.src = 'https://pl28308062.profitablecpmratenetwork.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js';
+                script.async = true;
+                script.setAttribute('data-cfasync', 'false');
+                
+                // Criar a div do anúncio
+                const adDiv = document.createElement('div');
+                adDiv.id = 'container-258fffa4c883aff5e73fe2bbd027d0d2';
+                
+                // Adicionar ao container
+                const adContainer = document.getElementById('adsterra-container');
+                if (adContainer) {
+                    adContainer.innerHTML = '';
+                    adContainer.appendChild(adDiv);
+                    adContainer.appendChild(script);
+                }
             }
             
             function showNotFound() {
@@ -482,4 +492,4 @@
         }
     </script>
 </body>
-                                </html>
+</html>

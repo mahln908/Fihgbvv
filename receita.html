@@ -64,6 +64,16 @@
             padding: 30px;
         }
         
+        /* ANÚNCIO ADSTERRA - ENTRE IMAGEM E RECEITA */
+        .adsterra-container {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #eaeaea;
+        }
+        
         .section-title {
             font-size: 1.4rem;
             color: #e74c3c;
@@ -385,6 +395,12 @@
                             </div>
                         </div>
                         
+                        <!-- ANÚNCIO ADSTERRA - ENTRE IMAGEM E RECEITA -->
+                        <div class="adsterra-container">
+                            <script async="async" data-cfasync="false" src="https://pl28308062.profitablecpmratenetwork.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js"></script>
+                            <div id="container-258fffa4c883aff5e73fe2bbd027d0d2"></div>
+                        </div>
+                        
                         <div class="recipe-content">
                             ${recipe.ingredients ? `
                             <div class="section">
@@ -425,6 +441,13 @@
                         </div>
                     </div>
                 `;
+                
+                // Carregar o script do Adsterra dinamicamente
+                const adsterraScript = document.createElement('script');
+                adsterraScript.src = 'https://pl28308062.profitablecpmratenetwork.com/258fffa4c883aff5e73fe2bbd027d0d2/invoke.js';
+                adsterraScript.async = true;
+                adsterraScript.setAttribute('data-cfasync', 'false');
+                document.body.appendChild(adsterraScript);
             }
             
             function showNotFound() {
@@ -434,8 +457,7 @@
         });
         
         function goBack() {
-            // Redireciona para o site sabor de casa.blog.br
-            window.location.href = 'https://sabordecasa.blog.br';
+            window.history.back();
         }
         
         function shareOnFacebook() {
@@ -460,4 +482,4 @@
         }
     </script>
 </body>
-</html>
+                                </html>
